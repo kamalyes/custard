@@ -1,5 +1,5 @@
-import os
 import abc
+import os
 import pathlib
 
 if os.name == 'nt':

@@ -16,8 +16,8 @@ from typing import Any, Optional, TypeVar
 from sqlalchemy.orm import Query
 from sqlalchemy.sql import Select
 
-from ..api import create_page, resolve_params
-from ..bases import AbstractPage, AbstractParams
+from .api import create_page, resolve_params
+from .bases import AbstractPage, AbstractParams
 
 T = TypeVar("T", Select, Query)
 

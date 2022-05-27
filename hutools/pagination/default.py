@@ -40,10 +40,10 @@ class Page(BasePage[T], Generic[T]):
 
     @classmethod
     def create(
-        cls,
-        items: Sequence[T],
-        total: int,
-        params: AbstractParams,
+            cls,
+            items: Sequence[T],
+            total: int,
+            params: AbstractParams,
     ) -> Page[T]:
         if not isinstance(params, Params):
             raise ValueError("Page should be used with Params")

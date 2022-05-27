@@ -42,10 +42,10 @@ class LimitOffsetPage(BasePage[T], Generic[T]):
 
     @classmethod
     def create(
-        cls,
-        items: Sequence[T],
-        total: int,
-        params: AbstractParams,
+            cls,
+            items: Sequence[T],
+            total: int,
+            params: AbstractParams,
     ) -> LimitOffsetPage[T]:
         return cls(
             total=total,

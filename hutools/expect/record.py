@@ -46,7 +46,7 @@ def handle_exception(retry_times=0, error_detail_level=0, is_throw_error=False, 
         time_sleep: 休眠时间
         logger:
     Returns:
-    Example::
+    Examples:
         >>> from hutools.function import bind_run_many_times
         >>> import json
         >>> import time

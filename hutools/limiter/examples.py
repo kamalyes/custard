@@ -13,8 +13,8 @@ import aioredis
 import uvicorn
 from fastapi import Depends, FastAPI
 
-from app.middleware.limiter import PikaLimiter
-from app.middleware.limiter.depends import RateLimiter
+from . import PikaLimiter
+from .depends import RateLimiter
 
 app = FastAPI()
 

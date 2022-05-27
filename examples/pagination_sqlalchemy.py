@@ -19,8 +19,8 @@ from sqlalchemy import Column, Integer, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session, sessionmaker
 
-from app.middleware.pagination import LimitOffsetPage, Page, add_pagination
-from app.middleware.pagination.ext.sync_sqlalchemy import paginate
+from hutools.pagination import LimitOffsetPage, Page, add_pagination
+from hutools.pagination.sync_sqlalchemy import paginate
 
 faker = Faker()
 

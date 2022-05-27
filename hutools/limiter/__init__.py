@@ -17,7 +17,7 @@ import aioredis
 from starlette.requests import Request
 from starlette.responses import Response
 
-from app.core.handler.execres import XRateLimitException
+from .execres import XRateLimitException
 
 
 async def default_identifier(request: Request):

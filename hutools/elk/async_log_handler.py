@@ -5,7 +5,7 @@ replacement for the python standard log handler 'RotateFileHandler', the primary
 difference being that this handler will continue to write to the same file if
 the file cannot be rotated for some reason, whereas the RotatingFileHandler will
 strictly adhere to the maximum file size.  Unfortunately, if you are using the
-RotatingFileHandler on Windows, you will find that once an attempted rotation
+RotatingFileHandler on win, you will find that once an attempted rotation
 fails, all subsequent log messages are dropped.  The other major advantage of
 this module is that multiple processes can safely write to a single log file.
 
@@ -18,7 +18,7 @@ you afford to have processes blocked by file locks?
 
 Concurrent access is handled by using file locks, which should ensure that log
 messages are not dropped or clobbered. This means that a file lock is acquired
-and released for every log message that is written to disk. (On Windows, you may
+and released for every log message that is written to disk. (On win, you may
 also run into a temporary situation where the log file must be opened and closed
 for each log message.) This can have potentially performance implications. In my
 testing, performance was more than adequate, but if you need a high-volume or
@@ -118,11 +118,11 @@ class ConcurrentRotatingFileHandler(BaseRotatingHandler):
         :param chmod: permission of log files.  (Unix only)
         :param umask: umask settings to temporarily make when creating log files.
             This is an alternative to chmod. It is mainly for Unix systems but
-            can also be used on Windows. The Windows security model is more complex
+            can also be used on win. The win security model is more complex
             and this is not the same as changing access control entries.
-        :param newline: None (default): use CRLF on Windows, LF on Unix. Set to '' for
+        :param newline: None (default): use CRLF on win, LF on Unix. Set to '' for
         no translation, in which case the 'terminator' argument determines the line ending.
-        :param terminator: set to '\r\n' along with newline='' to force Windows style
+        :param terminator: set to '\r\n' along with newline='' to force win style
         newlines regardless of OS platform.
         :param unicode_error_policy: should be one of 'ignore', 'replace', 'strict'
         Determines what happens when a message is written to the log that the stream encoding
@@ -383,7 +383,7 @@ class ConcurrentRotatingFileHandler(BaseRotatingHandler):
 
     def _do_lock(self):
         if self.is_locked:
-            return   # already locked... recursive?
+            return  # already locked... recursive?
         self._open_lockfile()
         if self.stream_lock:
             for i in range(self.maxLockAttempts):
@@ -433,7 +433,7 @@ class ConcurrentRotatingFileHandler(BaseRotatingHandler):
             self._close()
             return
 
-        # Determine if we can rename the log file or not. Windows refuses to
+        # Determine if we can rename the log file or not. win refuses to
         # rename an open file, Unix is inode base so it doesn't care.
 
         # Attempt to rename logfile to tempname:
@@ -518,7 +518,7 @@ class ConcurrentRotatingFileHandler(BaseRotatingHandler):
         if self.maxBytes > 0:  # are we rolling over?
             self.stream = self.do_open()
             try:
-                self.stream.seek(0, 2)  # due to non-posix-compliant Windows feature
+                self.stream.seek(0, 2)  # due to non-posix-compliant win feature
                 if self.stream.tell() >= self.maxBytes:
                     return True
             finally:

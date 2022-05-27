@@ -10,16 +10,14 @@
 @Desc    :  This library is provided to allow standard python logging to output log data as JSON formatted strings
 """
 
-import logging
-import json
-import re
-from datetime import date, datetime, time, timezone
-import traceback
 import importlib
-
-from inspect import istraceback
-
+import json
+import logging
+import re
+import traceback
 from collections import OrderedDict
+from datetime import date, datetime, time, timezone
+from inspect import istraceback
 
 # skip natural LogRecord attributes
 # http://docs.python.org/library/logging.html#logrecord-attributes

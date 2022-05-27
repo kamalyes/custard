@@ -19,7 +19,7 @@ def bind_run_many_times(times=1, logger=None):
         times: 运行次数
         logger: 日志开关
     Returns: 没有捕获错误，出错误就中断运行，可以配合handle_exception装饰器不管是否错误都运行n次。
-    Example::
+    Examples:
         >>> import time
         >>> @bind_run_many_times(5)
         ... def test_run_many_times_():

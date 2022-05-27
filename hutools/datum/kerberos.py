@@ -64,7 +64,7 @@ class Kerberos:
         Args:
             key: 加密后的字符
         Returns:
-        Example::
+        Examples:
             >>> print(Kerberos.base64_encode("Abc@1235678"))
         """
         return base64.b64encode(key.encode())
@@ -76,7 +76,7 @@ class Kerberos:
         Args:
             binary: 需要转成2进制格式才可以转换，所以我们这里再手动转换一下
         Returns:
-        Example::
+        Examples:
             >>> print(Kerberos.base64_decode("QWJjQDEyMzU2Nzg="))
         """
         missing_padding = 4 - len(binary) % 4
@@ -92,7 +92,7 @@ class Kerberos:
             salt: 秘钥
             decode_msg: 需加密的字符串
         Returns:
-        Example::
+        Examples:
             >>> print(Kerberos.md5_encode("1235678"))
         """
         if decode_msg is None:
@@ -109,7 +109,7 @@ class Kerberos:
         Args:
             decode_msg: 需加密的字符串
         Returns:
-        Example::
+        Examples:
             >>> print(Kerberos.sha1_decode("Hello Word sha1Encrypt"))
         """
         sh = sha1()

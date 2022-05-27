@@ -22,7 +22,7 @@ class Moment:
         Args:
             layout: 10timestamp， 13timestamp,  else  时间类型
         Returns:
-        Example::
+        Examples:
             >>> print(Moment.get_now_time("%Y-%m-%d %H:%M:%S"))
             >>> print(Moment.get_now_time("10timestamp"))
             >>> print(Moment.get_now_time("13timestamp"))
@@ -51,7 +51,7 @@ class Moment:
             custom:
             time_format_str:
         Returns:
-        Example::
+        Examples:
             >>> print(Moment.time_format(custom="2022-03-30 11:05:2"))
         """
         try:
@@ -92,7 +92,7 @@ class Moment:
             custom:
             time_format_str:
         Returns:
-        Example::
+        Examples:
             >>> import random
             >>> custom_time = ["2022-03-1 11:15:15","2022-03-1 11:15",
             ... "2022-03-1 11","2022-03-1 ","2022-03-1"]
@@ -117,7 +117,7 @@ class Moment:
         Args:
             timestamp:
         Returns:
-        Example::
+        Examples:
             >>> print(Moment.timestamp_to_date(1603282677.5209892))
         """
         if not isinstance(timestamp, (int, float)):
@@ -146,7 +146,7 @@ class Moment:
             start: 开始日期
             end:   结束日期
         Returns:
-        Example::
+        Examples:
             >>> print(Moment.calc_time_diff("2020-06-05", "2020-07-01"))
         """
         date_list = []
@@ -165,7 +165,7 @@ class Moment:
         Args:
             format_time:
         Returns:
-        Example::
+        Examples:
             >>> print(Moment.time_to_timestamp("2020-06-01 18:50:00"))
         """
         return int(time.mktime(time.strptime(format_time, "%Y-%m-%d %H:%M:%S")))
@@ -189,7 +189,7 @@ class Moment:
             time2: 
         Returns:
         """ """
-        Example::
+        Examples:
             >>> print(Moment.compare_time("2021-08-23 17:11:37", "2021-08-22 17:11:37"))
         """
         time1 = datetime.datetime.strptime(time1, "%Y-%m-%d %H:%M:%S")

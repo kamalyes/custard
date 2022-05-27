@@ -16,24 +16,24 @@ from pydantic import conint
 from starlette.requests import Request
 from starlette.responses import Response
 
-from app.enums.sysvar import GlobalVarEnum
-from app.middleware.limiter import PikaLimiter
+from . import PikaLimiter
+from .enums import GlobalVarEnum
 
 
 class RateLimiter:
     def __init__(
-        self,
-        counts: conint(ge=0) = 1,
-        milliseconds: conint(ge=-1) = 0,
-        seconds: conint(ge=-1) = 0,
-        minutes: conint(ge=-1) = 0,
-        hours: conint(ge=-1) = 0,
-        identifier: Optional[Callable] = None,
-        callback: Optional[Callable] = None,
+            self,
+            counts: conint(ge=0) = 1,
+            milliseconds: conint(ge=-1) = 0,
+            seconds: conint(ge=-1) = 0,
+            minutes: conint(ge=-1) = 0,
+            hours: conint(ge=-1) = 0,
+            identifier: Optional[Callable] = None,
+            callback: Optional[Callable] = None,
     ):
         self.counts = counts
         self.milliseconds = (
-            milliseconds + 1000 * seconds + 60000 * minutes + 3600000 * hours
+                milliseconds + 1000 * seconds + 60000 * minutes + 3600000 * hours
         )
         self.identifier = identifier
         self.callback = callback

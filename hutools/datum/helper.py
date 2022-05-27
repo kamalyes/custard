@@ -31,7 +31,7 @@ class Helper:
             max_num: 邮箱地址最大长度
             rad_count: 所生成的数量
         returns:
-        example::
+        Examples:
             >>> print(Helper.rand_mail(email_type="@qq.com", max_num=10, rad_count=5))
         """
         temp = []
@@ -72,7 +72,7 @@ class Helper:
             max_num: 最多可生成的长度
             rad_count: 需要生成的数量
         returns:
-        example::
+        Examples:
             >>> print(Helper.rand_verify_code(max_num=6, rad_count=1))
         """
         # 注意： 这里我们生成的是0-9a-za-z的列表，当然你也可以指定这个list，这里很灵活
@@ -102,7 +102,7 @@ class Helper:
         args:
             length:
         returns:
-        example::
+        Examples:
             >>> print(Helper.rand_str_list(length=5))
         """
         numbers = "".join(map(str, [i for i in range(10) if i != 4]))  # 数字
@@ -117,7 +117,7 @@ class Helper:
         args:
             num_length:
         returns:
-        example::
+        Examples:
             >>> print(str(Helper.rand_str(5)).title())
         """
         str_list = [
@@ -472,7 +472,7 @@ class Helper:
         :param method: 加密风格 base64 md5 sha1
         :param target_key:
         :return:
-        example::
+        Examples:
             >>> print(Helper.set_encrypt_vars("base64_decode", "${randint_number}"))
             >>> print(Helper.set_encrypt_vars("base64_decode", "$var_test_001"))
             >>> print(Helper.set_encrypt_vars("base64_encode", "{{custom_null_var}}"))
@@ -502,7 +502,7 @@ class Helper:
         函数助手，输出以下常用随机数，返回结果值。支持的函数详情见func_dict:
         :param name:  函数名，需要在func_dict存在的key值
         :return:  随机函数调用结果 or None
-        example::
+        Examples:
             >>> print(Helper.cite('${randint_number()}'))
             >>> print(Helper.cite('${randint_number(1,55)}'))
             >>> print(Helper.cite('${rand_letters(5)}'))
@@ -597,7 +597,7 @@ class Helper:
         举例 {"product": {"brand_id": "${randint_number(1,2)}", "category_id": '${rand_float_number(1,2,3)}',"test": {"test": "${rand_sample(123567890abc,30)}"}}}
         转化后 {'product': {'brand_id': 7, 'category_id': 1.358, 'test': {'test': 'c071135252718592b58007a10093b6'}}}
         :return 转化后的数据 若无则返回原始值
-        example::
+        Examples:
             >>> print(Helper.comb_data({"product": {"brand_id": "{{int}}", "category_id": '${rand_float_number(1,2,3)}' }}))
             >>> print(Helper.comb_data({"create_time": "${rand_time(10timestamp)}"}))
             >>> print(Helper.comb_data({"key1":"$enc_(base64,base64参数加密)"}))

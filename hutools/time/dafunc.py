@@ -183,7 +183,7 @@ def calc_time(logger: Any = None):
     Args:
         logger:
     Returns:
-    Example::
+    Examples:
         >>> @calc_time("（自定义模块名）")
         ... def test_calc_time(num=100):
         ...     return sum([x for x in range(num + 1)])

@@ -33,9 +33,9 @@ class LimitOffsetPage(DefaultLimitOffsetPage, Generic[T]):
 
 
 def paginate(
-    iterable: Iterable[T],
-    params: Optional[AbstractParams] = None,
-    total: Optional[int] = None,
+        iterable: Iterable[T],
+        params: Optional[AbstractParams] = None,
+        total: Optional[int] = None,
 ) -> AbstractPage[T]:
     params = resolve_params(params)
     raw_params = params.to_raw_params()

@@ -11,10 +11,10 @@
 """
 import elk_config_default
 from .filelock import FileLock
-from .print_hook import xprint, patch_print, reverse_patch_print, stdout_write, stderr_write, print_raw, \
-    is_main_process, only_print_on_main_process
 from .log_manager import LogManager, LoggerLevelSetterMixin, LoggerMixin, LoggerMixinDefaultWithFileHandler, get_logger, \
     get_logger_with_filehanlder
+from .print_hook import xprint, patch_print, reverse_patch_print, stdout_write, stderr_write, print_raw, \
+    is_main_process, only_print_on_main_process
 
 if elk_config_default.SHOW_PYCHARM_COLOR_SETTINGS:
     only_print_on_main_process(

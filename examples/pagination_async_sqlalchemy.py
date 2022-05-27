@@ -21,7 +21,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.future import select
 from sqlalchemy.orm import sessionmaker
 
-from pagination import LimitOffsetPage, Page, paginate, add_pagination
+from hutools.pagination import LimitOffsetPage, Page, paginate, add_pagination
 
 faker = Faker()
 

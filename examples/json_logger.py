@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 # !/usr/bin/env python 3.9.11
 """
-@File    :  test_json_logger.py
+@File    :  json_logger.py
 @Time    :  2022/5/27 12:09 AM
 @Author  :  YuYanQing
 @Version :  1.0
@@ -9,12 +9,12 @@
 @License :  (C)Copyright 2022-2026
 @Desc    :  None
 """
-import unittest.mock
-import logging
 import json
+import logging
+import random
 import sys
 import traceback
-import random
+import unittest.mock
 
 from hutools.json import jsonlogger
 

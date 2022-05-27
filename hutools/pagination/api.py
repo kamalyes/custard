@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 # !/usr/bin/env python 3.9.11
 """
-@File    :  __init__.py
+@File    :  api.py
 @Time    :  2022/5/1 8:21 PM
 @Author  :  YuYanQing
 @Version :  1.0
@@ -99,7 +99,7 @@ def _create_page_dependency(page: Type[AbstractPage]) -> Callable[[], AsyncItera
 
 
 def _create_params_dependency(
-    params: Type[TAbstractParams],
+        params: Type[TAbstractParams],
 ) -> Callable[[TAbstractParams], AsyncIterator[TAbstractParams]]:
     async def _pagination_params(*args, **kwargs) -> AsyncIterator[params]:  # type: ignore
         val = params(*args, **kwargs)

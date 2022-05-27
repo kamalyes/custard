@@ -12,3 +12,5 @@
 from .helper import Helper
 from .kerberos import Kerberos
 from .regular import RegEx
+from .snowflake import generator
+from .useragent import firefox, safari, internet_explorer, opera

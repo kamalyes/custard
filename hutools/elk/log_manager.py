@@ -18,7 +18,6 @@ concurrent_log_handler的ConcurrentRotatingFileHandler解决了logging模块自�
 使极限多进程安全切片的文件日志写入性能在win下提高100倍，linux下提高10倍。
 
 """
-import multiprocessing
 import typing
 from functools import lru_cache
 from logging import FileHandler

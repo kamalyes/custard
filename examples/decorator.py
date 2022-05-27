@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 # !/usr/bin/env python 3.9.11
 """
-@File    :  test_decorator.py
+@File    :  decorator.py
 @Time    :  2022/5/27 12:09 AM
 @Author  :  YuYanQing
 @Version :  1.0

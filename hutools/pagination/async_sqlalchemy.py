@@ -15,9 +15,9 @@ from typing import TYPE_CHECKING, Optional
 
 from sqlalchemy import func, select
 
+from .api import create_page, resolve_params
+from .bases import AbstractPage, AbstractParams
 from .sync_sqlalchemy import paginate_query
-from ..api import create_page, resolve_params
-from ..bases import AbstractPage, AbstractParams
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession

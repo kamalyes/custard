@@ -27,7 +27,7 @@ def keep_circulating(time_sleep=0.001, exit_if_function_run_succeed=True, is_dis
         daemon: 如果使用线程，那么是否使用守护线程，使这个while 1有机会自动结束。
         logger:
     Returns:
-    Example::
+    Examples:
         >>> @keep_circulating(3, block=False)
         ... def test_keep_circulating(index = 0):
         ...     if isinstance(index, str):

@@ -20,9 +20,9 @@ from threading import Lock, Thread
 import pymongo
 import requests
 from elasticsearch import Elasticsearch, helpers
-import elk_config_default
 from kafka import KafkaProducer
 
+import elk_config_default
 from hutools.elk import xprint, FileLock
 from hutools.elk.async_log_handler import ConcurrentRotatingFileHandler
 from hutools.json import JsonFormatter
@@ -575,7 +575,7 @@ class ColorHandler(logging.Handler):
 class ConcurrentRotatingFileHandlerWithBufferInitiativeWin(ConcurrentRotatingFileHandler):
     """
     ConcurrentRotatingFileHandler 解决了多进程下文件切片问题，但频繁操作文件锁，带来程序性能巨大下降。
-    反复测试极限日志写入频次，在windows上比不切片的写入性能降低100倍。在linux上比不切片性能降低10倍。多进程切片文件锁在windows使用pywin32，在linux上还是要fcntl实现。
+    反复测试极限日志写入频次，在win上比不切片的写入性能降低100倍。在linux上比不切片性能降低10倍。多进程切片文件锁在win使用pywin32，在linux上还是要fcntl实现。
     所以此类使用缓存1秒钟内的日志为一个长字符串再插入，大幅度地降低了文件加锁和解锁的次数，速度比不做多进程安全切片的文件写入速度更快。
     主动触发写入文件。
     """
@@ -648,7 +648,7 @@ class ConcurrentRotatingFileHandlerWithBufferInitiativeLinux00000000(
     ConcurrentRotatingFileHandlerWithBufferInitiativeWin):
     """
     ConcurrentRotatingFileHandler 解决了多进程下文件切片问题，但频繁操作文件锁，带来程序性能巨大下降。
-    反复测试极限日志写入频次，在windows上比不切片的写入性能降低100倍。在linux上比不切片性能降低10倍。多进程切片文件锁在windows使用pywin32，在linux上还是要fcntl实现。
+    反复测试极限日志写入频次，在win上比不切片的写入性能降低100倍。在linux上比不切片性能降低10倍。多进程切片文件锁在win使用pywin32，在linux上还是要fcntl实现。
     所以此类使用缓存1秒钟内的日志为一个长字符串再插入，大幅度地降低了文件加锁和解锁的次数，速度比不做多进程安全切片的文件写入更快。
     主动触发写入文件。
     """
@@ -1080,4 +1080,3 @@ class ConcurrentSecondRotatingFileHandlerLinux(logging.Handler):
 
 
 ConcurrentDayRotatingFileHandler = ConcurrentDayRotatingFileHandlerWin if os_name == 'nt' else ConcurrentDayRotatingFileHandlerLinux
-
