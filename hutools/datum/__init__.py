@@ -9,7 +9,7 @@
 @License :  (C)Copyright 2022-2026
 @Desc    :  None
 """
-from decode import unidecode
+from .decode import unidecode
 from .factory import MockHelper
 from .kerberos import Kerberos
 from .regular import RegEx
