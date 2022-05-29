@@ -157,8 +157,8 @@ class RegEx:
     def match_valid_url(context):
         """
         效验url
-        :param context:
-        :return:
+        context:
+        Returns:
         Examples:
             >>> examples = ["https://www.baidu.com", "127.0.0.1:8000", "https://www.sweets.cn:8080", "127.16.0.0",
             ... 17, 12355678901235567, "QS356", "哈哈哈", "12356", "abc", "ABC" "QS12356", "QS12356哈哈哈", None,
@@ -172,9 +172,10 @@ class RegEx:
     def match_trail_type(context, method=None):
         """
         效验尾缀格式
-        :param context:
-        :param method:
-        :return:
+        Args:
+            context:
+            method:
+        Returns:
         Examples:
             >>> examples = [".bat", ".image", ".png", "image"]
             >>> RegEx.list_jobs(RegEx.match_trail_type, examples)

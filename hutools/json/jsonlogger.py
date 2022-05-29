@@ -31,11 +31,14 @@ RESERVED_ATTRS = (
 
 def merge_record_extra(record, target, reserved):
     """
-    Merges extra attributes from LogRecord object into target dictionary
+        Merges extra attributes from LogRecord object into target dictionary
+    Args:
+        record: logging.LogRecord
+        target: dict to update
+        reserved: dict or list with reserved keys to skip
 
-    :param record: logging.LogRecord
-    :param target: dict to update
-    :param reserved: dict or list with reserved keys to skip
+    Returns:
+        
     """
     for key, value in record.__dict__.items():
         # this allows to have numeric keys
@@ -86,27 +89,29 @@ class JsonFormatter(logging.Formatter):
 
     def __init__(self, *args, **kwargs):
         """
-        :param json_default: a function for encoding non-standard objects
-            as outlined in http://docs.python.org/2/library/json.html
-        :param json_encoder: optional custom encoder
-        :param json_serializer: a :meth:`json.dumps`-compatible callable
-            that will be used to serialize the log record.
-        :param json_indent: an optional :meth:`json.dumps`-compatible numeric value
-            that will be used to customize the indent of the output json.
-        :param prefix: an optional string prefix added at the beginning of
-            the formatted string
-        :param rename_fields: an optional dict, used to rename field names in the output.
-            Rename message to @message: {'message': '@message'}
-        :param static_fields: an optional dict, used to add fields with static values to all logs
-        :param json_indent: indent parameter for json.dumps
-        :param json_ensure_ascii: ensure_ascii parameter for json.dumps
-        :param reserved_attrs: an optional list of fields that will be skipped when
-            outputting json log record. Defaults to all log record attributes:
-            http://docs.python.org/library/logging.html#logrecord-attributes
-        :param timestamp: an optional string/boolean field to add a timestamp when
-            outputting the json log record. If string is passed, timestamp will be added
-            to log record using string as key. If True boolean is passed, timestamp key
-            will be "timestamp". Defaults to False/off.
+        
+        Args:
+            json_default: a function for encoding non-standard objects
+                as outlined in http://docs.python.org/2/library/json.html
+            json_encoder: optional custom encoder
+            json_serializer: a :meth:`json.dumps`-compatible callable
+                that will be used to serialize the log record.
+            json_indent: an optional :meth:`json.dumps`-compatible numeric value
+                that will be used to customize the indent of the output json.
+            prefix: an optional string prefix added at the beginning of
+                the formatted string
+            rename_fields: an optional dict, used to rename field names in the output.
+                Rename message to @message: {'message': '@message'}
+            static_fields: an optional dict, used to add fields with static values to all logs
+            json_indent: indent parameter for json.dumps
+            json_ensure_ascii: ensure_ascii parameter for json.dumps
+            reserved_attrs: an optional list of fields that will be skipped when
+                outputting json log record. Defaults to all log record attributes:
+                http://docs.python.org/library/logging.html#logrecord-attributes
+            timestamp: an optional string/boolean field to add a timestamp when
+                outputting the json log record. If string is passed, timestamp will be added
+                to log record using string as key. If True boolean is passed, timestamp key
+                will be "timestamp". Defaults to False/off.
         """
         self.json_default = self._str_to_fn(kwargs.pop("json_default", None))
         self.json_encoder = self._str_to_fn(kwargs.pop("json_encoder", None))
@@ -132,11 +137,15 @@ class JsonFormatter(logging.Formatter):
 
     def _str_to_fn(self, fn_as_str):
         """
-        If the argument is not a string, return whatever was passed in.
-        Parses a string such as package.module.function, imports the module
-        and returns the function.
+            If the argument is not a string, return whatever was passed in.
+            Parses a string such as package.module.function, imports the module
+            and returns the function.
 
-        :param fn_as_str: The string to parse. If not a string, return it.
+        Args:
+            fn_as_str: The string to parse. If not a string, return it.
+
+        Returns:
+
         """
         if not isinstance(fn_as_str, str):
             return fn_as_str

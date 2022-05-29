@@ -9,7 +9,8 @@
 @License :  (C)Copyright 2022-2026
 @Desc    :  None
 """
-from .helper import Helper
+from decode import unidecode
+from .factory import MockHelper
 from .kerberos import Kerberos
 from .regular import RegEx
 from .snowflake import generator

@@ -10,6 +10,8 @@
 @Desc    :  None
 """
 from functools import wraps
+from statistics import stdev, fmean as mean
+from time import perf_counter
 
 
 def bind_run_many_times(times=1, logger=None):

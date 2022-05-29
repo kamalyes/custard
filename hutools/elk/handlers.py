@@ -40,8 +40,8 @@ class MongoHandler(logging.Handler):
 
     def __init__(self, mongo_url, mongo_database='logs'):
         """
-        :param mongo_url:  mongo连接
-        :param mongo_database: 保存日志的数据库，默认使用logs数据库
+        mongo_url:  mongo连接
+        mongo_database: 保存日志的数据库，默认使用logs数据库
         """
         logging.Handler.__init__(self)
         mongo_client = pymongo.MongoClient(mongo_url)
@@ -307,9 +307,9 @@ class ElasticHandler(logging.Handler):
 
     def __init__(self, elastic_hosts: list, elastic_port, index_prefix='pylog-'):
         """
-        :param elastic_hosts:  es的ip地址，数组类型
-        :param elastic_port：  es端口
-        :param index_prefix: index名字前缀。
+        elastic_hosts:  es的ip地址，数组类型
+        elastic_port：  es端口
+        index_prefix: index名字前缀。
         """
         logging.Handler.__init__(self)
         self._es_client = Elasticsearch(elastic_hosts, port=elastic_port)
@@ -610,8 +610,8 @@ class ConcurrentRotatingFileHandlerWithBufferInitiativeWin(ConcurrentRotatingFil
     def emit(self, record):
         """
         emit已经在logger的handle方法中加了锁，所以这里的重置上次写入时间和清除buffer_msgs不需要加锁了。
-        :param record:
-        :return:
+        record:
+        Returns:
         """
         try:
             msg = self.format(record)
@@ -683,15 +683,15 @@ class CompatibleSMTPSSLHandler(handlers.SMTPHandler):
                  credentials=None, secure=None, timeout=5.0, is_use_ssl=True, mail_time_interval=0):
         """
 
-        :param mailhost:
-        :param fromaddr:
-        :param toaddrs:
-        :param subject:
-        :param credentials:
-        :param secure:
-        :param timeout:
-        :param is_use_ssl:
-        :param mail_time_interval: 发邮件的时间间隔，可以控制日志邮件的发送频率，为0不进行频率限制控制，如果为60，代表1分钟内最多发送一次邮件
+        mailhost:
+        fromaddr:
+        toaddrs:
+        subject:
+        credentials:
+        secure:
+        timeout:
+        is_use_ssl:
+        mail_time_interval: 发邮件的时间间隔，可以控制日志邮件的发送频率，为0不进行频率限制控制，如果为60，代表1分钟内最多发送一次邮件
         """
         super().__init__(mailhost, fromaddr, toaddrs, subject,
                          credentials, secure, timeout)
@@ -856,8 +856,8 @@ class ConcurrentDayRotatingFileHandlerWin(logging.Handler):
     def emit(self, record: logging.LogRecord):
         """
         emit已经在logger的handle方法中加了锁，所以这里的重置上次写入时间和清除buffer_msgs不需要加锁了。
-        :param record:
-        :return:
+        record:
+        Returns:
         """
         try:
             msg = self.format(record)
@@ -952,8 +952,8 @@ class ConcurrentDayRotatingFileHandlerLinux(logging.Handler):
     def emit(self, record: logging.LogRecord):
         """
         emit已经在logger的handle方法中加了锁，所以这里的重置上次写入时间和清除buffer_msgs不需要加锁了。
-        :param record:
-        :return:
+        record:
+        Returns:
         """
         try:
             msg = self.format(record)
@@ -1032,8 +1032,8 @@ class ConcurrentSecondRotatingFileHandlerLinux(logging.Handler):
     def emit(self, record: logging.LogRecord):
         """
         emit已经在logger的handle方法中加了锁，所以这里的重置上次写入时间和清除buffer_msgs不需要加锁了。
-        :param record:
-        :return:
+        record:
+        Returns:
         """
         try:
             msg = self.format(record)

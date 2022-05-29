@@ -612,11 +612,11 @@ def random_letters(length: int = 16) -> Sequence[str]:
     )
 
 
-def random_lowercase_letter() -> str:
+def rand_lowercase_letter() -> str:
     return random.choice(string.ascii_lowercase)
 
 
-def random_uppercase_letter() -> str:
+def rand_uppercase_letter() -> str:
     return random.choice(string.ascii_uppercase)
 
 

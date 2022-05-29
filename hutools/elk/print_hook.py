@@ -73,12 +73,12 @@ def print_exception(etype, value, tb, limit=None, file=None, chain=True):
     避免每行有两个可跳转的，导致第二个可跳转的不被ide识别。
     主要是针对print_exception，logging.exception里面会调用这个函数。
 
-    :param etype:
-    :param value:
-    :param tb:
-    :param limit:
-    :param file:
-    :param chain:
+    etype:
+    value:
+    tb:
+    limit:
+    file:
+    chain:
     :return:
     """
     if file is None:

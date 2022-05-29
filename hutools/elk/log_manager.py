@@ -45,8 +45,8 @@ def revision_call_handlers(self, record):  # 对logging标准模块打猴子补�
 
     明明只想打印一次666，结果却答应2次了。因为a.b的父命名空间的日志也加了streamhandler。
 
-    :param self:
-    :param record:
+    self:
+    record:
     :return:
     """
 
@@ -182,7 +182,7 @@ class LogManager(object):
 
     def __init__(self, logger_name: typing.Union[str, None] = 'elk_default_namespace'):
         """
-        :param logger_name: 日志名称，当为None时候创建root命名空间的日志，一般情况下千万不要传None，除非你确定需要这么做和是在做什么.这个命名空间是双刃剑
+        logger_name: 日志名称，当为None时候创建root命名空间的日志，一般情况下千万不要传None，除非你确定需要这么做和是在做什么.这个命名空间是双刃剑
         """
         self._formatter = None
         self._logger_level2 = None
@@ -210,8 +210,8 @@ class LogManager(object):
         """
         提前设置锁定日志级别，当之后再设置该命名空间日志的级别的时候，按照提前预设的级别，无视之后设定的级别。
         主要是针对动态初始化的日志，在生成日志之后再去设置日志级别不方便。
-        :param log_level_int:
-        :return:
+        log_level_int:
+        Returns:
         """
         self.preset_name__level_map[self._logger_name] = log_level_int
 
@@ -226,27 +226,27 @@ class LogManager(object):
                                     is_add_mail_handler=False,
                                     formatter_template: typing.Union[int, logging.Formatter] = None):
         """
-       :param log_level_int: 日志输出级别，设置为 1 2 3 4 5，分别对应原生logging.DEBUG(10)，logging.INFO(20)，logging.WARNING(30)，logging.ERROR(40),logging.CRITICAL(50)级别，现在可以直接用10 20 30 40 50了，兼容了。
-       :param is_add_stream_handler: 是否打印日志到控制台
-       :param do_not_use_color_handler :是否禁止使用color彩色日志
-       :param log_path: 设置存放日志的文件夹路径,如果不设置，则取elk_config.LOG_PATH，如果配置中也没指定则自动在代码所在磁盘的根目录创建/pythonlogs文件夹，
+       log_level_int: 日志输出级别，设置为 1 2 3 4 5，分别对应原生logging.DEBUG(10)，logging.INFO(20)，logging.WARNING(30)，logging.ERROR(40),logging.CRITICAL(50)级别，现在可以直接用10 20 30 40 50了，兼容了。
+       is_add_stream_handler: 是否打印日志到控制台
+       do_not_use_color_handler :是否禁止使用color彩色日志
+       log_path: 设置存放日志的文件夹路径,如果不设置，则取elk_config.LOG_PATH，如果配置中也没指定则自动在代码所在磁盘的根目录创建/pythonlogs文件夹，
               非Win下要注意账号权限问题(如果python没权限在根目录建/pythonlogs，则需要手动先创建好)
-       :param log_filename: 日志的名字，仅当log_path和log_filename都不为None时候才写入到日志文件。
-       :param log_file_size :日志大小，单位M，默认100M
-       :param log_file_handler_type :这个值可以设置为1 2 3 4 四种值，1为使用多进程安全按日志文件大小切割的文件日志
+       log_filename: 日志的名字，仅当log_path和log_filename都不为None时候才写入到日志文件。
+       log_file_size :日志大小，单位M，默认100M
+       log_file_handler_type :这个值可以设置为1 2 3 4 四种值，1为使用多进程安全按日志文件大小切割的文件日志
               2为多进程安全按天自动切割的文件日志，同一个文件，每天生成一个日志
               3为不自动切割的单个文件的日志(不切割文件就不会出现所谓进程安不安全的问题)
               4为 WatchedFileHandler，这个是需要在linux下才能使用，需要借助lograte外力进行日志文件的切割，多进程安全。
               5 为第三方的concurrent_log_handler.ConcurrentRotatingFileHandler按日志文件大小切割的文件日志，
                 这个是采用了文件锁，多进程安全切割，文件锁在linux上使用fcntl性能还行，win上使用win32con性能非常惨。按大小切割建议不要选第5个个filehandler而是选择第1个。
-       :param mongo_url : mongodb的连接，为None时候不添加mongohandler
-       :param is_add_elastic_handler: 是否记录到es中。
-       :param is_add_kafka_handler: 日志是否发布到kafka。
-       :param ding_talk_token:钉钉机器人token
-       :param ding_talk_time_interval : 时间间隔，少于这个时间不发送钉钉消息
-       :param mail_handler_config : 邮件配置
-       :param is_add_mail_handler :是否发邮件
-       :param formatter_template :日志模板，如果为数字，则为elk_config.py字典formatter_dict的键对应的模板，
+       mongo_url : mongodb的连接，为None时候不添加mongohandler
+       is_add_elastic_handler: 是否记录到es中。
+       is_add_kafka_handler: 日志是否发布到kafka。
+       ding_talk_token:钉钉机器人token
+       ding_talk_time_interval : 时间间隔，少于这个时间不发送钉钉消息
+       mail_handler_config : 邮件配置
+       is_add_mail_handler :是否发邮件
+       formatter_template :日志模板，如果为数字，则为elk_config.py字典formatter_dict的键对应的模板，
                                 1为formatter_dict的详细模板，2为简要模板,5为最好模板。
                                 如果为logging.Formatter对象，则直接使用用户传入的模板。
        :type log_level_int :int
@@ -320,8 +320,8 @@ class LogManager(object):
     def remove_handler_by_handler_class(self, handler_class: type):
         """
         去掉指定类型的handler
-        :param handler_class:logging.StreamHandler,ColorHandler,MongoHandler,ConcurrentRotatingFileHandler,MongoHandler,CompatibleSMTPSSLHandler的一种
-        :return:
+        handler_class:logging.StreamHandler,ColorHandler,MongoHandler,ConcurrentRotatingFileHandler,MongoHandler,CompatibleSMTPSSLHandler的一种
+        Returns:
         """
         if handler_class not in (
                 logging.StreamHandler, ColorHandler, MongoHandler, ConcurrentRotatingFileHandler, MongoHandler,
@@ -446,30 +446,30 @@ def get_logger(name: typing.Union[str, None], *, log_level_int: int = None, is_a
     如果太喜欢函数调用了，可以使用这种.
     get_logger_and_add_handlers是LogManager类最常用的公有方法，其他方法使用场景的频率比较低，
     但如果要使用那些低频率功能，还是要亲自调用LogManger类，而不是仅仅只了解此函数的用法。
-       :param name: 日志命名空间，重要。
-       :param log_level_int: 日志输出级别，设置为 1 2 3 4 5，分别对应原生logging.DEBUG(10)，logging.INFO(20)，
+       name: 日志命名空间，重要。
+       log_level_int: 日志输出级别，设置为 1 2 3 4 5，分别对应原生logging.DEBUG(10)，logging.INFO(20)，
        logging.WARNING(30)，logging.ERROR(40),logging.CRITICAL(50)级别，现在可以直接用10 20 30 40 50了，兼容了。
 
-       :param is_add_stream_handler: 是否打印日志到控制台
-       :param do_not_use_color_handler :是否禁止使用color彩色日志
-       :param log_path: 设置存放日志的文件夹路径,如果不设置，则取elk_config.LOG_PATH，如果配置中也没指定则自动在代码所在磁盘的根目录创建/pythonlogs文件夹，
+       is_add_stream_handler: 是否打印日志到控制台
+       do_not_use_color_handler :是否禁止使用color彩色日志
+       log_path: 设置存放日志的文件夹路径,如果不设置，则取elk_config.LOG_PATH，如果配置中也没指定则自动在代码所在磁盘的根目录创建/pythonlogs文件夹，
               非Win下要注意账号权限问题(如果python没权限在根目录建/pythonlogs，则需要手动先创建好)
-       :param log_filename: 日志的名字，仅当log_path和log_filename都不为None时候才写入到日志文件。
-       :param log_file_size :日志大小，单位M，默认100M
-       :param log_file_handler_type :这个值可以设置为1 2 3 4 四种值，1为使用多进程安全按日志文件大小切割的文件日志，
+       log_filename: 日志的名字，仅当log_path和log_filename都不为None时候才写入到日志文件。
+       log_file_size :日志大小，单位M，默认100M
+       log_file_handler_type :这个值可以设置为1 2 3 4 四种值，1为使用多进程安全按日志文件大小切割的文件日志，
               2为多进程安全按天自动切割的文件日志，同一个文件，每天生成一个日志
               3为不自动切割的单个文件的日志(不切割文件就不会出现所谓进程安不安全的问题)
               4为 WatchedFileHandler，这个是需要在linux下才能使用，需要借助lograte外力进行日志文件的切割，多进程安全。
               5 为第三方的concurrent_log_handler.ConcurrentRotatingFileHandler按日志文件大小切割的文件日志，
                 这个是采用了文件锁，多进程安全切割，文件锁在linux上使用fcntl性能还行，win上使用win32con性能非常惨。按大小切割建议不要选第5个个filehandler而是选择第1个。
-       :param mongo_url : mongodb的连接，为None时候不添加mongohandler
-       :param is_add_elastic_handler: 是否记录到es中。
-       :param is_add_kafka_handler: 日志是否发布到kafka。
-       :param ding_talk_token:钉钉机器人token
-       :param ding_talk_time_interval : 时间间隔，少于这个时间不发送钉钉消息
-       :param mail_handler_config : 邮件配置
-       :param is_add_mail_handler :是否发邮件
-        :param formatter_template :日志模板，如果为数字，则为elk_config.py字典formatter_dict的键对应的模板，
+       mongo_url : mongodb的连接，为None时候不添加mongohandler
+       is_add_elastic_handler: 是否记录到es中。
+       is_add_kafka_handler: 日志是否发布到kafka。
+       ding_talk_token:钉钉机器人token
+       ding_talk_time_interval : 时间间隔，少于这个时间不发送钉钉消息
+       mail_handler_config : 邮件配置
+       is_add_mail_handler :是否发邮件
+        formatter_template :日志模板，如果为数字，则为elk_config.py字典formatter_dict的键对应的模板，
                                 1为formatter_dict的详细模板，2为简要模板,5为最好模板。
                                 如果为logging.Formatter对象，则直接使用用户传入的模板。
        :type log_level_int :int
@@ -489,7 +489,7 @@ def get_logger(name: typing.Union[str, None], *, log_level_int: int = None, is_a
 def get_logger_with_filehanlder(name: str) -> logging.Logger:
     """
     默认添加color handler  和 文件日志。
-    :param name:
+    name:
     :return:
     """
     return LogManager(name).get_logger_and_add_handlers(log_filename=name + '.log')

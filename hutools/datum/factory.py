@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 # !/usr/bin/env python 3.9.11
 """
-@file    :  helper.py
+@file    :  factory.py
 @time    :  2021/8/5 5:21 pm
 @author  :  YuYanQing
 @version :  1.0
@@ -13,26 +13,24 @@ import random
 import re
 import string
 
-from faker import Factory
+from faker import Faker
 
 from hutools.time.moment import Moment
 
-fake = Factory().create("zh_CN")
-
-default_elements = string.ascii_letters + string.digits
+fake = Faker(['zh_CN'])
 
 
-class Helper:
+class MockHelper:
     @staticmethod
     def rand_mail(email_type=None, max_num=None, rad_count=None):
         """
-        args:
+        Args:
             email_type: 邮箱类型
             max_num: 邮箱地址最大长度
             rad_count: 所生成的数量
-        returns:
+        Returns:
         Examples:
-            >>> print(Helper.rand_mail(email_type="@qq.com", max_num=10, rad_count=5))
+            >>> MockHelper.rand_mail(email_type="@qq.com", max_num=10, rad_count=5)
         """
         temp = []
         count = 0
@@ -68,12 +66,12 @@ class Helper:
     def rand_verify_code(max_num: int, rad_count: int):
         """
         随机生成6位的验证码
-        args:
+        Args:
             max_num: 最多可生成的长度
             rad_count: 需要生成的数量
-        returns:
+        Returns:
         Examples:
-            >>> print(Helper.rand_verify_code(max_num=6, rad_count=1))
+            >>> MockHelper.rand_verify_code(max_num=6, rad_count=1)
         """
         # 注意： 这里我们生成的是0-9a-za-z的列表，当然你也可以指定这个list，这里很灵活
         # 比如： code_list = ['p','y','t','h','o','n','t','a','b'] # pythontab的字母
@@ -99,14 +97,13 @@ class Helper:
     def rand_str_list(length):
         """
         生成给定长度的字符串，返回列表格式
-        args:
+        Args:
             length:
-        returns:
+        Returns:
         Examples:
-            >>> print(Helper.rand_str_list(length=5))
+            >>> MockHelper.rand_str_list(length=5)
         """
-        numbers = "".join(map(str, [i for i in range(10) if i != 4]))  # 数字
-        init_chars = "".join(numbers)
+        init_chars = "".join("".join(map(str, [i for i in range(10) if i != 4])))  # 数字
         sample_list = random.sample(init_chars, length)
         return sample_list
 
@@ -114,70 +111,61 @@ class Helper:
     def rand_str(num_length):
         """
         从a-za-z0-9生成指定数量的随机字符
-        args:
+        Args:
             num_length:
-        returns:
+        Returns:
         Examples:
-            >>> print(str(Helper.rand_str(5)).title())
+            >>> MockHelper.rand_str(6)
         """
-        str_list = [
-            random.choice(string.digits + string.ascii_letters)
-            for i in range(num_length)
-        ]
-        random_str = "".join(str_list)
-        return random_str
+        return [random.choice(string.digits + string.ascii_letters) for i in range(num_length)]
 
     @staticmethod
     def rand_mum(num_length):
         """
         9生成指定数量的随机数字
-        args:
+        Args:
             num_length:
-        returns:
+        Returns:
         """
-        str_list = [random.choice(string.digits) for i in range(num_length)]
-        random_str = "".join(str_list)
-        return random_str
+        return "".join([random.choice(string.digits) for i in range(num_length)])
 
     @staticmethod
-    def randint_number(min_=1, max_=100):
+    def rand_int_number(min_value: int = 0, max_value: int = 9999, step: int = 1) -> int:
         """
         随机生成整数
         Args:
-            min_:
-            max_:
+            min_value:
+            max_value:
+            step:
         Returns:
+        Examples:
+            >>> MockHelper.rand_int_number()
         """
-        pass
+        return random.randrange(min_value, max_value + 1, step)
 
     @staticmethod
-    def rand_float_number(data):
+    def rand_float_number(start_num=0, end_num=9, accuracy=1):
         """
         随机生成浮点数
-        args:
-            data:
-        returns:
+        Args:
+            start_num:
+            end_num:
+            accuracy:
+        Returns:
+        Examples:
+            >>> MockHelper.rand_float_number(start_num=0, end_num=6, accuracy=3)
         """
         try:
-            start_num, end_num, accuracy = data.split(",")
             start_num = int(start_num)
             end_num = int(end_num)
             accuracy = int(accuracy)
         except ValueError:
-            raise AssertionError("调用随机整数失败，范围参数或精度有误！\n小数范围精度 %s" % data)
+            raise AssertionError("调用随机整数失败，范围参数或精度有误！\n小数范围精度")
         if start_num <= end_num:
             num = random.uniform(start_num, end_num)
         else:
             num = random.uniform(end_num, start_num)
         return round(num, accuracy)
-
-    @staticmethod
-    def rand_time(layout):
-        """
-        随机生成时间
-        :return:
-        """
-        return str(Moment.get_now_time(layout))
 
     @staticmethod
     def rand_compute_time(
@@ -192,15 +180,18 @@ class Helper:
     ):
         """
         随机生成偏移时间
-        :param days:
-        :param seconds:
-        :param microseconds:
-        :param milliseconds:
-        :param minutes:
-        :param hours:
-        :param weeks:
-        :param custom:
-        :return:
+        Args:
+            days:
+            seconds:
+            microseconds:
+            milliseconds:
+            minutes:
+            hours:
+            weeks:
+            custom:
+
+        Returns:
+
         """
         return str(
             Moment.compute_date(
@@ -216,37 +207,99 @@ class Helper:
         )
 
     @staticmethod
-    def rand_letters(length=10):
+    def rand_lowercase_letter(length) -> str:
         """
-        随机生成字母
-        :param length:
-        :return:
+        Generate a random lowercase ASCII letter (a-z).
+        Args:
+            length:
+
+        Returns:
+
+        Examples:
+            >>> MockHelper.rand_lowercase_letter(10)
         """
-        return "".join(fake.rand_letters(length=length))
+
+        return "".join([random.choice(string.ascii_lowercase) for i in range(length)])
 
     @staticmethod
-    def rand_sample(elements=default_elements, length=10):
+    def rand_uppercase_letter(length) -> str:
         """
-        随机生成字符（英文+数字）
-        :param elements:
-        :param length:
-        :return:
+        Generate a random uppercase ASCII letter (A-Z).
+        Args:
+            length:
+
+        Returns:
+
+        Examples:
+            >>> MockHelper.rand_uppercase_letter(10)
         """
-        return "".join(fake.random_choices(elements=str(elements), length=length))
+        return "".join([random.choice(string.ascii_uppercase) for i in range(length)])
 
     @staticmethod
-    def rand_mobile_number():
+    def rand_sample(length=10):
+        """
+        随机生成字符（英文+数字
+        Args:
+            length:
+
+        Returns:
+
+        Examples:
+            >>> MockHelper.rand_sample(10)
+
+        """
+        return "".join([random.choice(string.ascii_letters + string.digits) for i in range(length)])
+
+    @staticmethod
+    def rand_mobile_number(length: int):
         """
         随机生成手机号
-        :return:
+        Returns:
+        Examples:
+            >>> MockHelper.rand_mobile_number(1)
         """
-        return fake.phone_number()
+        phone_prefixes = [
+            134,
+            135,
+            136,
+            137,
+            138,
+            139,
+            147,
+            150,
+            151,
+            152,
+            157,
+            158,
+            159,
+            182,
+            187,
+            188,
+            130,
+            131,
+            132,
+            145,
+            155,
+            156,
+            185,
+            186,
+            145,
+            133,
+            153,
+            180,
+            181,
+            189,
+        ]
+        rand_phone_prefix = phone_prefixes[random.randint(0, len(phone_prefixes))]
+        return [f'{rand_phone_prefix}{MockHelper.rand_mum(8)}' for i in range(length)]
 
     @staticmethod
     def rand_name():
         """
         随机生成名字
-        :return:
+        Returns:
+        Examples:
+            >>> MockHelper.rand_name()
         """
         return fake.name()
 
@@ -254,7 +307,9 @@ class Helper:
     def rand_address():
         """
         随机生成所在地址
-        :return:
+        Returns:
+        Examples:
+            >>> MockHelper.rand_address()
         """
         return fake.address()
 
@@ -262,7 +317,9 @@ class Helper:
     def rand_country():
         """
         随机生成国家名
-        :return:
+        Returns:
+        Examples:
+            >>> MockHelper.rand_country()
         """
         return fake.country()
 
@@ -270,7 +327,9 @@ class Helper:
     def rand_country_code():
         """
         随机生成国家代码
-        :return:
+        Returns:
+        Examples:
+            >>> MockHelper.rand_country_code()
         """
         return "".join(fake.country_code())
 
@@ -278,7 +337,9 @@ class Helper:
     def rand_city_name():
         """
         随机生成城市名
-        :return:
+        Returns:
+        Examples:
+            >>> MockHelper.rand_city_name()
         """
         return fake.city_name()
 
@@ -286,7 +347,9 @@ class Helper:
     def rand_city():
         """
         随机生成城市
-        :return:
+        Returns:
+        Examples:
+            >>> MockHelper.rand_city()
         """
         return fake.city()
 
@@ -294,7 +357,9 @@ class Helper:
     def rand_province():
         """
         随机生成省份
-        :return:
+        Returns:
+        Examples:
+            >>> MockHelper.rand_province()
         """
         return fake.province()
 
@@ -302,7 +367,9 @@ class Helper:
     def rand_email():
         """
         随机生成email
-        :return:
+        Returns:
+        Examples:
+            >>> MockHelper.rand_email()
         """
         return fake.email()
 
@@ -310,7 +377,9 @@ class Helper:
     def rand_ipv4():
         """
         随机生成ipv4地址
-        :return:
+        Returns:
+        Examples:
+            >>> MockHelper.rand_ipv4()
         """
         return fake.ipv4()
 
@@ -318,7 +387,9 @@ class Helper:
     def rand_license_plate():
         """
         随机生成车牌号
-        :return:
+        Returns:
+        Examples:
+            >>> MockHelper.rand_license_plate()
         """
         return fake.license_plate()
 
@@ -326,7 +397,9 @@ class Helper:
     def rand_color():
         """
         随机生成颜色
-        :return:
+        Returns:
+        Examples:
+            >>> MockHelper.rand_color()
         """
         return fake.rgb_color()
 
@@ -334,7 +407,9 @@ class Helper:
     def rand_safe_hex_color():
         """
         随机生成16进制的颜色
-        :return:
+        Returns:
+        Examples:
+            >>> MockHelper.rand_safe_hex_color()
         """
         return fake.safe_hex_color()
 
@@ -342,7 +417,9 @@ class Helper:
     def rand_color_name():
         """
         随机生成颜色名字
-        :return:
+        Returns:
+        Examples:
+            >>> MockHelper.rand_color_name()
         """
         return fake.color_name()
 
@@ -350,7 +427,9 @@ class Helper:
     def rand_company_name():
         """
         随机生成公司名
-        :return:
+        Returns:
+        Examples:
+            >>> MockHelper.rand_company_name()
         """
         return fake.company()
 
@@ -358,7 +437,9 @@ class Helper:
     def rand_job():
         """
         随机生成工作岗位
-        :return:
+        Returns:
+        Examples:
+            >>> MockHelper.rand_job()
         """
         return fake.job()
 
@@ -368,12 +449,12 @@ class Helper:
     ):
         """
         随机生成密码
-        :param lower_case:
-        :param upper_case:
-        :param digits:
-        :param special_chars:
-        :param length:
-        :return:
+        lower_case:
+        upper_case:
+        digits:
+        special_chars:
+        length:
+        Returns:
         """
         return fake.password(
             length=length,
@@ -387,7 +468,9 @@ class Helper:
     def rand_uuid4():
         """
         随机生成uuid
-        :return:
+        Returns:
+        Examples:
+            >>> MockHelper.rand_uuid4()
         """
         return fake.uuid4()
 
@@ -395,7 +478,9 @@ class Helper:
     def rand_sha1(raw_output=False):
         """
         随机生成sha1
-        :return:
+        Returns:
+        Examples:
+            >>> MockHelper.rand_sha1()
         """
         return fake.sha1(raw_output=raw_output)
 
@@ -403,7 +488,13 @@ class Helper:
     def rand_md5(raw_output=False):
         """
         随机生成md5
-        :return:
+        Args:
+            raw_output:
+
+        Returns:
+
+        Examples:
+            >>> MockHelper.rand_md5()
         """
         return fake.md5(raw_output=raw_output)
 
@@ -411,7 +502,10 @@ class Helper:
     def rand_female():
         """
         随机生成女性名字
-        :return:
+        Returns:
+
+        Examples:
+            >>> MockHelper.rand_female()
         """
         return fake.name_female()
 
@@ -419,7 +513,9 @@ class Helper:
     def rand_male():
         """
         随机生成男性名字
-        :return:
+        Returns:
+        Examples:
+            >>> MockHelper.rand_male()
         """
         return fake.name_male()
 
@@ -427,7 +523,13 @@ class Helper:
     def rand_user_info(sex=None):
         """
         随机生成粗略的基本信息
-        :return:
+        Args:
+            sex:
+
+        Returns:
+
+        Examples:
+            >>> MockHelper.rand_user_info()
         """
         return fake.simple_profile(sex=sex)
 
@@ -435,7 +537,14 @@ class Helper:
     def rand_user_info_pro(fields=None, sex=None):
         """
         随机生成详细的基本信息
-        :return:
+        Args:
+            fields:
+            sex:
+
+        Returns:
+
+        Examples:
+            >>> MockHelper.rand_user_info_pro()
         """
         return fake.profile(fields=fields, sex=sex)
 
@@ -443,7 +552,10 @@ class Helper:
     def rand_user_agent():
         """
         随机生成浏览器头user_agent
-        :return:
+        Returns:
+
+        Examples:
+            >>> MockHelper.rand_user_agent()
         """
         return fake.user_agent()
 
@@ -451,8 +563,13 @@ class Helper:
     def get_user_vars(target_key=None):
         """
         组合静态跟动态变量
-        :param target_key: 目标key
-        :return:
+        Args:
+            target_key: 目标key
+
+        Returns:
+
+        Examples:
+            >>> MockHelper.get_user_vars()
         """
         return target_key
 
@@ -460,8 +577,11 @@ class Helper:
     def get_encrypt_vars(target_key=None):
         """
         获取提取后的参数
-        :param target_key: 目标key
-        :return:
+        Args:
+            target_key: 目标key
+        Returns:
+        Examples:
+            >>> MockHelper.get_encrypt_vars()
         """
         return target_key
 
@@ -469,13 +589,15 @@ class Helper:
     def set_encrypt_vars(method, target_key):
         """
         给参数加密
-        :param method: 加密风格 base64 md5 sha1
-        :param target_key:
-        :return:
+        Args:
+            method: 加密风格 base64 md5 sha1
+            target_key:
+
+        Returns:
         Examples:
-            >>> print(Helper.set_encrypt_vars("base64_decode", "${randint_number}"))
-            >>> print(Helper.set_encrypt_vars("base64_decode", "$var_test_001"))
-            >>> print(Helper.set_encrypt_vars("base64_encode", "{{custom_null_var}}"))
+            >>> MockHelper.set_encrypt_vars("base64_decode", "${randint_number}")
+            >>> MockHelper.set_encrypt_vars("base64_decode", "$var_test_001")
+            >>> MockHelper.set_encrypt_vars("base64_encode", "{{custom_null_var}}")
         """
         func_list = [
             "base64_encode",
@@ -488,7 +610,7 @@ class Helper:
         if method in func_list:
             exec(
                 '_var = {method}("{target_key}")'.format(
-                    method=method, target_key=Helper.cite(target_key)
+                    method=method, target_key=MockHelper.cite(target_key)
                 )
             )
             var = locals()["_var"]
@@ -500,20 +622,21 @@ class Helper:
     def cite(name: str):
         """
         函数助手，输出以下常用随机数，返回结果值。支持的函数详情见func_dict:
-        :param name:  函数名，需要在func_dict存在的key值
-        :return:  随机函数调用结果 or None
+        Args:
+            name:  函数名，需要在func_dict存在的key值
+        Returns:  随机函数调用结果 or None
         Examples:
-            >>> print(Helper.cite('${randint_number()}'))
-            >>> print(Helper.cite('${randint_number(1,55)}'))
-            >>> print(Helper.cite('${rand_letters(5)}'))
-            >>> print(Helper.cite('${rand_sample(123567890,30)}'))
-            >>> print(Helper.cite("${get_user_vars()}"))
-            >>> print(Helper.cite("${get_user_vars(rand_pwd)}"))
-            >>> print(Helper.cite("{{user_agent}}"))
-            >>> print(Helper.cite("{{custom_none_var}}"))
-            >>> print(Helper.cite("{{custom_null_var}}"))
-            >>> print(Helper.cite("$var_test_001"))
-            >>> print(Helper.cite('$enc_(base64_encode,base64参数加密)'))
+            >>> MockHelper.cite('${rand_int_number()}')
+            >>> MockHelper.cite('${rand_int_number(1,55)}')
+            >>> MockHelper.cite('${rand_lowercase_letter(5)}')
+            >>> MockHelper.cite('${rand_sample(1235)}')
+            >>> MockHelper.cite("${get_user_vars()}")
+            >>> MockHelper.cite("${get_user_vars(rand_pwd)}")
+            >>> MockHelper.cite("${rand_user_agent()}")
+            >>> MockHelper.cite("{{custom_none_var}}")
+            >>> MockHelper.cite("{{custom_null_var}}")
+            >>> MockHelper.cite("$var_test_001")
+            >>> MockHelper.cite('$enc_(base64_encode,base64参数加密)')
         """
         # fix: file "d:\program files\python37\lib\re.py", line 173, in match
         # return _compile(pattern, flags).match(string)
@@ -526,39 +649,39 @@ class Helper:
         lock_vars = re.match("\\$enc_(.*)", str(name))  # 带参数
         pattern = rand_vars if rand_vars is not None else dynamic_vars
         func_dict = {
-            "int_number": Helper.randint_number,
-            "float_number": Helper.rand_float_number,
-            "time": Helper.rand_time,
-            "compute_time": Helper.rand_compute_time,
-            "letters": Helper.rand_letters,
-            "sample": Helper.rand_sample,
-            "mobile_number": Helper.rand_mobile_number,
-            "name": Helper.rand_name,
-            "address": Helper.rand_address,
-            "country": Helper.rand_country,
-            "country_code": Helper.rand_country_code,
-            "city_name": Helper.rand_city_name,
-            "city": Helper.rand_city,
-            "province": Helper.rand_province,
-            "email": Helper.rand_email,
-            "ipv4": Helper.rand_ipv4,
-            "license_plate": Helper.rand_license_plate,
-            "color": Helper.rand_color,
-            "rand_safe_hex_color": Helper.rand_safe_hex_color,
-            "color_name": Helper.rand_color_name,
-            "company_name": Helper.rand_company_name,
-            "job": Helper.rand_job,
-            "pwd": Helper.rand_pwd,
-            "uuid4": Helper.rand_uuid4,
-            "sha1": Helper.rand_sha1,
-            "md5": Helper.rand_pwd,
-            "female": Helper.rand_female,
-            "male": Helper.rand_male,
-            "user_info": Helper.rand_user_info,
-            "user_info_pro": Helper.rand_user_info_pro,
-            "user_agent": Helper.rand_user_agent,
-            "user_vars": Helper.get_user_vars,
-            "encrypt_vars": Helper.get_encrypt_vars,
+            "int_number": MockHelper.rand_int_number,
+            "float_number": MockHelper.rand_float_number,
+            "compute_time": MockHelper.rand_compute_time,
+            "lowercase_letter": MockHelper.rand_lowercase_letter,
+            "uppercase_letter": MockHelper.rand_uppercase_letter,
+            "sample": MockHelper.rand_sample,
+            "mobile_number": MockHelper.rand_mobile_number,
+            "name": MockHelper.rand_name,
+            "address": MockHelper.rand_address,
+            "country": MockHelper.rand_country,
+            "country_code": MockHelper.rand_country_code,
+            "city_name": MockHelper.rand_city_name,
+            "city": MockHelper.rand_city,
+            "province": MockHelper.rand_province,
+            "email": MockHelper.rand_email,
+            "ipv4": MockHelper.rand_ipv4,
+            "license_plate": MockHelper.rand_license_plate,
+            "color": MockHelper.rand_color,
+            "rand_safe_hex_color": MockHelper.rand_safe_hex_color,
+            "color_name": MockHelper.rand_color_name,
+            "company_name": MockHelper.rand_company_name,
+            "job": MockHelper.rand_job,
+            "pwd": MockHelper.rand_pwd,
+            "uuid4": MockHelper.rand_uuid4,
+            "sha1": MockHelper.rand_sha1,
+            "md5": MockHelper.rand_pwd,
+            "female": MockHelper.rand_female,
+            "male": MockHelper.rand_male,
+            "user_info": MockHelper.rand_user_info,
+            "user_info_pro": MockHelper.rand_user_info_pro,
+            "user_agent": MockHelper.rand_user_agent,
+            "user_vars": MockHelper.get_user_vars,
+            "encrypt_vars": MockHelper.get_encrypt_vars,
         }
         if pattern is not None:
             key, value = pattern.groups()
@@ -572,9 +695,9 @@ class Helper:
                 elif "" in _param:
                     return func.__call__()  # 没有带参数的
         elif own_vars:
-            return Helper.cite(Helper.get_user_vars(own_vars.group().strip("{}")))
+            return MockHelper.cite(MockHelper.get_user_vars(own_vars.group().strip("{}")))
         elif extract_vars:
-            return Helper.get_encrypt_vars(extract_vars.group())
+            return MockHelper.get_encrypt_vars(extract_vars.group())
         elif rand_no_vars:
             return func_dict[rand_no_vars.group().strip("${rand_}")].__call__()
         elif lock_vars:
@@ -585,7 +708,7 @@ class Helper:
             if len(_lock_param) < 2:
                 raise IndexError(_lock_param)
             else:
-                return Helper.set_encrypt_vars.__call__(*_lock_param)
+                return MockHelper.set_encrypt_vars.__call__(*_lock_param)
         else:
             return name  # 函数名不存在返回原始值
 
@@ -593,24 +716,25 @@ class Helper:
     def comb_data(dict_map: dict) -> dict:
         """
         合并参数化数据
-        :param dict_map: 初始data dict类型
-        举例 {"product": {"brand_id": "${randint_number(1,2)}", "category_id": '${rand_float_number(1,2,3)}',"test": {"test": "${rand_sample(123567890abc,30)}"}}}
-        转化后 {'product': {'brand_id': 7, 'category_id': 1.358, 'test': {'test': 'c071135252718592b58007a10093b6'}}}
-        :return 转化后的数据 若无则返回原始值
+        Args:
+            dict_map: 初始data dict类型
+
+        Returns: 转化后的数据 若无则返回原始值
+
         Examples:
-            >>> print(Helper.comb_data({"product": {"brand_id": "{{int}}", "category_id": '${rand_float_number(1,2,3)}' }}))
-            >>> print(Helper.comb_data({"create_time": "${rand_time(10timestamp)}"}))
-            >>> print(Helper.comb_data({"key1":"$enc_(base64,base64参数加密)"}))
+            >>> MockHelper.comb_data({"product": {"brand_id": "{{int}}", "category_id": '${rand_float_number(1,2,3)}'}})
+            >>> MockHelper.comb_data({"now_time": "${rand_compute_time()}"})
+            >>> MockHelper.comb_data({"key1":"$enc_(base64,base64参数加密)"})
         """
         if isinstance(dict_map, dict):
             for key in list(dict_map.keys()):
                 if isinstance(dict_map[key], list):
                     for i in range(len(dict_map[key])):
-                        dict_map[key][i] = Helper.comb_data(dict_map=dict_map[key][i])
+                        dict_map[key][i] = MockHelper.comb_data(dict_map=dict_map[key][i])
                 elif isinstance(dict_map[key], dict):
-                    dict_map[key] = Helper.comb_data(dict_map=dict_map[key])
+                    dict_map[key] = MockHelper.comb_data(dict_map=dict_map[key])
                 else:
-                    dict_map[key] = Helper.cite(dict_map[key])
+                    dict_map[key] = MockHelper.cite(dict_map[key])
             return dict_map
         elif dict_map is None:  # fix：为空的时候raise 异常导致其它函数调用失败
             pass

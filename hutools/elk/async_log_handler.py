@@ -58,7 +58,7 @@ except ImportError:
     pwd = grp = None
 
 # Random numbers for rotation temp file names, using secrets module if available (Python 3.6).
-# Otherwise use `random.SystemRandom` if available, then fall back on `random.Random`.
+# Otherwise use `random.SystemRandom` if available, then fall back on `random`.
 try:
     # noinspection PyPackageRequirements,PyCompatibility
     from secrets import randbits
@@ -70,7 +70,7 @@ except ImportError:
         randbits = random.SystemRandom().getrandbits
     else:
         def randbits(nb):
-            return random.Random().getrandbits(nb)
+            return random().getrandbits(nb)
 
 try:
     import gzip
@@ -103,28 +103,28 @@ class ConcurrentRotatingFileHandler(BaseRotatingHandler):
         """
         Open the specified file and use it as the stream for logging.
 
-        :param filename: name of the log file to output to.
-        :param mode: write mode: defaults to 'a' for text append
-        :param maxBytes: rotate the file at this size in bytes
-        :param backupCount: number of rotated files to keep before deleting.
+        filename: name of the log file to output to.
+        mode: write mode: defaults to 'a' for text append
+        maxBytes: rotate the file at this size in bytes
+        backupCount: number of rotated files to keep before deleting.
             Avoid setting this very high, probably 20 or less, and prefer setting maxBytes higher.
             A very large number of rollover files can slow down the rollover enough to cause
             problems due to the mass file renaming while the main lock is held.
-        :param encoding: text encoding for logfile
-        :param debug: add extra debug statements to this class (for development)
-        :param delay: DEPRECATED: value is ignored
-        :param use_gzip: automatically gzip rotated logs if available.
-        :param owner: 2 element sequence with (user owner, group owner) of log files.  (Unix only)
-        :param chmod: permission of log files.  (Unix only)
-        :param umask: umask settings to temporarily make when creating log files.
+        encoding: text encoding for logfile
+        debug: add extra debug statements to this class (for development)
+        delay: DEPRECATED: value is ignored
+        use_gzip: automatically gzip rotated logs if available.
+        owner: 2 element sequence with (user owner, group owner) of log files.  (Unix only)
+        chmod: permission of log files.  (Unix only)
+        umask: umask settings to temporarily make when creating log files.
             This is an alternative to chmod. It is mainly for Unix systems but
             can also be used on win. The win security model is more complex
             and this is not the same as changing access control entries.
-        :param newline: None (default): use CRLF on win, LF on Unix. Set to '' for
+        newline: None (default): use CRLF on win, LF on Unix. Set to '' for
         no translation, in which case the 'terminator' argument determines the line ending.
-        :param terminator: set to '\r\n' along with newline='' to force win style
+        terminator: set to '\r\n' along with newline='' to force win style
         newlines regardless of OS platform.
-        :param unicode_error_policy: should be one of 'ignore', 'replace', 'strict'
+        unicode_error_policy: should be one of 'ignore', 'replace', 'strict'
         Determines what happens when a message is written to the log that the stream encoding
         doesn't support. Default is to ignore, i.e., drop the unusable characters.
 
@@ -208,7 +208,7 @@ class ConcurrentRotatingFileHandler(BaseRotatingHandler):
         Decide the lock filename. If the logfile is file.log, then we use `.__file.lock` and
         not `file.log.lock`. This only removes the extension if it's `*.log`.
 
-        :return: the path to the lock file.
+        Returns: the path to the lock file.
         """
         if self.baseFilename.endswith(".log"):
             lock_file = self.baseFilename[:-4]

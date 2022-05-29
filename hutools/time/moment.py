@@ -16,7 +16,7 @@ import time
 
 class Moment:
     @staticmethod
-    def get_now_time(layout) -> str:
+    def get_now_time(layout="%Y-%m-%d %H:%M:%S") -> str:
         """
         获取当前时间
         Args:
