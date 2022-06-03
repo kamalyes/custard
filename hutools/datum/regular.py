@@ -13,26 +13,10 @@
 import re
 from typing import Any
 
+from hutools.function import BatchTask
+
 
 class RegEx:
-    @staticmethod
-    def list_jobs(func_name, context):
-        """
-        批量任务处理
-        Args:
-            func_name:
-            context:
-        Returns:
-        """
-        accord, no_accord = [], []
-        if not isinstance(context, list):
-            context = [context]
-        for index in context:
-            if func_name.__call__(index):
-                accord.append(index)
-            else:
-                no_accord.append(index)
-        return True if no_accord == [] else (accord, no_accord)
 
     @staticmethod
     def match_email(context: Any) -> bool:
@@ -43,7 +27,7 @@ class RegEx:
         Returns:
         Examples:
             >>> examples = ["test@163.com","test163.com","155555@qq.com"]
-            >>> RegEx.list_jobs(RegEx.match_email, examples)
+            >>> BatchTask.list_jobs(RegEx.match_email, examples)
         """
         return (
             True
@@ -63,7 +47,7 @@ class RegEx:
         Returns:
         Examples:
             >>> examples = ["哈哈哈", "12356", "abc", "ABC" "QS12356", "QS12356哈哈哈"]
-            >>> RegEx.list_jobs(RegEx.match_double_byte_str, examples)
+            >>> BatchTask.list_jobs(RegEx.match_double_byte_str, examples)
         """
         return True if re.match(r".*?([^x00-xff])", str(context)) else False
 
@@ -76,7 +60,7 @@ class RegEx:
         Returns:
         Examples:
             >>> examples = ["哈哈哈", "12356", "abc", "ABC" "QS12356", "QS12356哈哈哈", None, "QSa12356@"]
-            >>> RegEx.list_jobs(RegEx.weak_pwd, examples)
+            >>> BatchTask.list_jobs(RegEx.weak_pwd, examples)
         """
         return (
             True
@@ -98,7 +82,7 @@ class RegEx:
         Examples:
             >>> examples = ["哈哈哈", "12356", "abc", "ABC" "QS12356", "QS12356哈哈哈", None, "QSa12356@",
             ... "+8617888829981","008618311006933","19119255552"]
-            >>> RegEx.list_jobs(RegEx.match_mobile, examples)
+            >>> BatchTask.list_jobs(RegEx.match_mobile, examples)
         """
         rule = "^(?:(?:\\+|00)86)?1(?:(?:3[\\d])|(?:4[5-79])|" \
                "(?:5[0-35-9])|(?:6[5-7])|(?:7[0-8])|(?:8[\\d])|(?:9[189]))\\d{8}"
@@ -114,7 +98,7 @@ class RegEx:
         Examples:
             >>> examples = ["哈哈哈", "12356", "abc", "ABC" "QS12356", "QS12356哈哈哈", None,
             ... "QSa12356@", "+8617888829981","008618311006933","19119255552", "127.16.0.0"]
-            >>> RegEx.list_jobs(RegEx.match_ipv4, examples)
+            >>> BatchTask.list_jobs(RegEx.match_ipv4, examples)
         """
         rule = r"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
         return True if re.match(rule, str(context)) else False
@@ -131,7 +115,7 @@ class RegEx:
         Examples:
             >>> examples = [17, 12355678901235567, "哈哈哈", "12356", "abc", "ABC" "QS12356", "QS12356哈哈哈", None,
             ... "QSa12356@", "+8617888829981","008618311006933","19119255552", "127.16.0.0"]
-            >>> RegEx.list_jobs(RegEx.match_str_length, examples)
+            >>> BatchTask.list_jobs(RegEx.match_str_length, examples)
         """
         rule = "^\\d{%s,%s}" % (min_length, max_length)
         return True if re.match(rule, str(context)) else False
@@ -148,7 +132,7 @@ class RegEx:
         Examples:
             >>> examples = [17, 12355678901235567, "QS356", "哈哈哈", "12356", "abc", "ABC" "QS12356", "QS12356哈哈哈", None,
             ... "QSa12356@", "+8617888829981","008618311006933","19119255552", "127.16.0.0"]
-            >>> RegEx.list_jobs(RegEx.match_username, examples)
+            >>> BatchTask.list_jobs(RegEx.match_username, examples)
         """
         rule = r"^(?=.*[A-Za-z])[a-zA-Z0-9]{%s,%s}" % (min_length, max_length)
         return True if re.match(rule, str(context)) else False
@@ -163,7 +147,7 @@ class RegEx:
             >>> examples = ["https://www.baidu.com", "127.0.0.1:8000", "https://www.sweets.cn:8080", "127.16.0.0",
             ... 17, 12355678901235567, "QS356", "哈哈哈", "12356", "abc", "ABC" "QS12356", "QS12356哈哈哈", None,
             ... "QSa12356@", "+8617888829981","008618311006933","19119255552"]
-            >>> RegEx.list_jobs(RegEx.match_valid_url, examples)
+            >>> BatchTask.list_jobs(RegEx.match_valid_url, examples)
         """
         rule = r"^(((ht|f)tps?):\/\/)?[\w-]+(\.[\w-]+)+([\w.@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?$"
         return True if re.match(rule, str(context)) else False
@@ -178,7 +162,7 @@ class RegEx:
         Returns:
         Examples:
             >>> examples = [".bat", ".image", ".png", "image"]
-            >>> RegEx.list_jobs(RegEx.match_trail_type, examples)
+            >>> BatchTask.list_jobs(RegEx.match_trail_type, examples)
         """
         image = ".*(\.png|\.jpg|\.jpeg|\.gif|\.mov)$"
         video = ".*(\.mp4|\.avi|\.mkv|\.flv|\.vob)$"
@@ -204,7 +188,7 @@ class RegEx:
         Examples:
             >>> RegEx.match_train_number('G1868')
             >>> examples = ['G1868', 'D102', 'D9', 'Z5', 'Z26', 'Z17']
-            >>> RegEx.list_jobs(RegEx.match_train_number, examples)
+            >>> BatchTask.list_jobs(RegEx.match_train_number, examples)
         """
         return (
             True
@@ -226,7 +210,7 @@ class RegEx:
             >>> RegEx.match_phone_imei('1235567890')
             >>> RegEx.match_phone_imei('123556789012355')
             >>> examples = ['123556789012355', '1235567890123556', '12355678901235567']
-            >>> RegEx.list_jobs(RegEx.match_phone_imei, examples)
+            >>> BatchTask.list_jobs(RegEx.match_phone_imei, examples)
         """
         return (
             True
@@ -249,7 +233,7 @@ class RegEx:
             >>> RegEx.match_ip('https://www.123.com')
             >>> RegEx.match_ip('https://www.123.com:8080')
             >>> examples = ['https://www.qq.com:8080', '127.0.0.1:5050', 'baidu.com:8001', 'http://192.168.1.1:9090']
-            >>> RegEx.list_jobs(RegEx.match_ip, examples)
+            >>> BatchTask.list_jobs(RegEx.match_ip, examples)
         """
         return (
             True
@@ -272,7 +256,7 @@ class RegEx:
             >>> RegEx.match_url('https://vuejs.org/v2/api/#v-model')
             >>> RegEx.match_url('//www.123.com')
             >>> examples = ['ftp://baidu.123', 'https://www.amap.com/search?id=BV10060895&city=420111']
-            >>> RegEx.list_jobs(RegEx.match_url, examples)
+            >>> BatchTask.list_jobs(RegEx.match_url, examples)
         """
         return (
             True
@@ -294,7 +278,7 @@ class RegEx:
             >>> RegEx.match_social_credit('9111010')
             >>> RegEx.match_social_credit('92371000MA3MXH0E3W')
             >>> examples = ['91230186MA1B7FLT55', '92371000MA3MXH0E3W']
-            >>> RegEx.list_jobs(RegEx.match_social_credit, examples)
+            >>> BatchTask.list_jobs(RegEx.match_social_credit, examples)
         """
         return (
             True
@@ -315,7 +299,7 @@ class RegEx:
         Examples:
             >>> RegEx.match_easy_social_credit('91110108772551611J')
             >>> examples = ['91110108772551611J', '911101085923662400']
-            >>> RegEx.list_jobs(RegEx.match_easy_social_credit, examples)
+            >>> BatchTask.list_jobs(RegEx.match_easy_social_credit, examples)
         """
         return (
             True
@@ -337,7 +321,7 @@ class RegEx:
             >>> RegEx.match_net_mask('2')
             >>> RegEx.match_net_mask('255.255.255.0')
             >>> examples = ['255.255.255.0', '255.255.255.255', '255.240.0.0']
-            >>> RegEx.list_jobs(RegEx.match_net_mask, examples)
+            >>> BatchTask.list_jobs(RegEx.match_net_mask, examples)
         """
         return (
             True
@@ -358,7 +342,7 @@ class RegEx:
         Examples:
             >>> RegEx.match_md5_format('21fe181c5bfc16306a6828c1f7b762e8')
             >>> examples = ['21fe181c5bfc','21fe181c5bfc16306a6828c1f7b762e8']
-            >>> RegEx.list_jobs(RegEx.match_md5_format, examples)
+            >>> BatchTask.list_jobs(RegEx.match_md5_format, examples)
         """
         return (
             True
@@ -379,7 +363,7 @@ class RegEx:
         Examples:
             >>> RegEx.match_uuid_format('51E3DAF5-6E37-4BCC-9F8E-0D9521E2AA8D')
             >>> examples = ['21fe181c5bfc','21fe181c5bfc16306a6828c1f7b762e8','51E3DAF5-6E37-4BCC-9F8E-0D9521E2AA8D']
-            >>> RegEx.list_jobs(RegEx.match_uuid_format, examples)
+            >>> BatchTask.list_jobs(RegEx.match_uuid_format, examples)
         """
         return (
             True
@@ -419,7 +403,7 @@ class RegEx:
         Returns:
         Examples:
             >>> examples = ['www.123.com/logo.png', 'https://www.abc.com/logo.png']
-            >>> RegEx.list_jobs(RegEx.match_image_url_format, examples)
+            >>> BatchTask.list_jobs(RegEx.match_image_url_format, examples)
         """
         return (
             True
@@ -439,7 +423,7 @@ class RegEx:
         Returns:
         Examples:
             >>> examples = ['www.123.com/lwc.avi', 'https://www.abc.com/logo.mpg']
-            >>> RegEx.list_jobs(RegEx.match_video_url_format, examples)
+            >>> BatchTask.list_jobs(RegEx.match_video_url_format, examples)
         """
         return (
             True
@@ -518,7 +502,7 @@ class RegEx:
         Returns:
         Examples:
             >>> examples = [100, -0.99, 3, 234.32, -1, 900, 235.09, '12,345,678.90']
-            >>> RegEx.list_jobs(RegEx.match_easy_currency_format, examples)
+            >>> BatchTask.list_jobs(RegEx.match_easy_currency_format, examples)
         """
         return (
             True
@@ -538,7 +522,7 @@ class RegEx:
         Returns:
         Examples:
             >>> examples = ['葛二蛋', '凯文·杜兰特', '德克·维尔纳·诺维茨基']
-            >>> RegEx.list_jobs(RegEx.match_chinese_name, examples)
+            >>> BatchTask.list_jobs(RegEx.match_chinese_name, examples)
         """
         return (
             True
@@ -558,7 +542,7 @@ class RegEx:
         Returns:
         Examples:
             >>> examples = ['James', 'Kevin Wayne Durant', 'Dirk Nowitzki']
-            >>> RegEx.list_jobs(RegEx.match_english_name, examples)
+            >>> BatchTask.list_jobs(RegEx.match_english_name, examples)
         """
         return (
             True
@@ -578,7 +562,7 @@ class RegEx:
         Returns:
         Examples:
             >>> examples = ["QS12356","哈哈哈","155555@qq.com","english"]
-            >>> RegEx.list_jobs(RegEx.match_only_chinese, examples)
+            >>> BatchTask.list_jobs(RegEx.match_only_chinese, examples)
         """
         return (
             True
@@ -605,7 +589,7 @@ class RegEx:
             >>> examples = ["https://www.baidu.com", "127.0.0.1:8000", "https://www.sweets.cn:8080", "127.16.0.0",
             ... 17, 12355678901235567, "QS356", "哈哈哈", "12356", "abc", "ABC" "QS12356", "QS12356哈哈哈", None,
             ... "QSa12356@", "+8617888829981","008618311006933","19119255552"]
-            >>> RegEx.list_jobs(RegEx.match_only_english, examples)
+            >>> BatchTask.list_jobs(RegEx.match_only_english, examples)
         """
         return (
             True
@@ -625,7 +609,7 @@ class RegEx:
         Returns:
         Examples:
             >>> examples = ['0.0', '0.09']
-            >>> RegEx.list_jobs(RegEx.match_only_decimals, examples)
+            >>> BatchTask.list_jobs(RegEx.match_only_decimals, examples)
         """
         return (
             True
@@ -667,7 +651,7 @@ class RegEx:
         Returns:
         Examples:
             >>> examples =  ['james666', '125666', '啊呸']
-            >>> RegEx.list_jobs(RegEx.match_only_number_and_letters, examples)
+            >>> BatchTask.list_jobs(RegEx.match_only_number_and_letters, examples)
         """
         return (
             True
@@ -687,7 +671,7 @@ class RegEx:
         Returns:
         Examples:
             >>> examples = ['russel', 'ABC', '1235678', 'Ab123']
-            >>> RegEx.list_jobs(RegEx.match_only_lowe_letters, examples)
+            >>> BatchTask.list_jobs(RegEx.match_only_lowe_letters, examples)
         """
         return (
             True
@@ -707,7 +691,7 @@ class RegEx:
         Returns:
         Examples:
             >>> examples = ['russel', 'ABC', '1235678', 'Ab123']
-            >>> RegEx.list_jobs(RegEx.match_only_upper_letters, examples)
+            >>> BatchTask.list_jobs(RegEx.match_only_upper_letters, examples)
         """
         return (
             True
@@ -727,7 +711,7 @@ class RegEx:
         Returns:
         Examples:
             >>> examples = ['哈哈哈', '你好6777啊', 'abc', 'ABC', '1235678', '@¥()！']
-            >>> RegEx.list_jobs(RegEx.match_only_chinese_and_number, examples)
+            >>> BatchTask.list_jobs(RegEx.match_only_chinese_and_number, examples)
         """
         return (
             True
@@ -751,7 +735,7 @@ class RegEx:
         Returns:
         Examples:
             >>> examples = ['哈哈哈', '你好6啊', 'abc', 'ABC', '1235678', '@¥()！']
-            >>> RegEx.list_jobs(RegEx.match_not_exists_letters, examples)
+            >>> BatchTask.list_jobs(RegEx.match_not_exists_letters, examples)
         """
         return (
             True
@@ -775,7 +759,7 @@ class RegEx:
         Returns:
         Examples:
             >>> examples = ["[", ".", "^", "&3%", "1235678", "abc", "ABC", "ABCa123"]
-            >>> RegEx.list_jobs(RegEx.match_ascii_special_char, examples)
+            >>> BatchTask.list_jobs(RegEx.match_ascii_special_char, examples)
         """
         return (
             True

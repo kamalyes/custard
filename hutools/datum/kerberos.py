@@ -27,7 +27,7 @@ class Kerberos:
             target_value:
             seconds:
         Returns:
-        Examples::
+        Examples:
             >>> JWT_SECRET_KEY = '1235678AC51Y55'
             >>> token = Kerberos.jwt_encode(secret_key=JWT_SECRET_KEY,
             ... target_value={"key1": "value1"}, seconds=0)
