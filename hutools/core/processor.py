@@ -9,17 +9,167 @@
 @License :  (C)Copyright 2022-2026
 @Desc    :  An XPath for JSON 后置处理
 """
+import base64
+import hashlib
 import json
 import re
 import sys
+import xml.dom.minidom
+import xml.etree.ElementTree
 from functools import reduce
 from itertools import zip_longest
 from typing import Text
 
+from dicttoxml import dicttoxml
 from lxml import etree
+from six import text_type, binary_type
+
+from hutools.core.xml2dict import Xml2Dict
+
+SINGLE_UPLOAD_LENGTH = 5 * 1024 * 1024 * 1024  # 单次上传文件最大为5GB
+DEFAULT_CHUNK_SIZE = 1024 * 1024  # 计算MD5值时,文件单次读取的块大小为1MB
 
 
 class DataHand:
+    @staticmethod
+    def to_str(variable):
+        """非字符串转换为字符串"""
+        if isinstance(variable, text_type) or isinstance(variable, binary_type):
+            return variable
+        return str(variable)
+
+    @staticmethod
+    def to_unicode(variable):
+        """将字符串转为unicode"""
+        if isinstance(variable, binary_type):
+            try:
+                return variable.decode('utf-8')
+            except UnicodeDecodeError as e:
+                raise UnicodeDecodeError('your bytes strings can not be decoded in utf8, utf8 support only!')
+        return variable
+
+    @staticmethod
+    def to_bytes(variable):
+        """将字符串转为bytes"""
+        if isinstance(variable, text_type):
+            try:
+                return variable.encode('utf-8')
+            except UnicodeEncodeError as e:
+                raise UnicodeEncodeError('your unicode strings can not encoded in utf8, utf8 support only!')
+        return variable
+
+    @staticmethod
+    def get_raw_md5(data):
+        """计算md5 md5的输入必须为bytes"""
+        m2 = hashlib.md5(DataHand.to_bytes(data))
+        etag = '"' + str(m2.hexdigest()) + '"'
+        return etag
+
+    @staticmethod
+    def get_md5(data):
+        """
+        计算 base64 md5 md5的输入必须为bytes
+        Args:
+            data:
+
+        Returns:
+
+        """
+        m2 = hashlib.md5(DataHand.to_bytes(data))
+        md5 = base64.standard_b64encode(m2.digest())
+        return md5
+
+    @staticmethod
+    def get_content_md5(body):
+        """计算任何输入流的md5值"""
+        if isinstance(body, text_type) or isinstance(body, binary_type):
+            return DataHand.get_md5(body)
+        elif hasattr(body, 'tell') and hasattr(body, 'seek') and hasattr(body, 'read'):
+            file_position = body.tell()  # 记录文件当前位置
+            # avoid OOM
+            md5 = hashlib.md5()
+            chunk = body.read(DEFAULT_CHUNK_SIZE)
+            while chunk:
+                md5.update(DataHand.to_bytes(chunk))
+                chunk = body.read(DEFAULT_CHUNK_SIZE)
+            md5_str = base64.standard_b64encode(md5.digest())
+            try:
+                body.seek(file_position)  # 恢复初始的文件位置
+            except Exception as e:
+                raise Exception('seek unsupported to calculate md5!')
+            return md5_str
+        else:
+            raise Exception('unsupported body type to calculate md5!')
+        return None
+
+    @staticmethod
+    def dict_to_xml(data):
+        """V5使用xml格式，将输入的dict转换为xml"""
+        doc = xml.dom.minidom.Document()
+        root = doc.createElement('CompleteMultipartUpload')
+        doc.appendChild(root)
+
+        if 'Part' not in data:
+            raise Exception("Invalid Parameter, Part Is Required!")
+
+        for i in data['Part']:
+            node_part = doc.createElement('Part')
+
+            if 'PartNumber' not in i:
+                raise Exception("Invalid Parameter, PartNumber Is Required!")
+
+            node_number = doc.createElement('PartNumber')
+            node_number.appendChild(doc.createTextNode(str(i['PartNumber'])))
+
+            if 'ETag' not in i:
+                raise Exception("Invalid Parameter, ETag Is Required!")
+
+            node_etag = doc.createElement('ETag')
+            node_etag.appendChild(doc.createTextNode(str(i['ETag'])))
+
+            node_part.appendChild(node_number)
+            node_part.appendChild(node_etag)
+            root.appendChild(node_part)
+        return doc.toxml('utf-8')
+
+    @staticmethod
+    def xml_to_dict(data, origin_str="", replace_str=""):
+        """V5使用xml格式，将response中的xml转换为dict"""
+        root = xml.etree.ElementTree.fromstring(data)
+        xmldict = Xml2Dict(root)
+        xmlstr = str(xmldict)
+        if origin_str:
+            xmlstr = xmlstr.replace(origin_str, replace_str)
+        xmldict = eval(xmlstr)
+        return xmldict
+
+    @staticmethod
+    def get_id_from_xml(data, name):
+        """解析xml中的特定字段"""
+        tree = xml.dom.minidom.parseString(data)
+        root = tree.documentElement
+        result = root.getElementsByTagName(name)
+        # use childNodes to get a list, if has no child get itself
+        return result[0].childNodes[0].nodeValue
+
+    @staticmethod
+    def format_xml(data, root, lst=list(), parent_child=False):
+        """将dict转换为xml, xml_config是一个bytes"""
+        if parent_child:
+            xml_config = dicttoxml(data, item_func=lambda x: x[:-1], custom_root=root, attr_type=False)
+        else:
+            xml_config = dicttoxml(data, item_func=lambda x: x, custom_root=root, attr_type=False)
+        for i in lst:
+            xml_config = xml_config.replace(DataHand.to_bytes(i + i), DataHand.to_bytes(i))
+        return xml_config
+
+    @staticmethod
+    def format_values(data):
+        """格式化headers和params中的values为bytes"""
+        for i in data:
+            data[i] = DataHand.to_bytes(data[i])
+        return data
+
     @staticmethod
     def is_json(target_data):
         """

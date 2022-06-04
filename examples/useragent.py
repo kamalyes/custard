@@ -9,9 +9,9 @@
 @License :  (C)Copyright 2022-2026
 @Desc    :  None
 """
-from hutools.datum.useragent import (firefox, safari, internet_explorer, opera)
-from hutools.datum.useragent import (linux_platform_token, mac_platform_token, win_platform_token,
-                                     android_platform_token)
+from hutools.core.useragent import (firefox, safari, internet_explorer, opera)
+from hutools.core.useragent import (linux_platform_token, mac_platform_token, win_platform_token,
+                                    android_platform_token)
 
 print(firefox())
 print(safari())

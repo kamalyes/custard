@@ -34,7 +34,7 @@ class Kerberos:
             >>> print(token)
             >>> import time
             >>> time.sleep(1)
-            >>> print(Kerberos.jwt_decode(target_value=token))
+            >>> print(Kerberos.jwt_decode(secret_key=JWT_SECRET_KEY, target_value=token))
         """
         return jwt.encode(
             {
@@ -85,25 +85,19 @@ class Kerberos:
         return base64.b64decode(binary)
 
     @staticmethod
-    def md5_encode(salt, decode_msg: str):
+    def md5_encode(decode_msg: str):
         """
         md5 算法加密
         Args:
-            salt: 秘钥
             decode_msg: 需加密的字符串
         Returns:
         Examples:
             >>> print(Kerberos.md5_encode("1235678"))
         """
-        if decode_msg is None:
-            return decode_msg
-        else:
-            obj = hashlib.md5(salt)
-            obj.update(str(decode_msg).encode("utf8"))
-            return obj.hexdigest()
+        return hashlib.md5(str(decode_msg).encode(encoding='utf-8')).hexdigest()
 
     @staticmethod
-    def sha1_decode(decode_msg):
+    def sha1_decode(decode_msg: str):
         """
         哈希算法加密
         Args:
@@ -112,6 +106,4 @@ class Kerberos:
         Examples:
             >>> print(Kerberos.sha1_decode("Hello Word sha1Encrypt"))
         """
-        sh = sha1()
-        sh.update(decode_msg.encode("utf-8"))
-        return sh.hexdigest()
+        return sha1(decode_msg.encode("utf-8")).hexdigest()

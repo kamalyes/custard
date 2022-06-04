@@ -18,8 +18,7 @@ setup(
     long_description_content_type='text/markdown',
     author="Kamalyes",
     author_email="mryu168@163.com",
-    package_dir={'': 'src'},
-    packages=find_packages("src", exclude="example"),
+    packages=find_packages(exclude="example"),
     # https://packaging.python.org/guides/distributing-packages-using-setuptools/#python-requires
     python_requires='>=3.5',
     test_suite="tests.tests",

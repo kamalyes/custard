@@ -16,8 +16,8 @@ from pydantic import conint
 from starlette.requests import Request
 from starlette.responses import Response
 
-from . import PikaLimiter
-from .enums import GlobalVarEnum
+from ..limiter import Limiter
+from ..limiter.enums import GlobalVarEnum
 
 
 class RateLimiter:
@@ -39,9 +39,9 @@ class RateLimiter:
         self.callback = callback
 
     async def __call__(self, request: Request, response: Response):
-        if not PikaLimiter.redis:
+        if not Limiter.redis:
             raise Exception(
-                "You must call PikaLimiter.init in startup event of fastapi!"
+                "You must call Limiter.init in startup event of fastapi!"
             )
         index = 0
         for route in request.app.routes:
@@ -51,13 +51,13 @@ class RateLimiter:
                         index = idx
                         break
         # moved here because constructor run before app startup
-        identifier = self.identifier or PikaLimiter.identifier
-        callback = self.callback or PikaLimiter.callback
-        redis = PikaLimiter.redis
+        identifier = self.identifier or Limiter.identifier
+        callback = self.callback or Limiter.callback
+        redis = Limiter.redis
         rate_key = await identifier(request)
-        key = f"{GlobalVarEnum.APP_NAME.lower()}:{PikaLimiter.prefix}:{rate_key}:{index}"
+        key = f"{GlobalVarEnum.APP_NAME.lower()}:{Limiter.prefix}:{rate_key}:{index}"
         pexpire = await redis.evalsha(
-            PikaLimiter.lua_sha, 1, key, str(self.counts), str(self.milliseconds)
+            Limiter.lua_sha, 1, key, str(self.counts), str(self.milliseconds)
         )
         if pexpire != 0:
             return await callback(request, response, pexpire)

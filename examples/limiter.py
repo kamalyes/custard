@@ -13,7 +13,7 @@ import aioredis
 import uvicorn
 from fastapi import Depends, FastAPI
 
-from hutools.limiter import PikaLimiter
+from hutools.limiter import Limiter
 from hutools.limiter.depends import RateLimiter
 
 app = FastAPI()
@@ -22,13 +22,13 @@ app = FastAPI()
 @app.on_event("startup")
 async def startup():
     """https://aioredis.readthedocs.io/en/latest/getting-started/"""
-    redis = await aioredis.from_url("redis://localhost", password="PassWord@Redis123", encoding="utf8")
-    await PikaLimiter.init(redis)
+    redis = await aioredis.from_url("redis://localhost:6379", password="PassWord@Redis123", encoding="utf8")
+    await Limiter.init(redis)
 
 
 @app.on_event("shutdown")
 async def shutdown():
-    await PikaLimiter.close()
+    await Limiter.close()
 
 
 @app.get("/", dependencies=[Depends(RateLimiter(counts=2, seconds=5))])

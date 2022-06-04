@@ -9,11 +9,14 @@
 @License :  (C)Copyright 2022-2026
 @Desc    :  None
 """
+from six import text_type
+
 from .decode import unidecode
 from .factory import MockHelper
 from .kerberos import Kerberos
 from .processor import DataHand, HtmlHand, JsonHand
-from .system import System
 from .regular import RegEx
 from .snowflake import generator
+from .system import System
 from .useragent import firefox, safari, internet_explorer, opera
+from .xprint import xprint

@@ -13,7 +13,7 @@
 import re
 from typing import Any
 
-from hutools.function import BatchTask
+from hutools.cron import BatchTask
 
 
 class RegEx:

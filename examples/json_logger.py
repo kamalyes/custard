@@ -120,7 +120,7 @@ class TestJsonLogger(unittest.TestCase):
         except:
             self.assertTrue(False, "Should succeed")
 
-    def testLogADict(self):
+    def testLogAdict(self):
         fr = jsonlogger.JsonFormatter()
         self.logHandler.setFormatter(fr)
 

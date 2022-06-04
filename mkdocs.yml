@@ -1,0 +1,29 @@
+site_name: hutools
+site_description: 🍬A set of tools that keep Python sweet.
+site_url: https://www.python-hutools.org/
+
+theme:
+    name: 'material'
+
+repo_name: kamalyes/hutools
+repo_url: https://github.com/kamalyes/hutools
+edit_uri: ""
+
+nav:
+    - 介绍: 'index.md'
+
+markdown_extensions:
+  - admonition
+  - codehilite:
+      css_class: highlight
+
+extra:
+  search:
+    language: 'zh'
+
+extra_css:
+    - css/custom.css
+
+extra_javascript:
+  - 'js/chat.js'
+  - 'js/sidecar-1.5.0.js'

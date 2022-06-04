@@ -61,7 +61,7 @@ class _Test(unittest.TestCase):
         f9(1, 2)
 
     @unittest.skip
-    def test_timer_context(self):
+    def test_timerContext(self):
         """
         测试上下文，对代码片段进行计时
         """

@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 # !/usr/bin/env python 3.9.11
 """
-@File    :  redis.py
+@File    :  cache.py
 @Time    :  2021/8/28 10:55 AM
 @Author  :  YuYanQing
 @Version :  1.0
@@ -53,7 +53,7 @@ class RedisClient(object):
         temp_client = redis.Redis(connection_pool=self.connection_pool)
         self.connection_client = temp_client
 
-    def getTime(self):
+    def get_time(self):
         return self.connection_client.time()
 
     def rpush(self, key, json_text, expired_in_seconds=0):

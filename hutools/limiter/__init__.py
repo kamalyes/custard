@@ -17,18 +17,10 @@ import aioredis
 from starlette.requests import Request
 from starlette.responses import Response
 
-from .execres import XRateLimitException
+from ..limiter.execres import RateLimitException
 
 
 async def default_identifier(request: Request):
-    """
-    默认来源
-    Args:
-        request:
-
-    Returns:
-
-    """
     forwarded = request.headers.get("X-Forwarded-For")
     if forwarded:
         ip = forwarded.split(",")[0]
@@ -39,20 +31,17 @@ async def default_identifier(request: Request):
 
 async def default_callback(request: Request, response: Response, pexpire: int):
     """
-        default callback when too many requests
-    Args:
-        request:
-        response:
-        pexpire: The remaining milliseconds
-
-    Returns:
-
+    default callback when too many requests
+    :param request:
+    :param pexpire: The remaining milliseconds
+    :param response:
+    :return:
     """
     expire = ceil(pexpire / 1000)
-    raise XRateLimitException(headers={"Retry-After": str(expire)})
+    raise RateLimitException(headers={"Retry-After": str(expire)})
 
 
-class PikaLimiter:
+class Limiter:
     redis: aioredis.Redis = None
     prefix: str = None
     lua_sha: str = None

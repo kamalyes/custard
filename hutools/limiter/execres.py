@@ -1,7 +1,7 @@
 from fastapi import status
 
 
-class XRateLimitException(Exception):
+class RateLimitException(Exception):
     def __init__(
             self,
             headers: dict,
