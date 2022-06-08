@@ -194,7 +194,7 @@ class MockHelper:
 
         """
         return str(
-            Moment.compute_date(
+            Moment.skew_date(
                 days=days,
                 seconds=seconds,
                 microseconds=microseconds,

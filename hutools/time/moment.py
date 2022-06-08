@@ -68,7 +68,7 @@ class Moment:
         return today
 
     @staticmethod
-    def compute_date(
+    def skew_date(
             days=0,
             seconds=0,
             microseconds=0,
@@ -97,7 +97,7 @@ class Moment:
             >>> custom_time = ["2022-03-1 11:15:15","2022-03-1 11:15",
             ... "2022-03-1 11","2022-03-1 ","2022-03-1"]
             >>> for index in custom_time:
-            ...     Moment.compute_date(hours=random.randint(1,5), custom=index)
+            ...     Moment.skew_date(hours=random.randint(1,5), custom=index)
         """
         if custom is not None:
             today = Moment.time_format(custom=custom, time_format_str=time_format_str)
@@ -194,7 +194,4 @@ class Moment:
         """
         time1 = datetime.datetime.strptime(time1, "%Y-%m-%d %H:%M:%S")
         time2 = datetime.datetime.strptime(time2, "%Y-%m-%d %H:%M:%S")
-        if time1 > time2:
-            return True
-        else:
-            return False
+        return True if time1 > time2 else False
