@@ -81,7 +81,7 @@ setup(
     long_description_content_type='text/markdown',
     author="Kamalyes",
     author_email="mryu168@163.com",
-    packages=find_packages(exclude="example"),
+    packages=find_packages(exclude="hutools"),
     # https://packaging.python.org/guides/distributing-packages-using-setuptools/#python-requires
     python_requires='>=3.5',
     test_suite="tests.tests",
