@@ -18,7 +18,7 @@ import xml.dom.minidom
 import xml.etree.ElementTree
 from functools import reduce
 from itertools import zip_longest
-from typing import Text
+from typing import Text, Dict, Any
 
 from dicttoxml import dicttoxml
 from lxml import etree
@@ -57,6 +57,89 @@ class DataHand:
             except UnicodeEncodeError as e:
                 raise UnicodeEncodeError('your unicode strings can not encoded in utf8, utf8 support only!')
         return variable
+
+    @staticmethod
+    def deep_dict_update(main_dict: Dict[Any, Any], update_dict: Dict[Any, Any]) -> None:
+        """
+        字典更新
+        Args:
+            main_dict:
+            update_dict:
+
+        Returns:
+
+        Examples:
+            >>> main_dict = {"a":1, "b":2, "c":{"abc":123}}
+            >>> update_dict = {"a":2, "b":5, "c":{"abc":1235678}}
+            >>> print(DataHand.deep_dict_update(main_dict, update_dict))
+
+        """
+        for key, value in update_dict.items():
+            if (
+                    key in main_dict
+                    and isinstance(main_dict[key], dict)
+                    and isinstance(value, dict)
+            ):
+                DataHand.deep_dict_update(main_dict[key], value)
+            else:
+                main_dict[key] = value
+        return main_dict
+
+    @staticmethod
+    def lower_dict_keys(origin_dict: Dict):
+        """
+        convert keys in dict to lower case
+        Args:
+            origin_dict: mapping data structure
+
+        Returns:
+            dict: mapping with all keys lowered.
+
+        Examples:
+            >>> origin_dict = { "Name": "", "Request": "", "URL": "", "METHOD": "", "Headers": "", "Data": ""}
+            >>> DataHand.lower_dict_keys(origin_dict)
+        """
+        if not origin_dict or not isinstance(origin_dict, dict):
+            return origin_dict
+
+        return {key.lower(): value for key, value in origin_dict.items()}
+
+    @staticmethod
+    def upper_dict_keys(origin_dict: Dict):
+        """
+        convert keys in dict to lower case
+        Args:
+            origin_dict: mapping data structure
+
+        Returns:
+            dict: mapping with all keys lowered.
+
+        Examples:
+            >>> origin_dict = {'name': '', 'request': '', 'url': '', 'method': '', 'headers': '', 'data': ''}
+            >>> DataHand.upper_dict_keys(origin_dict)
+        """
+        if not origin_dict or not isinstance(origin_dict, dict):
+            return origin_dict
+
+        return {key.upper(): value for key, value in origin_dict.items()}
+
+    @staticmethod
+    def omit_long_data(body, omit_len=512):
+        """omit too long str/bytes"""
+        if not isinstance(body, (str, bytes)):
+            return body
+
+        body_len = len(body)
+        if body_len <= omit_len:
+            return body
+
+        omitted_body = body[0:omit_len]
+
+        appendix_str = f" ... OMITTED {body_len - omit_len} CHARACTORS ..."
+        if isinstance(body, bytes):
+            appendix_str = appendix_str.encode("utf-8")
+
+        return omitted_body + appendix_str
 
     @staticmethod
     def get_raw_md5(data):
