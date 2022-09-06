@@ -74,8 +74,9 @@ class System:
         )
         application_file_path = os.path.join(work_spaces_path, application_file)
         if os.path.exists(application_file_path):
-            params = System.load_file(application_file_path)
-            return params[target_key] if target_key else params
+            temp_data = System.load_file(application_file_path)
+            result = temp_data[target_key] if target_key else temp_data
+            return result, application_file_path
         else:
             raise FileNotFoundError(
                 f"未找到application配置文件，请检查以下路径是否正确：{application_file_path}"
