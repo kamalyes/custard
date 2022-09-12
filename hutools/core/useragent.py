@@ -17,9 +17,13 @@ from calendar import timegm
 from collections import OrderedDict
 from datetime import date as dtdate
 from datetime import datetime, timedelta, date
-from typing import Collection, TypeVar, Iterable, Union, Sequence, Literal, Dict
+from typing import Collection, TypeVar, Iterable, Union, Sequence,  Dict
 
 from dateutil.tz import tzutc
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
 
 T = TypeVar("T")
 ElementsType = Collection[T]
