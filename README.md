@@ -1,24 +1,20 @@
 ## 📚简介
-Hutools是一个小而全的Python工具类库，通过静态方法封装，降低相关API的学习成本，提高工作效率，使Python拥有函数式语言般的优雅，让Python语言也可以“甜甜的”。
+custard是一个小而全的Python工具类库，通过静态方法封装，降低相关API的学习成本，提高工作效率，使Python拥有函数式语言般的优雅，让Python语言也可以“甜甜的”。
 
-Hutools中的工具方法来自每个用户的精雕细琢，它涵盖了Python开发底层代码中的方方面面，它既是大型项目开发中解决小问题的利器，也是小型项目中的效率担当；
+custard中的工具方法来自每个用户的精雕细琢，它涵盖了Python开发底层代码中的方方面面，它既是大型项目开发中解决小问题的利器，也是小型项目中的效率担当；
 
-Hutools是项目中“util”包友好的替代，它节省了开发人员对项目中公用类和公用工具方法的封装时间，使开发专注于业务，同时可以最大限度的避免封装不完善带来的bug。
+custard是项目中“util”包友好的替代，它节省了开发人员对项目中公用类和公用工具方法的封装时间，使开发专注于业务，同时可以最大限度的避免封装不完善带来的bug。
 
-### 🎁Hutools名称的由来
+## 🍺custard如何改变我们的coding方式
 
-Hutools = Hu + tool，是受到了JAVA版本的hutool影响而取得名字，Hutools谐音“糊涂”，一方面简洁易懂，一方面寓意“难得糊涂”。
-
-### 🍺Hutools如何改变我们的coding方式
-
-Hutools的目标是使用一个工具方法代替一段复杂代码，从而最大限度的避免“复制粘贴”代码的问题，彻底改变我们写代码的方式。
+custard的目标是使用一个工具方法代替一段复杂代码，从而最大限度的避免“复制粘贴”代码的问题，彻底改变我们写代码的方式。
 
 以计算MD5为例：
 
 - 👴【以前】打开搜索引擎 -> 搜“Python MD5加密” -> 打开某篇博客-> 复制粘贴 -> 改改好用
-- 👦【现在】引入Hutools  -> Kerberos.md5_encode()
+- 👦【现在】引入custard  -> Kerberos.md5_encode()
 
-Hutools的存在就是为了减少代码搜索成本，避免网络上参差不齐的代码出现导致的bug。
+custard的存在就是为了减少代码搜索成本，避免网络上参差不齐的代码出现导致的bug。
 
 -------------------------------------------------------------------------------
 
@@ -27,39 +23,37 @@ Hutools的存在就是为了减少代码搜索成本，避免网络上参差不�
 
 | 模块                |     介绍                                                                     |
 |-------------------|----------------------------------------------------------------------------- |
-| Hutools-cache     |     简单缓存实现                                                                |
-| Hutools-core      |     核心，包括Bean操作、各种Util等                                          |
-| Hutools-cron      |     定时任务模块，提供类Crontab表达式的定时任务                                     |
-| Hutools-crypto    |     加密解密模块，提供对称、非对称和摘要算法封装                                     |
-| Hutools-db        |     JDBC封装后的数据操作，基于ActiveRecord思想                                    |
-| Hutools-dfa       |     基于DFA模型的多关键字查找                                                    |
-| Hutools-extra     |     扩展模块，对第三方封装（模板引擎、邮件、Servlet、二维码、Emoji、FTP、分词等）       |
-| Hutools-http      |     基于HttpUrlConnection的Http客户端封装                                       |
-| Hutools-log       |     自动识别日志实现的日志门面                                                    |
-| Hutools-script    |     脚本执行封装，例如Pythonscript                                                 |
-| Hutools-hitfilter |     敏感词过滤器                                   |
-| Hutools-limiter   |     拦截器                                   |
-| Hutools-time      |     日期                                    |
-| Hutools-setting   |     功能更强大的Setting配置文件和Properties封装                                   |
-| Hutools-system    |     系统参数调用封装（JVM信息等）                                                 |
-| Hutools-json      |     JSON实现                                                                  |
-| Hutools-kaptcha   |     图片验证码实现                                                              |
-| Hutools-poi       |     针对POI中Excel和Word的封装                                                  |
-| Hutools-socket    |     基于Python的NIO和AIO的Socket封装                                              |
-| Hutools-jwt       |     JSON Web Token (JWT)封装实现                                               |
+| custard-cache     |     简单缓存实现                                                                |
+| custard-core      |     核心，包括Bean操作、各种Util等                                          |
+| custard-cron      |     定时任务模块，提供类Crontab表达式的定时任务                                     |
+| custard-crypto    |     加密解密模块，提供对称、非对称和摘要算法封装                                     |
+| custard-db        |     JDBC封装后的数据操作，基于ActiveRecord思想                                    |
+| custard-dfa       |     基于DFA模型的多关键字查找                                                    |
+| custard-extra     |     扩展模块，对第三方封装（模板引擎、邮件、Servlet、二维码、Emoji、FTP、分词等）       |
+| custard-http      |     基于HttpUrlConnection的Http客户端封装                                       |
+| custard-log       |     自动识别日志实现的日志门面                                                    |
+| custard-script    |     脚本执行封装，例如Pythonscript                                                 |
+| custard-hitfilter |     敏感词过滤器                                   |
+| custard-limiter   |     拦截器                                   |
+| custard-time      |     日期                                    |
+| custard-setting   |     功能更强大的Setting配置文件和Properties封装                                   |
+| custard-system    |     系统参数调用封装（JVM信息等）                                                 |
+| custard-json      |     JSON实现                                                                  |
+| custard-kaptcha   |     图片验证码实现                                                              |
+| custard-poi       |     针对POI中Excel和Word的封装                                                  |
+| custard-socket    |     基于Python的NIO和AIO的Socket封装                                              |
+| custard-jwt       |     JSON Web Token (JWT)封装实现                                               |
 
-可以根据需求对每个模块单独引入，也可以通过引入`hutools-all`方式引入所有模块。
+可以根据需求对每个模块单独引入，也可以通过引入`custard-all`方式引入所有模块。
 
 -------------------------------------------------------------------------------
 
-## 📝文档 
-
-[📘中文文档](https://github.com/kamalyes/hutools/docs/)
+## [📝中文文档](https://github.com/kamalyes/custard/docs/)
 -------------------------------------------------------------------------------
 
-### 🚽编译安装
+## 🚽编译安装
 
-访问Hutools的Gitee主页：[https://github.com/kamalyes/hutools](https://github.com/kamalyes/hutools) 下载整个项目源码（v2-master或v2-dev分支都可）然后进入Hutools项目目录执行：
+访问custard的Github主页：[https://github.com/kamalyes/custard](https://github.com/kamalyes/custard) 下载整个项目源码（v2-master或v2-dev分支都可）然后进入custard项目目录执行：
 
 ```sh
 pip3 install -r requirements.txt -i https://pypi.douban.com/simple
@@ -75,7 +69,7 @@ python3 setup.py install
 
 ### 🎋分支说明
 
-Hutools的源码分为两个分支，功能如下：
+custard的源码分为两个分支，功能如下：
 
 | 分支       | 作用                                                          |
 |-----------|---------------------------------------------------------------|
@@ -84,9 +78,9 @@ Hutools的源码分为两个分支，功能如下：
 
 ### 🐞提供bug反馈或建议
 
-提交问题反馈请说明正在使用的JDK版本呢、Hutools版本和相关依赖库版本。
+提交问题反馈请说明正在使用的JDK版本呢、custard版本和相关依赖库版本。
 
-- [GitHub issue](https://github.com/kamalyes/hutools/issues)
+- [GitHub issue](https://github.com/kamalyes/custard/issues)
 
 
 ### 🧬贡献代码的步骤
@@ -100,12 +94,12 @@ Hutools的源码分为两个分支，功能如下：
 
 ### 📐PR遵照的原则
 
-Hutools欢迎任何人为Hutools添砖加瓦，贡献代码，不过维护者是一个强迫症患者，为了照顾病人，需要提交的pr（pull request）符合一些规范，规范如下：
+custard欢迎任何人为custard添砖加瓦，贡献代码，不过维护者是一个强迫症患者，为了照顾病人，需要提交的pr（pull request）符合一些规范，规范如下：
 
 1. 注释完备，尤其每个新增的方法应按照Python文档规范标明方法说明、参数说明、返回值说明等信息，必要时请添加单元测试，如果愿意，也可以加上你的大名。
-2. Hutools的缩进按照IDEA 默认（tab）缩进，所以请遵守（不要和我争执空格与tab的问题，这是一个病人的习惯）。
-3. 新加的方法不要使用第三方库的方法，Hutools遵循无依赖原则（除非在extra模块中加方法工具）。
-4. 请pull request到`v2-dev`分支。Hutools在5.x版本后使用了新的分支：`v2-master`是主分支，表示已经发布中央库的版本，这个分支不允许pr，也不允许修改。
+2. custard的缩进按照IDEA 默认（tab）缩进，所以请遵守（不要和我争执空格与tab的问题，这是一个病人的习惯）。
+3. 新加的方法不要使用第三方库的方法，custard遵循无依赖原则（除非在extra模块中加方法工具）。
+4. 请pull request到`v2-dev`分支。custard在5.x版本后使用了新的分支：`v2-master`是主分支，表示已经发布中央库的版本，这个分支不允许pr，也不允许修改。
 5. 我们如果关闭了你的issue或pr，请不要诧异，这是我们保持问题处理整洁的一种方式，你依旧可以继续讨论，当有讨论结果时我们会重新打开。
 
 -------------------------------------------------------------------------------

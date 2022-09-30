@@ -14,12 +14,12 @@ import random
 import time
 import unittest
 
-from hutools.expect import ExcContextManager
-from hutools.expect.record import handle_exception
-from hutools.expect.spacer import keep_circulating
-from hutools.function import bind_run_many_times, where_is_it_called
-from hutools.lock import singleton_lock
-from hutools.time import TimerContextManager, calc_time, bind_timeout
+from custard.expect import ExcContextManager
+from custard.expect.record import handle_exception
+from custard.expect.spacer import keep_circulating
+from custard.function import bind_run_many_times, where_is_it_called
+from custard.lock import singleton_lock
+from custard.time import TimerContextManager, calc_time, bind_timeout
 
 
 class _Test(unittest.TestCase):

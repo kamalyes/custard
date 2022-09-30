@@ -9,8 +9,8 @@
 @License :  (C)Copyright 2022-2026
 @Desc    :  None
 """
-from hutools.core.useragent import (firefox, safari, internet_explorer, opera)
-from hutools.core.useragent import (linux_platform_token, mac_platform_token, win_platform_token,
+from custard.core.useragent import (firefox, safari, internet_explorer, opera)
+from custard.core.useragent import (linux_platform_token, mac_platform_token, win_platform_token,
                                     android_platform_token)
 
 print(firefox())

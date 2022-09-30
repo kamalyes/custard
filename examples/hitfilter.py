@@ -9,7 +9,7 @@
 @License :  (C)Copyright 2022-2026
 @Desc    :  None
 """
-from hutools.hitfilter import hitfilter
+from custard.hitfilter import hitfilter
 
 if __name__ == "__main__":
     gfw = hitfilter.DFAFilter()

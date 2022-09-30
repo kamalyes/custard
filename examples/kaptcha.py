@@ -1,4 +1,4 @@
-from hutools import kaptcha
+from custard import kaptcha
 
 kaptcha.CaptchaPainter(text="5266", im_x=300).normal.show()
 

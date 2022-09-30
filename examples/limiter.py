@@ -13,8 +13,8 @@ import aioredis
 import uvicorn
 from fastapi import Depends, FastAPI
 
-from hutools.limiter import Limiter
-from hutools.limiter.depends import RateLimiter
+from custard.limiter import Limiter
+from custard.limiter.depends import RateLimiter
 
 app = FastAPI()
 

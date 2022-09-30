@@ -71,17 +71,17 @@ class PyTest(TestCommand):
 
 
 setup(
-    name="hutools",
+    name="custard",
     version="1.0.0",
-    url="https://github.com/kamalyes/hutools",
+    url="https://github.com/kamalyes/custard",
     license="BSD",
     include_package_data=True,
-    description="A python library adding hutools",
+    description="A python library adding custard",
     long_description=long_description,
     long_description_content_type='text/markdown',
-    author="Kamalyes",
+    author="kamalyes",
     author_email="mryu168@163.com",
-    packages=find_packages(exclude="hutools"),
+    packages=find_packages(exclude="custard"),
     # https://packaging.python.org/guides/distributing-packages-using-setuptools/#python-requires
     python_requires='>=3.5',
     test_suite="tests.tests",

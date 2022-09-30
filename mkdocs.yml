@@ -1,12 +1,12 @@
-site_name: hutools
+site_name: custard
 site_description: 🍬A set of tools that keep Python sweet.
-site_url: https://www.python-hutools.org/
+site_url: https://www.python-custard.org/
 
 theme:
     name: 'material'
 
-repo_name: kamalyes/hutools
-repo_url: https://github.com/kamalyes/hutools
+repo_name: kamalyes/custard
+repo_url: https://github.com/kamalyes/custard
 edit_uri: ""
 
 nav:

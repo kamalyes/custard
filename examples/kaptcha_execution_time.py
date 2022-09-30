@@ -1,6 +1,6 @@
 import time
 
-from hutools import kaptcha
+from custard import kaptcha
 
 
 def test4():

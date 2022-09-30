@@ -16,7 +16,7 @@ import sys
 import traceback
 import unittest.mock
 
-from hutools.json import jsonlogger
+from custard.json import jsonlogger
 
 try:
     import xmlrunner  # noqa

@@ -1,6 +1,6 @@
 from pprint import pprint
 
-from hutools.mock import Mock
+from custard.mock import Mock
 
 Mock = Mock()
 
