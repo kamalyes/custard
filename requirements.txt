@@ -1,4 +1,5 @@
 Faker~=13.6.0
+pypinyin>=0.39.1
 pyjwt==2.3.0
 pytest>=6.22
 # pypiwin32>=223

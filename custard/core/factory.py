@@ -13,6 +13,7 @@ import random
 import re
 import string
 
+import pypinyin
 from faker import Faker
 
 from custard.time.moment import Moment
@@ -21,6 +22,24 @@ fake = Faker(['zh_CN'])
 
 
 class MockHelper:
+    @staticmethod
+    def hans2pinyin(hans, style='A'):
+        """
+        汉字转拼音
+        Args:
+            hans: 汉字
+            style: 返回首字母还是全拼， A：全拼； F：首字母
+        Returns:
+        Examples:
+            >>> print(MockHelper.hans2pinyin("啊哈哈哈"))
+            >>> print(MockHelper.hans2pinyin("啊哈哈哈", "F"))
+        """
+
+        if style.upper() == 'F':
+            return ''.join(pypinyin.lazy_pinyin(hans=hans, style=pypinyin.Style.FIRST_LETTER))
+        else:
+            return ''.join(pypinyin.lazy_pinyin(hans=hans))
+
     @staticmethod
     def rand_mail(email_type=None, max_num=None, rad_count=None):
         """
