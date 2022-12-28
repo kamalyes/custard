@@ -9,12 +9,18 @@
 @license :  (c)copyright 2022-2026
 @desc    :  函数助手
 """
+import json
 import random
 import re
 import string
+from typing import List, Dict
+from urllib.parse import quote
 
 import pypinyin
 from faker import Faker
+from requests.exceptions import InvalidURL
+from urllib3.exceptions import LocationParseError
+from urllib3.util import parse_url
 
 from custard.time.moment import Moment
 
@@ -757,3 +763,180 @@ class MockHelper:
             return dict_map
         elif dict_map is None:  # fix：为空的时候raise 异常导致其它函数调用失败
             pass
+
+
+class MsHelper(object):
+    GLOBAL_PAGE_INDEX = ["page_index" "pageindex"]
+    GLOBAL_PAGE_SIZE = ["page_size" "pagesize"]
+
+    @classmethod
+    def __property__(cls, prop):
+        """
+        数据转换
+        Args:
+            prop:
+        Returns:
+        Examples:
+            >>> props = [1,"abc",True,None,False]
+            >>> for prop in props:
+            ...    MsHelper.__property__(prop)
+        """
+        randint_val = random.randint(1, 1000)
+        if isinstance(prop, bool):
+            prop = "true" if prop else "false"
+        if isinstance(prop, int):
+            prop = randint_val
+        elif isinstance(prop, float):
+            prop = randint_val / 3.333
+        elif prop is None:
+            prop = "null"
+        return prop
+
+    @classmethod
+    def assert_obj(cls, value):
+        """
+        验证类型是否为obj
+        Args:
+            value:
+        Returns:
+        """
+        support_type = (list, float, int, tuple)
+        type_err = TypeError("类型错误、仅支持dict")
+        if isinstance(value, support_type):
+            raise type_err
+        if isinstance(value, str):
+            try:
+                json.loads(value)
+            except json.decoder.JSONDecodeError as decoder_err:
+                raise decoder_err
+            return json
+        if isinstance(value, dict):
+            return Dict
+
+    @classmethod
+    def sub_kv(cls, data: List):
+        """
+        合并key value
+        Args:
+            data:
+        Returns:
+        Examples:
+            >>> data_ = ["a1=5","a3=6"]
+            >>> dinct_data_ = ["a2=6","a2=6"]
+            >>> MsHelper.sub_kv(data_)
+            >>> MsHelper.sub_kv(dinct_data_)
+        """
+        temp_dict = {}
+        for index in range(len(data)):
+            present = data[index]
+            if "=" in present:
+                pr_ = present.split("=")
+                temp_dict.update({pr_[0]: pr_[1]})
+            else:
+                temp_dict.update({present: ""})
+            # 相同数据跳出
+            if index < len(data) - 1:
+                if present == data[index + 1]:
+                    break
+        return temp_dict
+
+    @classmethod
+    def form2json(cls, url):
+        """
+        form-data 转换为 Json
+        Args:
+            url:
+        Returns:
+        Examples:
+            >>> form_data_ = ""
+            >>> for index in range(10000):
+            ...     form_data_ += f"&a{index}={index}"
+            >>> url_ = f"http://localhost?{form_data_}"
+            >>> output_ = MsHelper.form2json(url_)
+            >>> print(output_)
+        """
+        try:
+            scheme, auth, host, port, path, query, fragment = parse_url(url)
+        except LocationParseError as e:
+            raise InvalidURL(*e.args)
+        output = {}
+        if query:
+            query_split = query.split('&')
+            start = 0
+            end = len(query_split) - 1
+            while start <= end:
+                spl_data = [query_split[start], query_split[end]]
+                output = dict(output, **cls.sub_kv(spl_data))
+                start += 1
+                end -= 1
+        return output
+
+    @classmethod
+    def json2form(cls, obj):
+        """
+        json转换为fromdata
+        Args:
+            obj:
+        Returns:
+        Examples:
+            >>> have_array_obj_ = {"a":125678,"b":"ABCDEFG", "c":[{"c1":5}]}
+            >>> have_dict_obj_ = {"a":125678,"b":"ABCDEFG", "c":{"c1":5}}
+            >>> err_obj_ = {"a":125678,"b":"ABCDEFG", "c":[{"c1":5}],  "d":{"d1":5}}
+            >>> obj_ = {"a":125678,"b":"%", "c":"=","d":"&", "e":""}
+            >>> MsHelper.json2form(json.dumps(obj_))
+            >>> MsHelper.json2form(json.dumps(have_array_obj_))
+            >>> MsHelper.json2form(json.dumps(have_dict_obj_))
+            >>> MsHelper.json2form(json.dumps(err_obj_))
+        """
+        output = ""
+        type_ = cls.assert_obj(obj)
+        data = json.loads(obj) if type_ is json else obj
+        for key, value in data.items():
+            if isinstance(value, (list, dict)):
+                raise TypeError("请核对参数及Content-Type是否规范")
+            if isinstance(value, str):
+                value = quote(value, "unicode")
+            output += f'&{key}={value}'
+        return output
+
+    @classmethod
+    def json2vars(cls, target_value, source_value="", replace=True):
+        """
+        json转为vars
+        Args:
+            target_value:
+            source_value:
+            replace:
+        Returns:
+        Examples:
+            >>> data_ = { "code": 200, "message": None, "error": False, "details":[{"d1":True}], "total_count": 5}
+            >>> result = MsHelper.json2vars(data_)
+        """
+        if isinstance(target_value, dict):
+            for key, value in target_value.items():
+                if not isinstance(value, list):
+                    if value is None:
+                        value = "null"
+                    elif isinstance(value, bool):
+                        value = "true" if value else "false"
+                    if replace:
+                        paging = [cls.GLOBAL_PAGE_INDEX, cls.GLOBAL_PAGE_SIZE]
+                        if key in cls.GLOBAL_PAGE_INDEX:
+                            value = 1
+                        elif key in cls.GLOBAL_PAGE_SIZE:
+                            value = 10
+                        elif key not in paging:
+                            value = cls.__property__(value)
+                    source_value += f"vars.put('{key}','{value}');\n"
+                elif isinstance(value, list):
+                    source_value = cls.json2vars(target_value=value, source_value=source_value,
+                                                 replace=replace)
+        elif isinstance(target_value, list):
+            for index in range(len(target_value)):
+                target_value_ = target_value[index]
+                # 启用该行数据不会去重，有多少条就产生多少
+                # source_value = cls.json2vars(target_value=target_value_, source_value=source_value, replace=replace)
+                # 以下方式会去重
+                return cls.json2vars(target_value=target_value_, source_value=source_value,
+                                     replace=replace)
+        return source_value
