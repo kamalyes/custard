@@ -1,0 +1,152 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "custard"
+description = "custard easy to learn, fast to code, ready for production"
+readme = "README.md"
+requires-python = ">=3.7"
+license = "MIT"
+authors = [
+    { name = "Kamalyes", email = "mryu168@163.com" },
+]
+classifiers = [
+    "Intended Audience :: System Administrators",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+dependencies = [
+    "starlette==0.22.0",
+    "pydantic >=1.6.2,!=1.7,!=1.7.1,!=1.7.2,!=1.7.3,!=1.8,!=1.8.1,<2.0.0",
+]
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/kamalyes/custard"
+
+[project.optional-dependencies]
+test = [
+    "pytest >=7.1.3,<8.0.0",
+    "coverage[toml] >= 6.5.0,<7.0",
+    "mypy ==0.982",
+    "black == 22.10.0",
+    "isort >=5.0.6,<6.0.0",
+]
+doc = [
+    "mkdocs >=1.1.2,<2.0.0",
+    "mkdocs-material >=8.1.5,<9.0.0",
+    "mdx-include >=1.4.1,<2.0.0",
+    "mkdocs-markdownextradata-plugin >=0.1.7,<0.3.0",
+    # TODO: upgrade and enable typer-cli once it supports Click 8.x.x
+    # "typer-cli >=0.0.12,<0.0.13",
+    "typer[all] >=0.6.1,<0.8.0",
+    "pyyaml >=5.3.1,<7.0.0",
+]
+dev = [
+    "ruff ==0.0.138",
+    "uvicorn[standard] >=0.12.0,<0.19.0",
+    "pre-commit >=2.17.0,<3.0.0",
+]
+all = [
+    "Faker~=13.6.0",
+    "pypinyin>=0.39.1",
+    "pytest>=6.22",
+    "six>=1.16.0",
+    "kafka>=1.3.5",
+    "fastapi>=0.78.0",
+    "sqlalchemy>=1.4.37",
+    "uvicorn>=0.17.6",
+    "pydantic>=1.9.0",
+    "contextvars>=2.4",
+    "requests~=2.27.0",
+    "starlette>=0.19.1",
+    "aioredis~=2.0.1",
+    "lxml>=4.9.0",
+    "redis>=3.5.3",
+    "mkdocs>=1.3.0",
+    "certifi<=2021.10.8",
+    "dicttoxml>=1.7.4",
+    "crypto~=1.4.1",
+    "PyYAML~=6.0",
+    "urllib3~=1.26.12",
+]
+
+[tool.hatch.version]
+path = "custard/__init__.py"
+
+[tool.isort]
+profile = "black"
+known_third_party = ["custard"]
+
+[tool.mypy]
+strict = true
+
+#[[tool.mypy.overrides]]
+#module = "custard.tests.*"
+#warn_unused_ignores = true
+#ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+addopts = [
+    "--strict-config",
+    "--strict-markers",
+]
+xfail_strict = true
+junit_family = "xunit2"
+filterwarnings = [
+    "error",
+    # TODO: needed by asyncio in Python 3.9.7 https://bugs.python.org/issue45097, try to remove on 3.9.8
+    'ignore:The loop argument is deprecated since Python 3\.8, and scheduled for removal in Python 3\.10:DeprecationWarning:asyncio',
+    'ignore:starlette.middleware.wsgi is deprecated and will be removed in a future release\..*:DeprecationWarning:starlette',
+    # TODO: remove after upgrading HTTPX to a version newer than 0.23.0
+    # Including PR: https://github.com/encode/httpx/pull/2309
+    "ignore:'cgi' is deprecated:DeprecationWarning",
+    # For passlib
+    "ignore:'crypt' is deprecated and slated for removal in Python 3.13:DeprecationWarning",
+    # see https://trio.readthedocs.io/en/stable/history.html#trio-0-22-0-2022-09-28
+    "ignore:You seem to already have a custom.*:RuntimeWarning:trio",
+    "ignore::trio.TrioDeprecationWarning",
+    # TODO remove pytest-cov
+    'ignore::pytest.PytestDeprecationWarning:pytest_cov',
+]
+
+[tool.coverage.run]
+parallel = true
+source = [
+    "custard"
+]
+context = '${CONTEXT}'
+
+[tool.ruff]
+select = [
+    "E", # pycodestyle errors
+    "W", # pycodestyle warnings
+    "F", # pyflakes
+    # "I",  # isort
+    "C", # flake8-comprehensions
+    "B", # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long, handled by black
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.ruff.isort]
+known-third-party = ["custard"]
