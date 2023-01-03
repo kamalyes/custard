@@ -927,7 +927,7 @@ class MsHelper(object):
                             value = 10
                         elif key not in paging:
                             value = cls.__property__(value)
-                    source_value += f"vars.put('{key}','{value}');\n"
+                    source_value += f'vars.put("{key}","{value}");\n'
                 elif isinstance(value, list):
                     source_value = cls.json2vars(target_value=value, source_value=source_value,
                                                  replace=replace)
