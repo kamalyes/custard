@@ -914,7 +914,7 @@ class MsHelper(object):
         """
         if isinstance(target_value, dict):
             for key, value in target_value.items():
-                if not isinstance(value, list):
+                if not isinstance(value, (list,dict)):
                     if value is None:
                         value = "null"
                     elif isinstance(value, bool):
@@ -925,11 +925,11 @@ class MsHelper(object):
                             value = 1
                         elif key in cls.GLOBAL_PAGE_SIZE:
                             value = 10
-                        elif key not in paging:
+                        if key not in paging:
                             value = cls.__property__(value)
                     source_value += f'vars.put("{key}","{value}");\n'
-                elif isinstance(value, list):
-                    source_value = cls.json2vars(target_value=value, source_value=source_value,
+                else:
+                  source_value = cls.json2vars(target_value=value, source_value=source_value,
                                                  replace=replace)
         elif isinstance(target_value, list):
             for index in range(len(target_value)):
