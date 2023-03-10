@@ -9,6 +9,7 @@
 @license :  (c)copyright 2022-2026
 @desc    :  函数助手
 """
+from collections import defaultdict
 import json
 import random
 import re
@@ -21,7 +22,6 @@ from faker import Faker
 from requests.exceptions import InvalidURL
 from urllib3.exceptions import LocationParseError
 from urllib3.util import parse_url
-
 from custard.time.moment import Moment
 
 fake = Faker(['zh_CN'])
@@ -69,7 +69,8 @@ class MockHelper:
             "@gmail.com",
             "@yahoo.com",
         ]
-        email_type_ = random.choice(email_array) if email_type is None else email_type
+        email_type_ = random.choice(
+            email_array) if email_type is None else email_type
         max_num_ = random.randint(5, 10) if max_num is None else max_num
         rad_count_ = 1 if rad_count is None else rad_count
         while count < rad_count_:
@@ -110,7 +111,8 @@ class MockHelper:
                 code_list.append(chr(i))
             for i in range(97, 123):  # 对应从“a”到“z”的ascii码
                 code_list.append(chr(i))
-            my_slice = random.sample(code_list, max_num)  # 从list中随机获取6个元素，作为一个片断返回
+            # 从list中随机获取6个元素，作为一个片断返回
+            my_slice = random.sample(code_list, max_num)
             verification_codes.append("".join(my_slice))  # list to string
             count += 1
         if rad_count > 1:
@@ -128,7 +130,8 @@ class MockHelper:
         Examples:
             >>> MockHelper.rand_str_list(length=5)
         """
-        init_chars = "".join("".join(map(str, [i for i in range(10) if i != 4])))  # 数字
+        init_chars = "".join(
+            "".join(map(str, [i for i in range(10) if i != 4])))  # 数字
         sample_list = random.sample(init_chars, length)
         return sample_list
 
@@ -315,7 +318,8 @@ class MockHelper:
             181,
             189,
         ]
-        rand_phone_prefix = phone_prefixes[random.randint(0, len(phone_prefixes))]
+        rand_phone_prefix = phone_prefixes[random.randint(
+            0, len(phone_prefixes))]
         return [f'{rand_phone_prefix}{MockHelper.rand_mum(8)}' for i in range(length)]
 
     @staticmethod
@@ -668,7 +672,8 @@ class MockHelper:
         # typeerror: expected string or bytes-like object
         rand_vars = re.match("\\$\\{rand_(.*)\\((.*)\\)\\}", str(name))  # 带参数
         rand_no_vars = re.match("\\$\\{rand_(.*)\\}", str(name))  # 无参数
-        dynamic_vars = re.match("\\$\\{get(.*)\\((.*)\\)\\}", str(name))  # 动态自定义
+        dynamic_vars = re.match(
+            "\\$\\{get(.*)\\((.*)\\)\\}", str(name))  # 动态自定义
         own_vars = re.match("\\{\\{(.*)\\}\\}", str(name))  # 动态自定义
         extract_vars = re.match("\\$var_(.*)", str(name).upper())  # 后置提取参数
         lock_vars = re.match("\\$enc_(.*)", str(name))  # 带参数
@@ -755,14 +760,25 @@ class MockHelper:
             for key in list(dict_map.keys()):
                 if isinstance(dict_map[key], list):
                     for i in range(len(dict_map[key])):
-                        dict_map[key][i] = MockHelper.comb_data(dict_map=dict_map[key][i])
+                        dict_map[key][i] = MockHelper.comb_data(
+                            dict_map=dict_map[key][i])
                 elif isinstance(dict_map[key], dict):
-                    dict_map[key] = MockHelper.comb_data(dict_map=dict_map[key])
+                    dict_map[key] = MockHelper.comb_data(
+                        dict_map=dict_map[key])
                 else:
                     dict_map[key] = MockHelper.cite(dict_map[key])
             return dict_map
         elif dict_map is None:  # fix：为空的时候raise 异常导致其它函数调用失败
             pass
+
+
+class AutoVivification(dict):
+  def __getitem__(self, item):
+    try:
+      return dict.__getitem__(self, item)
+    except KeyError:
+      value = self[item] = type(self)()
+    return value
 
 
 class MsHelper(object):
@@ -793,25 +809,24 @@ class MsHelper(object):
         return prop
 
     @classmethod
-    def assert_obj(cls, value):
+    def obj_convert_dict(cls, data):
         """
-        验证类型是否为obj
+        字典类型转换
         Args:
-            value:
+            data:
         Returns:
         """
         support_type = (list, float, int, tuple)
         type_err = TypeError("类型错误、仅支持dict")
-        if isinstance(value, support_type):
+        if isinstance(data, support_type):
             raise type_err
-        if isinstance(value, str):
+        if isinstance(data, str):
             try:
-                json.loads(value)
+                return json.loads(data)
             except json.decoder.JSONDecodeError as decoder_err:
                 raise decoder_err
-            return json
-        if isinstance(value, dict):
-            return Dict
+        if isinstance(data, dict):
+            return data
 
     @classmethod
     def sub_kv(cls, data: List):
@@ -889,8 +904,7 @@ class MsHelper(object):
             >>> MsHelper.json2form(json.dumps(err_obj_))
         """
         output = ""
-        type_ = cls.assert_obj(obj)
-        data = json.loads(obj) if type_ is json else obj
+        data = cls.obj_convert_dict(obj)
         for key, value in data.items():
             if isinstance(value, (list, dict)):
                 raise TypeError("请核对参数及Content-Type是否规范")
@@ -900,21 +914,21 @@ class MsHelper(object):
         return output
 
     @classmethod
-    def json2vars(cls, target_value, source_value="", replace=True):
+    def json2vars(cls, target_data, source_data="", replace=True):
         """
         json转为vars
         Args:
-            target_value:
-            source_value:
+            target_data:
+            source_data:
             replace:
         Returns:
         Examples:
             >>> data_ = { "code": 200, "message": None, "error": False, "details":[{"d1":True}], "total_count": 5}
             >>> result = MsHelper.json2vars(data_)
         """
-        if isinstance(target_value, dict):
-            for key, value in target_value.items():
-                if not isinstance(value, (list,dict)):
+        if isinstance(target_data, dict):
+            for key, value in target_data.items():
+                if not isinstance(value, (list, dict)):
                     if value is None:
                         value = "null"
                     elif isinstance(value, bool):
@@ -927,16 +941,68 @@ class MsHelper(object):
                             value = 10
                         if key not in paging:
                             value = cls.__property__(value)
-                    source_value += f'vars.put("{key}","{value}");\n'
+                    source_data += f'vars.put("{key}","{value}");\n'
                 else:
-                  source_value = cls.json2vars(target_value=value, source_value=source_value,
-                                                 replace=replace)
-        elif isinstance(target_value, list):
-            for index in range(len(target_value)):
-                target_value_ = target_value[index]
+                  source_data = cls.json2vars(target_data=value, source_data=source_data,
+                                              replace=replace)
+        elif isinstance(target_data, list):
+            for index in range(len(target_data)):
+                target_data_ = target_data[index]
                 # 启用该行数据不会去重，有多少条就产生多少
-                # source_value = cls.json2vars(target_value=target_value_, source_value=source_value, replace=replace)
+                # source_data = cls.json2vars(target_data=target_data_, source_data=source_data, replace=replace)
                 # 以下方式会去重
-                return cls.json2vars(target_value=target_value_, source_value=source_value,
+                return cls.json2vars(target_data=target_data_, source_data=source_data,
                                      replace=replace)
-        return source_value
+        return source_data
+
+    @classmethod
+    def change_value(cls, key, oneself):
+        """
+        Args:
+            key:
+            oneself:
+        Returns:
+        Examples:
+        """
+        return f'${{{key}}}' if oneself else ""
+
+    @classmethod
+    def ov_init(cls, target_data, source_data: dict = {}, pater_is_list=False, oneself=False, change_type=json):
+      """
+        将json中所有value初始化为""或者${oneself}
+        Args:
+            target_data:
+            source_data:
+            pater_is_list:
+            oneself:
+            change_type:
+        Returns:
+        Examples:
+            >>> target_data = { "code": 200, "details":[{"b1":True,"b2":True}], "total_count": {"d1":1,"d2":5}}
+            >>> ov_data = MsHelper.ov_init(target_data)
+            >>> print(json.dumps(ov_data))
+        """
+      if isinstance(target_data, dict):
+        data_ = cls.obj_convert_dict(target_data)
+        for key, value in data_.items():
+          if not isinstance(value, (list, dict)):
+              source_data.update({key: cls.change_value(key, oneself)})
+          else:
+            cls.ov_init(target_data=(key, value), source_data=source_data,
+                        oneself=oneself, change_type=change_type)
+      elif isinstance(target_data, tuple):
+        pater_key, pater_value = target_data
+        if isinstance(pater_value, dict):
+          if pater_is_list:
+            temp = [{key: cls.change_value(key, oneself)} for key, value in pater_value.items()]
+            source_data.update({pater_key[0]: temp})
+          else:
+            item = defaultdict(dict)
+            for key, value in pater_value.items():
+              item[pater_key][key] = cls.change_value(key, oneself)
+            source_data.update(item)
+        elif isinstance(pater_value, list) and len(pater_value) > 0:
+            return cls.ov_init(target_data=(pater_key, pater_value[0]), source_data=source_data, pater_is_list=True, oneself=oneself, change_type=change_type)
+        elif isinstance(pater_value, list) and pater_value == []:
+          source_data.update({pater_key: pater_value})
+      return source_data if change_type is dict else json.dumps(source_data)

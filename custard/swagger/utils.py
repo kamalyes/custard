@@ -18,13 +18,12 @@ def path_format(url, params):
     return t.safe_substitute(params)
 
 
-def form_format(data: dict):
+def form_format(data: dict, file:str):
     _data = dict()
     for k, v in data.items():
-        if v == 'file.txt':
-            v = (k, open('file.txt', mode='rb'))
+        if v == file:
+            v = (k, open(file, mode='rb'))
         else:
             v = (None, v)
         _data.update({k: v})
-
     return _data
