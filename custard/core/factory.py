@@ -1002,7 +1002,7 @@ class MsHelper(object):
         if isinstance(pater_value, dict):
           if pater_is_list:
             temp = [{key: cls.change_value(key, oneself)} for key, value in pater_value.items()]
-            source_data.update({pater_key[0]: temp})
+            source_data.update({pater_key: temp})
           else:
             item = defaultdict(dict)
             for key, value in pater_value.items():
