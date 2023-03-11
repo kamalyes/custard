@@ -10,13 +10,14 @@
 @Desc    :  None
 """
 import csv
+import custard
 import json
 import os
 import platform
 
 import yaml
 
-from .processor import DataHand
+from custard.core.processor import DataHand
 
 
 class System:
@@ -135,3 +136,21 @@ class System:
                     for row in reader:
                         csv_content_list.append(row)
                 return csv_content_list
+
+    @classmethod
+    def walk(cls, root_dir: str):
+        """
+        检索根目录，得到所有的子文件夹或子文件名
+        Args:
+            root_dir (str): _description_
+        Examples:
+            >>> root_dir = "../../custard"
+            >>> System.walk(root_dir)
+        """
+        result = []
+        dirs = [os.path.join(root_dir, index) for index in os.listdir(root_dir)]
+        for index in dirs:
+            for root, dirs, files in os.walk(index, topdown=False):
+                file_path = [os.path.join(root, file) for file in files]
+                result += file_path
+        return result
