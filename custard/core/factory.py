@@ -24,12 +24,12 @@ from urllib3.exceptions import LocationParseError
 from urllib3.util import parse_url
 from custard.time.moment import Moment
 
-fake = Faker(['zh_CN'])
+fake = Faker(["zh_CN"])
 
 
 class MockHelper:
     @staticmethod
-    def hans2pinyin(hans, style='A'):
+    def hans2pinyin(hans, style="A"):
         """
         汉字转拼音
         Args:
@@ -41,10 +41,10 @@ class MockHelper:
             >>> print(MockHelper.hans2pinyin("啊哈哈哈", "F"))
         """
 
-        if style.upper() == 'F':
-            return ''.join(pypinyin.lazy_pinyin(hans=hans, style=pypinyin.Style.FIRST_LETTER))
+        if style.upper() == "F":
+            return "".join(pypinyin.lazy_pinyin(hans=hans, style=pypinyin.Style.FIRST_LETTER))
         else:
-            return ''.join(pypinyin.lazy_pinyin(hans=hans))
+            return "".join(pypinyin.lazy_pinyin(hans=hans))
 
     @staticmethod
     def rand_mail(email_type=None, max_num=None, rad_count=None):
@@ -69,8 +69,7 @@ class MockHelper:
             "@gmail.com",
             "@yahoo.com",
         ]
-        email_type_ = random.choice(
-            email_array) if email_type is None else email_type
+        email_type_ = random.choice(email_array) if email_type is None else email_type
         max_num_ = random.randint(5, 10) if max_num is None else max_num
         rad_count_ = 1 if rad_count is None else rad_count
         while count < rad_count_:
@@ -130,8 +129,7 @@ class MockHelper:
         Examples:
             >>> MockHelper.rand_str_list(length=5)
         """
-        init_chars = "".join(
-            "".join(map(str, [i for i in range(10) if i != 4])))  # 数字
+        init_chars = "".join("".join(map(str, [i for i in range(10) if i != 4])))  # 数字
         sample_list = random.sample(init_chars, length)
         return sample_list
 
@@ -197,14 +195,14 @@ class MockHelper:
 
     @staticmethod
     def rand_compute_time(
-            days=0,
-            seconds=0,
-            microseconds=0,
-            milliseconds=0,
-            minutes=0,
-            hours=0,
-            weeks=0,
-            custom=None,
+        days=0,
+        seconds=0,
+        microseconds=0,
+        milliseconds=0,
+        minutes=0,
+        hours=0,
+        weeks=0,
+        custom=None,
     ):
         """
         随机生成偏移时间
@@ -318,9 +316,8 @@ class MockHelper:
             181,
             189,
         ]
-        rand_phone_prefix = phone_prefixes[random.randint(
-            0, len(phone_prefixes))]
-        return [f'{rand_phone_prefix}{MockHelper.rand_mum(8)}' for i in range(length)]
+        rand_phone_prefix = phone_prefixes[random.randint(0, len(phone_prefixes))]
+        return [f"{rand_phone_prefix}{MockHelper.rand_mum(8)}" for i in range(length)]
 
     @staticmethod
     def rand_name():
@@ -473,9 +470,7 @@ class MockHelper:
         return fake.job()
 
     @staticmethod
-    def rand_pwd(
-            length=10, special_chars=True, digits=True, upper_case=True, lower_case=True
-    ):
+    def rand_pwd(length=10, special_chars=True, digits=True, upper_case=True, lower_case=True):
         """
         随机生成密码
         lower_case:
@@ -637,11 +632,7 @@ class MockHelper:
             "jwt_encode",
         ]
         if method in func_list:
-            exec(
-                '_var = {method}("{target_key}")'.format(
-                    method=method, target_key=MockHelper.cite(target_key)
-                )
-            )
+            exec('_var = {method}("{target_key}")'.format(method=method, target_key=MockHelper.cite(target_key)))
             var = locals()["_var"]
             return var.decode() if isinstance(var, bytes) else var
         else:
@@ -672,8 +663,7 @@ class MockHelper:
         # typeerror: expected string or bytes-like object
         rand_vars = re.match("\\$\\{rand_(.*)\\((.*)\\)\\}", str(name))  # 带参数
         rand_no_vars = re.match("\\$\\{rand_(.*)\\}", str(name))  # 无参数
-        dynamic_vars = re.match(
-            "\\$\\{get(.*)\\((.*)\\)\\}", str(name))  # 动态自定义
+        dynamic_vars = re.match("\\$\\{get(.*)\\((.*)\\)\\}", str(name))  # 动态自定义
         own_vars = re.match("\\{\\{(.*)\\}\\}", str(name))  # 动态自定义
         extract_vars = re.match("\\$var_(.*)", str(name).upper())  # 后置提取参数
         lock_vars = re.match("\\$enc_(.*)", str(name))  # 带参数
@@ -717,9 +707,7 @@ class MockHelper:
             key, value = pattern.groups()
             if func_dict.get(key):
                 func = func_dict[key]
-                _param = [
-                    eval(x) if x.strip().isdigit() else x for x in value.split(",")
-                ]
+                _param = [eval(x) if x.strip().isdigit() else x for x in value.split(",")]
                 if len(_param) >= 1 and "" not in _param:
                     return func.__call__(*_param)
                 elif "" in _param:
@@ -731,10 +719,7 @@ class MockHelper:
         elif rand_no_vars:
             return func_dict[rand_no_vars.group().strip("${rand_}")].__call__()
         elif lock_vars:
-            _lock_param = [
-                eval(x) if x.strip().isdigit() else x
-                for x in lock_vars.group().strip("$enc_()").split(",")
-            ]
+            _lock_param = [eval(x) if x.strip().isdigit() else x for x in lock_vars.group().strip("$enc_()").split(",")]
             if len(_lock_param) < 2:
                 raise IndexError(_lock_param)
             else:
@@ -760,11 +745,9 @@ class MockHelper:
             for key in list(dict_map.keys()):
                 if isinstance(dict_map[key], list):
                     for i in range(len(dict_map[key])):
-                        dict_map[key][i] = MockHelper.comb_data(
-                            dict_map=dict_map[key][i])
+                        dict_map[key][i] = MockHelper.comb_data(dict_map=dict_map[key][i])
                 elif isinstance(dict_map[key], dict):
-                    dict_map[key] = MockHelper.comb_data(
-                        dict_map=dict_map[key])
+                    dict_map[key] = MockHelper.comb_data(dict_map=dict_map[key])
                 else:
                     dict_map[key] = MockHelper.cite(dict_map[key])
             return dict_map
@@ -773,12 +756,12 @@ class MockHelper:
 
 
 class AutoVivification(dict):
-  def __getitem__(self, item):
-    try:
-      return dict.__getitem__(self, item)
-    except KeyError:
-      value = self[item] = type(self)()
-    return value
+    def __getitem__(self, item):
+        try:
+            return dict.__getitem__(self, item)
+        except KeyError:
+            value = self[item] = type(self)()
+        return value
 
 
 class MsHelper(object):
@@ -876,7 +859,7 @@ class MsHelper(object):
             raise InvalidURL(*e.args)
         output = {}
         if query:
-            query_split = query.split('&')
+            query_split = query.split("&")
             start = 0
             end = len(query_split) - 1
             while start <= end:
@@ -910,7 +893,7 @@ class MsHelper(object):
                 raise TypeError("请核对参数及Content-Type是否规范")
             if isinstance(value, str):
                 value = quote(value, "unicode")
-            output += f'&{key}={value}'
+            output += f"&{key}={value}"
         return output
 
     @classmethod
@@ -943,73 +926,12 @@ class MsHelper(object):
                             value = cls.__property__(value)
                     source_data += f'vars.put("{key}","{value}");\n'
                 else:
-                  source_data = cls.json2vars(target_data=value, source_data=source_data,
-                                              replace=replace)
+                    source_data = cls.json2vars(target_data=value, source_data=source_data, replace=replace)
         elif isinstance(target_data, list):
             for index in range(len(target_data)):
                 target_data_ = target_data[index]
                 # 启用该行数据不会去重，有多少条就产生多少
                 # source_data = cls.json2vars(target_data=target_data_, source_data=source_data, replace=replace)
                 # 以下方式会去重
-                return cls.json2vars(target_data=target_data_, source_data=source_data,
-                                     replace=replace)
+                return cls.json2vars(target_data=target_data_, source_data=source_data, replace=replace)
         return source_data
-
-    @classmethod
-    def change_value(cls, key, oneself):
-        """
-        Args:
-            key:
-            oneself:
-        Returns:
-        Examples:
-            >>> single_dict = {"code": "200", "error": "", "message": "", "data": []}
-            >>> single_mixture = {"code": 200, "details": [{"a1": True, "a2": True}], "total_count": {"c1": 1, "c2": 5}}
-            >>> double_mixture = {"code": 200, "details": [{"a1": True, "a2": True}, {"b1": True, "b2": True}], "total_count": {"c1": 1, "c2": 5}}
-            >>> sd_ov = MsHelper.ov_init(single_dict)
-            >>> sm_ov = MsHelper.ov_init(single_mixture)
-            >>> dm_ov = MsHelper.ov_init(double_mixture)
-            >>> oneself_ov = MsHelper.ov_init(double_mixture, oneself=True)
-        """
-        return f'${{{key}}}' if oneself else ""
-
-    @classmethod
-    def ov_init(cls, target_data, source_data: dict = {}, pater_is_list=False, oneself=False, change_type=json):
-      """
-        将json中所有value初始化为""或者${oneself}
-        Args:
-            target_data:
-            source_data:
-            pater_is_list:
-            oneself:
-            change_type:
-        Returns:
-        Examples:
-            >>> target_data = { "code": 200, "details":[{"b1":True,"b2":True}], "total_count": {"d1":1,"d2":5}}
-            >>> ov_data = MsHelper.ov_init(target_data)
-            >>> print(json.dumps(ov_data))
-        """
-      if isinstance(target_data, dict):
-        data_ = cls.obj_convert_dict(target_data)
-        for key, value in data_.items():
-          if not isinstance(value, (list, dict)):
-              source_data.update({key: cls.change_value(key, oneself)})
-          else:
-            cls.ov_init(target_data=(key, value), source_data=source_data,
-                        oneself=oneself, change_type=change_type)
-      elif isinstance(target_data, tuple):
-        pater_key, pater_value = target_data
-        if isinstance(pater_value, dict):
-          if pater_is_list:
-            temp = [{key: cls.change_value(key, oneself)} for key, value in pater_value.items()]
-            source_data.update({pater_key: temp})
-          else:
-            item = defaultdict(dict)
-            for key, value in pater_value.items():
-              item[pater_key][key] = cls.change_value(key, oneself)
-            source_data.update(item)
-        elif isinstance(pater_value, list) and len(pater_value) > 0:
-            return cls.ov_init(target_data=(pater_key, pater_value[0]), source_data=source_data, pater_is_list=True, oneself=oneself, change_type=change_type)
-        elif isinstance(pater_value, list) and pater_value == []:
-          source_data.update({pater_key: pater_value})
-      return source_data if change_type is dict else json.dumps(source_data)
