@@ -935,3 +935,60 @@ class MsHelper(object):
                 # 以下方式会去重
                 return cls.json2vars(target_data=target_data_, source_data=source_data, replace=replace)
         return source_data
+
+    @classmethod
+    def change_value(cls, key, oneself):
+        """
+        Args:
+            key:
+            oneself:
+        Returns:
+        Examples:
+            >>> single_dict = {"code": "200", "error": "", "message": "", "data": []}
+            >>> single_mixture = {"code": 200, "details": [{"a1": True, "a2": True}], "total_count": {"c1": 1, "c2": 5}}
+            >>> double_mixture = {"code": 200, "details": [{"a1": True, "a2": True}, {"b1": True, "b2": True}], "total_count": {"c1": 1, "c2": 5}}
+            >>> sd_ov = MsHelper.ov_init(single_dict)
+            >>> sm_ov = MsHelper.ov_init(single_mixture)
+            >>> dm_ov = MsHelper.ov_init(double_mixture)
+            >>> oneself_ov = MsHelper.ov_init(double_mixture, oneself=True)
+        """
+        return f"${{{key}}}" if oneself else ""
+
+    @classmethod
+    def ov_init(cls, target_data, source_data={}, parent=None, oneself=False, change_type=json):
+        """
+        将json中所有value初始化为""或者${oneself}
+        Args:
+            target_data:
+            source_data:
+            parent:
+            oneself:
+            change_type:
+        Returns:
+        Examples:
+            >>> target_data = { "code": 200, "details":[{"b1":True,"b2":True}], "total_count": {"d1":1,"d2":5}}
+            >>> ov_data = MsHelper.ov_init(target_data)
+            >>> print(json.dumps(ov_data))
+        """
+        if isinstance(target_data, dict):
+            item = defaultdict(dict)
+            for t_key, t_value in target_data.items():
+                if isinstance(t_value, dict):
+                    for v_key, v_value in t_value.items():
+                        if isinstance(v_value, (dict, list)):
+                            cls.ov_init({v_key: v_value}, source_data, t_key, oneself, change_type)
+                        item[t_key][v_key] = cls.change_value(v_key, oneself)
+                    source_data.update(item)
+                elif isinstance(t_value, list):
+                    cls.ov_init({t_key: t_value}, source_data, t_key, oneself, change_type)
+                else:
+                    print(t_key, t_value, item)
+        elif isinstance(target_data, list):
+            print(target_data)
+        return source_data if change_type is dict else json.dumps(source_data)
+
+
+target_data = {"A": {"A-1": 200, "A-2": [{"A-2-1": True, "A-2-2": True}], "A-3": {"A-3-1": 1, "A-3-2": 5}}, "B": [{"B-1": 555}]}
+ov_data = MsHelper.ov_init(target_data)
+A = json.dumps(ov_data)
+print(A)

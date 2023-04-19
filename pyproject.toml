@@ -82,7 +82,8 @@ all = [
     "dicttoxml>=1.7.4",
     "crypto~=1.4.1",
     "PyYAML~=6.0",
-    "urllib3~=1.26.12"
+    "urllib3~=1.26.12",
+    "w3lib~=2.1.1"
 ]
 
 [tool.hatch.version]

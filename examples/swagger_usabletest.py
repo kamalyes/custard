@@ -36,7 +36,7 @@ class APITestCase(unittest.TestCase):
         if not os.path.exists(cls.result_path):
           os.makedirs(cls.result_path)
         cls.run_host = run_host
-        cls.swagger_host = "https://localhost:7777"
+        cls.swagger_host = "https://awen.uat.rvet.cn"
         cls.swagger_path = "/swagger/doc.json"
         cls.service_list = ["order-api", "product-api", "customer-api", "pay_echo", "mall", "personalized-api", "boss"]
 
@@ -69,7 +69,7 @@ class APITestCase(unittest.TestCase):
               table_style = f"|:------:|:------:|:------:|:------:|:------:|:------:|:------:|\n"
               file.write(f"{table_title}{table_header}{table_style}")
         return file_name, swagger_data
-          
+
     @classmethod
     def thread_scan_api(cls, request, file_name, semaphore):
         """
@@ -133,7 +133,7 @@ class APITestCase(unittest.TestCase):
                   result = f'{global_res_data}`{res_text}`|\n'
               file.write(result)
         semaphore.release()  # 释放
-        
+
     def test_run(self):
       for service in self.service_list:  # 事件数
         file_name, swagger_data = self.init_env(service)
