@@ -42,7 +42,9 @@ class MockHelper:
         """
 
         if style.upper() == "F":
-            return "".join(pypinyin.lazy_pinyin(hans=hans, style=pypinyin.Style.FIRST_LETTER))
+            return "".join(
+                pypinyin.lazy_pinyin(hans=hans, style=pypinyin.Style.FIRST_LETTER)
+            )
         else:
             return "".join(pypinyin.lazy_pinyin(hans=hans))
 
@@ -143,7 +145,10 @@ class MockHelper:
         Examples:
             >>> MockHelper.rand_str(6)
         """
-        return [random.choice(string.digits + string.ascii_letters) for i in range(num_length)]
+        return [
+            random.choice(string.digits + string.ascii_letters)
+            for i in range(num_length)
+        ]
 
     @staticmethod
     def rand_mum(num_length):
@@ -156,7 +161,9 @@ class MockHelper:
         return "".join([random.choice(string.digits) for i in range(num_length)])
 
     @staticmethod
-    def rand_int_number(min_value: int = 0, max_value: int = 9999, step: int = 1) -> int:
+    def rand_int_number(
+        min_value: int = 0, max_value: int = 9999, step: int = 1
+    ) -> int:
         """
         随机生成整数
         Args:
@@ -274,7 +281,9 @@ class MockHelper:
             >>> MockHelper.rand_sample(10)
 
         """
-        return "".join([random.choice(string.ascii_letters + string.digits) for i in range(length)])
+        return "".join(
+            [random.choice(string.ascii_letters + string.digits) for i in range(length)]
+        )
 
     @staticmethod
     def rand_mobile_number(length: int):
@@ -470,7 +479,9 @@ class MockHelper:
         return fake.job()
 
     @staticmethod
-    def rand_pwd(length=10, special_chars=True, digits=True, upper_case=True, lower_case=True):
+    def rand_pwd(
+        length=10, special_chars=True, digits=True, upper_case=True, lower_case=True
+    ):
         """
         随机生成密码
         lower_case:
@@ -632,7 +643,11 @@ class MockHelper:
             "jwt_encode",
         ]
         if method in func_list:
-            exec('_var = {method}("{target_key}")'.format(method=method, target_key=MockHelper.cite(target_key)))
+            exec(
+                '_var = {method}("{target_key}")'.format(
+                    method=method, target_key=MockHelper.cite(target_key)
+                )
+            )
             var = locals()["_var"]
             return var.decode() if isinstance(var, bytes) else var
         else:
@@ -707,19 +722,26 @@ class MockHelper:
             key, value = pattern.groups()
             if func_dict.get(key):
                 func = func_dict[key]
-                _param = [eval(x) if x.strip().isdigit() else x for x in value.split(",")]
+                _param = [
+                    eval(x) if x.strip().isdigit() else x for x in value.split(",")
+                ]
                 if len(_param) >= 1 and "" not in _param:
                     return func.__call__(*_param)
                 elif "" in _param:
                     return func.__call__()  # 没有带参数的
         elif own_vars:
-            return MockHelper.cite(MockHelper.get_user_vars(own_vars.group().strip("{}")))
+            return MockHelper.cite(
+                MockHelper.get_user_vars(own_vars.group().strip("{}"))
+            )
         elif extract_vars:
             return MockHelper.get_encrypt_vars(extract_vars.group())
         elif rand_no_vars:
             return func_dict[rand_no_vars.group().strip("${rand_}")].__call__()
         elif lock_vars:
-            _lock_param = [eval(x) if x.strip().isdigit() else x for x in lock_vars.group().strip("$enc_()").split(",")]
+            _lock_param = [
+                eval(x) if x.strip().isdigit() else x
+                for x in lock_vars.group().strip("$enc_()").split(",")
+            ]
             if len(_lock_param) < 2:
                 raise IndexError(_lock_param)
             else:
@@ -745,7 +767,9 @@ class MockHelper:
             for key in list(dict_map.keys()):
                 if isinstance(dict_map[key], list):
                     for i in range(len(dict_map[key])):
-                        dict_map[key][i] = MockHelper.comb_data(dict_map=dict_map[key][i])
+                        dict_map[key][i] = MockHelper.comb_data(
+                            dict_map=dict_map[key][i]
+                        )
                 elif isinstance(dict_map[key], dict):
                     dict_map[key] = MockHelper.comb_data(dict_map=dict_map[key])
                 else:
@@ -926,69 +950,16 @@ class MsHelper(object):
                             value = cls.__property__(value)
                     source_data += f'vars.put("{key}","{value}");\n'
                 else:
-                    source_data = cls.json2vars(target_data=value, source_data=source_data, replace=replace)
+                    source_data = cls.json2vars(
+                        target_data=value, source_data=source_data, replace=replace
+                    )
         elif isinstance(target_data, list):
             for index in range(len(target_data)):
                 target_data_ = target_data[index]
                 # 启用该行数据不会去重，有多少条就产生多少
                 # source_data = cls.json2vars(target_data=target_data_, source_data=source_data, replace=replace)
                 # 以下方式会去重
-                return cls.json2vars(target_data=target_data_, source_data=source_data, replace=replace)
+                return cls.json2vars(
+                    target_data=target_data_, source_data=source_data, replace=replace
+                )
         return source_data
-
-    @classmethod
-    def change_value(cls, key, oneself):
-        """
-        Args:
-            key:
-            oneself:
-        Returns:
-        Examples:
-            >>> single_dict = {"code": "200", "error": "", "message": "", "data": []}
-            >>> single_mixture = {"code": 200, "details": [{"a1": True, "a2": True}], "total_count": {"c1": 1, "c2": 5}}
-            >>> double_mixture = {"code": 200, "details": [{"a1": True, "a2": True}, {"b1": True, "b2": True}], "total_count": {"c1": 1, "c2": 5}}
-            >>> sd_ov = MsHelper.ov_init(single_dict)
-            >>> sm_ov = MsHelper.ov_init(single_mixture)
-            >>> dm_ov = MsHelper.ov_init(double_mixture)
-            >>> oneself_ov = MsHelper.ov_init(double_mixture, oneself=True)
-        """
-        return f"${{{key}}}" if oneself else ""
-
-    @classmethod
-    def ov_init(cls, target_data, source_data={}, parent=None, oneself=False, change_type=json):
-        """
-        将json中所有value初始化为""或者${oneself}
-        Args:
-            target_data:
-            source_data:
-            parent:
-            oneself:
-            change_type:
-        Returns:
-        Examples:
-            >>> target_data = { "code": 200, "details":[{"b1":True,"b2":True}], "total_count": {"d1":1,"d2":5}}
-            >>> ov_data = MsHelper.ov_init(target_data)
-            >>> print(json.dumps(ov_data))
-        """
-        if isinstance(target_data, dict):
-            item = defaultdict(dict)
-            for t_key, t_value in target_data.items():
-                if isinstance(t_value, dict):
-                    for v_key, v_value in t_value.items():
-                        if isinstance(v_value, (dict, list)):
-                            cls.ov_init({v_key: v_value}, source_data, t_key, oneself, change_type)
-                        item[t_key][v_key] = cls.change_value(v_key, oneself)
-                    source_data.update(item)
-                elif isinstance(t_value, list):
-                    cls.ov_init({t_key: t_value}, source_data, t_key, oneself, change_type)
-                else:
-                    print(t_key, t_value, item)
-        elif isinstance(target_data, list):
-            print(target_data)
-        return source_data if change_type is dict else json.dumps(source_data)
-
-
-target_data = {"A": {"A-1": 200, "A-2": [{"A-2-1": True, "A-2-2": True}], "A-3": {"A-3-1": 1, "A-3-2": 5}}, "B": [{"B-1": 555}]}
-ov_data = MsHelper.ov_init(target_data)
-A = json.dumps(ov_data)
-print(A)
