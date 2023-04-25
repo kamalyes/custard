@@ -6,7 +6,7 @@ import threading
 import time
 
 # rediscluster imports
-from rediscluster.client import RedisCluster
+from custard.rediscluster.client import RedisCluster
 
 # 3rd party imports
 import pytest

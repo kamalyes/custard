@@ -6,8 +6,11 @@ from __future__ import with_statement
 # rediscluster imports
 from tests.conftest import skip_if_server_version_lt
 from custard.rediscluster import RedisCluster
-from rediscluster.exceptions import RedisClusterException, RedisClusterConfigError
-from rediscluster.nodemanager import NodeManager
+from custard.redisclusterexceptions import (
+    RedisClusterException,
+    RedisClusterConfigError,
+)
+from custard.redisclusternodemanager import NodeManager
 
 # 3rd party imports
 import pytest

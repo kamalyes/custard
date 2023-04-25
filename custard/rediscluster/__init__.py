@@ -4,13 +4,13 @@
 import logging
 
 # rediscluster imports
-from rediscluster.client import RedisCluster
-from rediscluster.connection import (
+from custard.rediscluster.client import RedisCluster
+from custard.rediscluster.connection import (
     ClusterBlockingConnectionPool,
     ClusterConnection,
     ClusterConnectionPool,
 )
-from rediscluster.exceptions import (
+from custard.rediscluster.exceptions import (
     RedisClusterException,
     RedisClusterError,
     ClusterDownException,
@@ -22,7 +22,7 @@ from rediscluster.exceptions import (
     MovedError,
     MasterDownError,
 )
-from rediscluster.pipeline import ClusterPipeline
+from custard.rediscluster.pipeline import ClusterPipeline
 
 
 def int_or_str(value):

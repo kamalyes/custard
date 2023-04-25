@@ -6,14 +6,17 @@ import re
 
 # rediscluster imports
 from custard.rediscluster import RedisCluster
-from rediscluster.connection import ClusterConnectionPool, ClusterReadOnlyConnectionPool
-from rediscluster.exceptions import (
+from custard.redisclusterconnection import (
+    ClusterConnectionPool,
+    ClusterReadOnlyConnectionPool,
+)
+from custard.redisclusterexceptions import (
     RedisClusterException,
     MovedError,
     AskError,
     ClusterDownError,
 )
-from rediscluster.nodemanager import NodeManager
+from custard.redisclusternodemanager import NodeManager
 from tests.conftest import (
     _get_client,
     skip_if_server_version_lt,
