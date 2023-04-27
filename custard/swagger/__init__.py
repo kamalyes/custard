@@ -9,9 +9,25 @@
 @License :  (C)Copyright 2022-2026
 @Desc    :  None
 """
+from urllib import request
+from custard.core.system import System
 from .swagger import Swagger2
 from .exception import ParseMethodError
-from .loader import load_file, load_url
+
+
+def load_url(url, method="get", **kwargs):
+    """
+    通过url加载json
+    Args:
+        url:
+        method:
+        **kwargs:
+
+    Returns:
+
+    """
+    return request.request(url=url, method=method, **kwargs).json()
+
 
 def swagger_parse(url=None, file=None, deep=5, **kwargs):
     """
@@ -28,7 +44,7 @@ def swagger_parse(url=None, file=None, deep=5, **kwargs):
     if url:
         source = load_url(url, **kwargs)
     elif file:
-        source = load_file(file)
+        source = System.load_file(file, "json")
     else:
         raise ParseMethodError("解析方式错误")
     return Swagger2(source, deep=deep)

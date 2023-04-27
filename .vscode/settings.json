@@ -12,7 +12,7 @@
   },
   "editor.fontSize": 18,
   "editor.links": false,
-  "editor.tabSize": 2,
+  "editor.tabSize": 4,
   "prettier.endOfLine": "auto",
   "window.zoomLevel": 0.01, // 窗口大小，字体大小等
   "files.autoSave": "off",
@@ -30,6 +30,10 @@
   "terminal.integrated.fontSize": 16,
   "editor.guides.bracketPairs": true,
   "search.followSymlinks": false, //控制是否在搜索中跟踪符号链接。
+  "pythonTestExplorer.testFramework": "pytest",
+  "pythonTestExplorer.testplanEnabled": true,
+  "python.formatting.provider": "black",
+  "python.formatting.blackPath": "",
   "files.exclude": {
     // 不需要扫描的文件夹
     "**/node_modules": true,
@@ -44,6 +48,9 @@
     "strings": true
   },
   /*以下为代码格式化配置*/
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  },
   "[dockerfile]": {
     "editor.defaultFormatter": "ms-azuretools.vscode-docker"
   },
@@ -84,6 +91,7 @@
     "axios",
     "basepath",
     "basestring",
+    "behaviour",
     "BGREWRITEAOF",
     "BGSAVE",
     "BITCOUNT",
@@ -100,6 +108,7 @@
     "DELSLOTS",
     "evalsha",
     "EXISTS",
+    "fdir",
     "FLUSHALL",
     "GEODIST",
     "GEOHASH",
@@ -135,14 +144,18 @@
     "nativestr",
     "nodemanager",
     "nslookup",
+    "numlines",
     "NUMPAT",
     "numsub",
+    "pageindex",
     "pfcount",
     "pfmerge",
     "PHPSESSID",
     "PTTL",
     "punsubscribe",
+    "pycache",
     "pydantic",
+    "pypinyin",
     "Qing",
     "RANDOMKEY",
     "randos",
@@ -158,6 +171,7 @@
     "setslot",
     "SETUSER",
     "shold",
+    "sina",
     "SINTER",
     "sinterstore",
     "SISMEMBER",
@@ -165,17 +179,21 @@
     "SLOWLOG",
     "SMEMBERS",
     "smove",
+    "sohu",
     "SRANDMEMBER",
     "STRLEN",
     "SUNION",
     "sunionstore",
+    "topdown",
     "TRYAGAIN",
     "TTL",
     "unwatch",
     "xform",
+    "xwww",
     "ZCARD",
     "ZCOUNT",
+    "ziplist",
     "ZRANGE",
     "ZSCORE"
-  ] // 启用智能提交
+] // 启用智能提交
 }
