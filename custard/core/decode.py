@@ -1,3 +1,5 @@
+import contextlib
+
 codes = (
     "\x00",
     "\x01",
@@ -65537,6 +65539,7 @@ codes = (
     "",
 )
 
+
 def unidecode(txt: str) -> str:
     """
 
@@ -65553,8 +65556,7 @@ def unidecode(txt: str) -> str:
     for ch in txt:
         codepoint = ord(ch)
 
-        try:
+        with contextlib.suppress(IndexError):
             chars += codes[codepoint]
-        except IndexError:
-            pass
+
     return chars

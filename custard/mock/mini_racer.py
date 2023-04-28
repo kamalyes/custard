@@ -59,8 +59,6 @@ EXTENSION_NAME = os.path.basename(EXTENSION_PATH) if EXTENSION_PATH is not None 
 if sys.version_info[0] < 3:
     UNICODE_TYPE = unicode  # noqa: F821
 else:
-    from typing import Any, Optional
-
     UNICODE_TYPE = str
 
 
@@ -141,7 +139,8 @@ def _build_ext_handle():
         ctypes.c_char_p,
         ctypes.c_int,
         ctypes.c_ulong,
-        ctypes.c_size_t]
+        ctypes.c_size_t,
+    ]
     _ext_handle.mr_eval_context.restype = ctypes.POINTER(MiniRacerValueStruct)
 
     _ext_handle.mr_free_value.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
@@ -217,13 +216,15 @@ class MiniRacer(object):
             code = code.encode("utf8")
 
         with self.lock:
-            res = self.ext.mr_eval_context(self.ctx,
-                                           code,
-                                           len(code),
-                                           ctypes.c_ulong(timeout or 0),
-                                           ctypes.c_size_t(max_memory or 0))
+            res = self.ext.mr_eval_context(
+                self.ctx,
+                code,
+                len(code),
+                ctypes.c_ulong(timeout or 0),
+                ctypes.c_size_t(max_memory or 0),
+            )
         if not res:
-            raise JSConversionException()
+            raise JSConversionException
 
         return MiniRacerValue(self, res).to_python()
 
@@ -238,10 +239,10 @@ class MiniRacer(object):
         :param timeout: number of milliseconds after which the execution is interrupted
         :param max_memory: hard memory limit after which the execution is interrupted
         """
-        wrapped_expr = u"JSON.stringify((function(){return (%s)})())" % expr
+        wrapped_expr = "JSON.stringify((function(){return (%s)})())" % expr
         ret = self.eval(wrapped_expr, timeout=timeout, max_memory=max_memory)
         if not is_unicode(ret):
-            raise ValueError(u"Unexpected return value type {}".format(type(ret)))
+            raise ValueError("Unexpected return value type {}".format(type(ret)))
         return self.json_impl.loads(ret)
 
     def call(self, expr, *args, **kwargs):
@@ -262,12 +263,12 @@ class MiniRacer(object):
         :param int max_memory: hard memory limit after which the execution is interrupted
         """
 
-        encoder = kwargs.get('encoder', None)
-        timeout = kwargs.get('timeout', None)
-        max_memory = kwargs.get('max_memory', None)
+        encoder = kwargs.get("encoder", None)
+        timeout = kwargs.get("timeout", None)
+        max_memory = kwargs.get("max_memory", None)
 
-        json_args = self.json_impl.dumps(args, separators=(',', ':'), cls=encoder)
-        js = u"{expr}.apply(this, {json_args})".format(expr=expr, json_args=json_args)
+        json_args = self.json_impl.dumps(args, separators=(",", ":"), cls=encoder)
+        js = "{expr}.apply(this, {json_args})".format(expr=expr, json_args=json_args)
         return self.execute(js, timeout=timeout, max_memory=max_memory)
 
     def set_soft_memory_limit(self, limit):
@@ -298,11 +299,11 @@ class MiniRacer(object):
 
         if not res:
             return {
-                u"total_physical_size": 0,
-                u"used_heap_size": 0,
-                u"total_heap_size": 0,
-                u"total_heap_size_executable": 0,
-                u"heap_size_limit": 0
+                "total_physical_size": 0,
+                "used_heap_size": 0,
+                "total_heap_size": 0,
+                "total_heap_size_executable": 0,
+                "heap_size_limit": 0,
             }
 
         return self.json_impl.loads(MiniRacerValue(self, res).to_python())
@@ -355,9 +356,11 @@ class MiniRacerTypes(object):
 
 
 class MiniRacerValueStruct(ctypes.Structure):
-    _fields_ = [("value", ctypes.c_void_p),  # value is 8 bytes, works only for 64bit systems
-                ("type", ctypes.c_int),
-                ("len", ctypes.c_size_t)]
+    _fields_ = [
+        ("value", ctypes.c_void_p),  # value is 8 bytes, works only for 64bit systems
+        ("type", ctypes.c_int),
+        ("len", ctypes.c_size_t),
+    ]
 
 
 class ArrayBufferByte(ctypes.Structure):
@@ -368,7 +371,6 @@ class ArrayBufferByte(ctypes.Structure):
 
 
 class MiniRacerValue(object):
-
     def __init__(self, ctx, ptr):
         self.ctx = ctx
         self.ptr = ptr
@@ -399,7 +401,7 @@ class MiniRacerValue(object):
         elif self.type == MiniRacerTypes.execute_exception:
             print(f"self.value:       {self.value}")
             msg = ctypes.c_char_p(self.value).value
-            raise JSEvalException(msg.decode('utf-8', errors='replace'))
+            raise JSEvalException(msg.decode("utf-8", errors="replace"))
         elif self.type == MiniRacerTypes.oom_exception:
             msg = ctypes.c_char_p(self.value).value
             raise JSOOMException(msg)
@@ -417,22 +419,19 @@ class MiniRacerValue(object):
             result = self.value == 1
         elif typ == MiniRacerTypes.integer:
             val = self.value
-            if val is None:
-                result = 0
-            else:
-                result = ctypes.c_int32(val).value
+            result = 0 if val is None else ctypes.c_int32(val).value
         elif typ == MiniRacerTypes.double:
             result = self._double_value()
         elif typ == MiniRacerTypes.str_utf8:
             buf = ctypes.c_char_p(self.value)
             ptr = ctypes.cast(buf, ctypes.POINTER(ctypes.c_char))
-            result = ptr[0:self.len].decode("utf8")
+            result = ptr[0 : self.len].decode("utf8")
         elif typ == MiniRacerTypes.function:
             result = JSFunction()
         elif typ == MiniRacerTypes.date:
             timestamp = self._double_value()
             # JS timestamp are milliseconds, in python we are in seconds
-            result = datetime.datetime.utcfromtimestamp(timestamp / 1000.)
+            result = datetime.datetime.utcfromtimestamp(timestamp / 1000.0)
         elif typ == MiniRacerTypes.symbol:
             result = JSSymbol()
         elif typ == MiniRacerTypes.shared_array_buffer or typ == MiniRacerTypes.array_buffer:
@@ -443,7 +442,7 @@ class MiniRacerValue(object):
         elif typ == MiniRacerTypes.object:
             return JSObject(self.value)
         else:
-            raise JSConversionException()
+            raise JSConversionException
         return result
 
     def __del__(self):

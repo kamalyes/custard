@@ -18,8 +18,7 @@ import struct
 from abc import abstractmethod
 
 from Crypto import Random
-from Crypto.Cipher import AES
-from Crypto.Cipher import PKCS1_OAEP, PKCS1_v1_5
+from Crypto.Cipher import AES, PKCS1_OAEP, PKCS1_v1_5
 from Crypto.PublicKey import RSA
 from Crypto.Util import Counter
 from six import text_type
@@ -44,9 +43,9 @@ def to_bytes(str_):
     """
     if isinstance(str_, text_type):
         try:
-            return str_.encode('utf-8')
-        except UnicodeEncodeError as e:
-            raise CryptoException('your unicode strings can not encoded in utf8, utf8 support only!')
+            return str_.encode("utf-8")
+        except UnicodeEncodeError:
+            raise CryptoException("your unicode strings can not encoded in utf8, utf8 support only!")
     return str_
 
 
@@ -95,7 +94,7 @@ class CryptoException(Exception):
 
 
 class AESCTRCipher(object):
-    """数据加密类，用于加密用户数据"""
+    """数据加密类,用于加密用户数据"""
 
     def __init__(self):
         """初始化"""
@@ -109,7 +108,7 @@ class AESCTRCipher(object):
         Args:
             key: 对称密钥
             start: 对称加密初始随机值
-            offset: 主要用于解密，想要解密文本的偏移，必须为16的整数倍
+            offset: 主要用于解密,想要解密文本的偏移,必须为16的整数倍
 
         Returns:
         """
@@ -128,12 +127,12 @@ class AESCTRCipher(object):
 
         """
         if self.__cipher is None:
-            raise CryptoException('cipher is not initialized')
+            raise CryptoException("cipher is not initialized")
         return self.__cipher.encrypt(plaintext)
 
     def decrypt(self, plaintext):
         """
-        需要解密的数据，数据的起始位置必须为16的整数倍
+        需要解密的数据,数据的起始位置必须为16的整数倍
         Args:
             plaintext:
 
@@ -141,7 +140,7 @@ class AESCTRCipher(object):
 
         """
         if self.__cipher is None:
-            raise CryptoException('cipher is not initialized')
+            raise CryptoException("cipher is not initialized")
         return self.__cipher.decrypt(plaintext)
 
     # offset 必须为block_size的整数倍
@@ -155,7 +154,7 @@ class AESCTRCipher(object):
 
         """
         if not self.__is_block_aligned(offset):
-            raise CryptoException('offset is not align to encrypt block')
+            raise CryptoException("offset is not align to encrypt block")
         return offset // self.__block_size_len
 
     def __is_block_aligned(self, offset):
@@ -169,7 +168,7 @@ class AESCTRCipher(object):
         """
         if offset is None:
             offset = 0
-        return 0 == offset % self.__block_size_len
+        return offset % self.__block_size_len == 0
 
     def adjust_read_offset(self, offset):
         """
@@ -226,12 +225,10 @@ class BaseProvider(object):
     @abstractmethod
     def init_data_cipher(self):
         """初始化cipher"""
-        pass
 
     @abstractmethod
     def init_data_cipher_by_user(self, encrypt_key, encrypt_iv, offset=0):
         """根据密钥初始化cipher"""
-        pass
 
     def adjust_read_offset(self, start):
         """用于调整读取的offset为block_size对齐"""
@@ -240,9 +237,9 @@ class BaseProvider(object):
     def make_data_encrypt_adapter(self, stream):
         """创建数据流加密适配器"""
         size = 0
-        if hasattr(stream, '__len__'):
+        if hasattr(stream, "__len__"):
             size = len(stream)
-        elif hasattr(stream, 'tell') and hasattr(stream, 'seek'):
+        elif hasattr(stream, "tell") and hasattr(stream, "seek"):
             current = stream.tell()
             stream.seek(0, os.SEEK_END)
             size = stream.tell()
@@ -263,9 +260,9 @@ class RSAProvider(BaseProvider):
         """初始化"""
         super(RSAProvider, self).__init__(cipher=cipher)
 
-        default_rsa_dir = os.path.expanduser('~/.local_rsa')
-        default_public_key_path = os.path.join(default_rsa_dir, '.public_key.pem')
-        default_private_key_path = os.path.join(default_rsa_dir, '.private_key.pem')
+        default_rsa_dir = os.path.expanduser("~/.local_rsa")
+        default_public_key_path = os.path.join(default_rsa_dir, ".public_key.pem")
+        default_private_key_path = os.path.join(default_rsa_dir, ".private_key.pem")
         self.__encrypt_obj = None
         self.__decrypt_obj = None
         self.__data_key = None
@@ -275,17 +272,23 @@ class RSAProvider(BaseProvider):
             self.__encrypt_obj = PKCS1_v1_5.new(RSA.importKey(key_pair_info.public_key, passphrase=passphrase))
             self.__decrypt_obj = PKCS1_v1_5.new(RSA.importKey(key_pair_info.private_key, passphrase=passphrase))
         elif isinstance(key_pair_info, RSAKeyPairPath):
-            self.__encrypt_obj, self.__decrypt_obj = self.__get_key_by_path(key_pair_info.public_key_path,
-                                                                            key_pair_info.private_key_path, passphrase)
+            self.__encrypt_obj, self.__decrypt_obj = self.__get_key_by_path(
+                key_pair_info.public_key_path,
+                key_pair_info.private_key_path,
+                passphrase,
+            )
         else:
-            logger.info('key_pair_info is None, try to get key from default path')
+            logger.info("key_pair_info is None, try to get key from default path")
             if os.path.exists(default_private_key_path) and os.path.exists(default_public_key_path):
-                self.__encrypt_obj, self.__decrypt_obj = self.__get_key_by_path(default_public_key_path,
-                                                                                default_private_key_path, passphrase)
+                self.__encrypt_obj, self.__decrypt_obj = self.__get_key_by_path(
+                    default_public_key_path,
+                    default_private_key_path,
+                    passphrase,
+                )
 
         # 为用户自动创建rsa
         if self.__encrypt_obj is None and self.__decrypt_obj is None:
-            logger.warn('fail to get rsa key, will generate key')
+            logger.warning("fail to get rsa key, will generate key")
             private_key = RSA.generate(2048)
             public_key = private_key.publickey()
 
@@ -295,24 +298,24 @@ class RSAProvider(BaseProvider):
             if not os.path.exists(default_rsa_dir):
                 os.makedirs(default_rsa_dir)
 
-            with open(default_private_key_path, 'wb') as f:
+            with open(default_private_key_path, "wb") as f:
                 f.write(private_key.exportKey(passphrase=passphrase))
 
-            with open(default_public_key_path, 'wb') as f:
+            with open(default_public_key_path, "wb") as f:
                 f.write(public_key.exportKey(passphrase=passphrase))
 
     @staticmethod
     def get_rsa_key_pair(public_key, private_key):
-        """开放给用户，用于生成RSAKeyPair"""
+        """开放给用户,用于生成RSAKeyPair"""
         if public_key is None or private_key is None:
-            raise CryptoException('public_key or private_key is not allowed to be None !!!')
+            raise CryptoException("public_key or private_key is not allowed to be None !!!")
         return RSAKeyPair(public_key, private_key)
 
     @staticmethod
     def get_rsa_key_pair_path(public_key_path, private_key_path):
-        """开放给用户，用于生成RSAKeyPairPath"""
+        """开放给用户,用于生成RSAKeyPairPath"""
         if public_key_path is None or private_key_path is None:
-            raise CryptoException('public_key or private_key is not allowed to be None !!!')
+            raise CryptoException("public_key or private_key is not allowed to be None !!!")
         return RSAKeyPairPath(public_key_path, private_key_path)
 
     def __get_key_by_path(self, public_path=None, private_path=None, passphrase=None):
@@ -323,10 +326,10 @@ class RSAProvider(BaseProvider):
         encrypt_obj, decrypt_obj = None, None
 
         if os.path.exists(public_path) and os.path.exists(private_path):
-            with open(public_path, 'rb') as f:
+            with open(public_path, "rb") as f:
                 encrypt_obj = PKCS1_OAEP.new(RSA.importKey(f.read(), passphrase=passphrase))
 
-            with open(private_path, 'rb') as f:
+            with open(private_path, "rb") as f:
                 decrypt_obj = PKCS1_OAEP.new(RSA.importKey(f.read(), passphrase=passphrase))
 
         return encrypt_obj, decrypt_obj
@@ -363,33 +366,33 @@ class AESProvider(BaseProvider):
         self.__aes_key_path = aes_key_path
 
     def init_ed_obj(self):
-        default_aes_dir = os.path.expanduser('~/.local_aes')
-        default_key_path = os.path.join(default_aes_dir, '.aes_key.pem')
+        default_aes_dir = os.path.expanduser("~/.local_aes")
+        default_key_path = os.path.join(default_aes_dir, ".aes_key.pem")
         if self.__aes_key:
             aes_key = to_bytes(base64.b64decode(to_bytes(self.__aes_key)))
             self.__ed_obj = AES.new(aes_key, AES.MODE_CTR, counter=self.__my_counter)
         elif self.__aes_key_path:
             if os.path.exists(self.__aes_key_path):
-                with open(self.__aes_key_path, 'rb') as f:
+                with open(self.__aes_key_path, "rb") as f:
                     aes_key = f.read()
                     aes_key = to_bytes(base64.b64decode(to_bytes(aes_key)))
                     self.__ed_obj = AES.new(aes_key, AES.MODE_CTR, counter=self.__my_counter)
         else:
-            logger.info('aes_key and aes_key_path is None, try to get key from default path')
+            logger.info("aes_key and aes_key_path is None, try to get key from default path")
             if os.path.exists(default_key_path):
-                with open(default_key_path, 'rb') as f:
+                with open(default_key_path, "rb") as f:
                     aes_key = f.read()
                     aes_key = to_bytes(base64.b64decode(to_bytes(aes_key)))
                     self.__ed_obj = AES.new(aes_key, AES.MODE_CTR, counter=self.__my_counter)
 
         if self.__ed_obj is None:
-            logger.warn('fail to get aes key, will generate key')
+            logger.warning("fail to get aes key, will generate key")
             aes_key = random_key(_AES_256_KEY_SIZE)
             self.__ed_obj = AES.new(aes_key, AES.MODE_CTR, counter=self.__my_counter)
             if not os.path.exists(default_aes_dir):
                 os.makedirs(default_aes_dir)
 
-            with open(default_key_path, 'wb') as f:
+            with open(default_key_path, "wb") as f:
                 aes_key = to_bytes(base64.b64encode(to_bytes(aes_key)))
                 f.write(aes_key)
 
@@ -430,7 +433,7 @@ class DataEncryptAdapter(object):
     def read(self, length):
         """读取加密后的数据"""
         if self._read_len >= self._content_len:
-            return ''
+            return ""
 
         if length is None or length < 0:
             bytes_to_read = self._content_len - self._read_len
@@ -438,7 +441,7 @@ class DataEncryptAdapter(object):
             bytes_to_read = min(length, self._content_len - self._read_len)
 
         if isinstance(self._data, bytes):
-            content = self._data[self._read_len:self._read_len + bytes_to_read]
+            content = self._data[self._read_len : self._read_len + bytes_to_read]
         else:
             content = self._data.read(bytes_to_read)
 
@@ -463,7 +466,7 @@ class DataDecryptAdapter(StreamBody):
     def read(self, length, auto_decompress=False):
         """读取解密后的数据"""
         if self._read_len >= self._content_len:
-            return ''
+            return ""
 
         if self._use_encoding and not auto_decompress:
             content = self._rt.raw.read(length)
@@ -471,10 +474,10 @@ class DataDecryptAdapter(StreamBody):
             try:
                 content = next(self._rt.iter_content(length))
             except StopIteration:
-                return ''
+                return ""
 
         content = self._data_cipher.decrypt(content)
         if self._read_len < self._offset < self._read_len + len(content):
-            content = content[self._offset:]
+            content = content[self._offset :]
             self._read_len = self._offset
         return content

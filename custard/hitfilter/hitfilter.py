@@ -24,11 +24,11 @@ class DFAFilter:
     def __init__(self):
         self.keyword_path = [f"{os.path.dirname(os.path.realpath(__file__))}/keywords"]
         self.keyword_chains = {}
-        self.delimit = '\x00'
+        self.delimit = "\x00"
 
     def add(self, keyword):
         if not isinstance(keyword, str):
-            keyword = keyword.decode('utf-8')
+            keyword = keyword.decode("utf-8")
         keyword = keyword.lower()
         chars = keyword.strip()
         if not chars:
@@ -54,15 +54,16 @@ class DFAFilter:
             self.keyword_path.append(path)
         if isinstance(self.keyword_path, list):
             for index in self.keyword_path:
-                with open(index, "r", encoding='utf-8') as file:
+                with open(index, "r", encoding="utf-8") as file:
                     for keyword in file:
                         self.add(keyword.strip())
+            return None
         else:
             return TypeError("文件路径不正确")
 
     def filter(self, message, repl="*"):
         if not isinstance(message, str):
-            message = message.decode('utf-8')
+            message = message.decode("utf-8")
         message = message.lower()
         ret = []
         start = 0
@@ -85,10 +86,10 @@ class DFAFilter:
                 ret.append(message[start])
             start += 1
 
-        return ''.join(ret)
+        return "".join(ret)
 
     def is_contain_sensitive_key_word(self, message):
-        repl = '_-__-'
+        repl = "_-__-"
         dest_string = self.filter(message=message, repl=repl)
         if repl in dest_string:
             return True

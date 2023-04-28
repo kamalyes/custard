@@ -32,7 +32,7 @@ class IniHandle:
             conf.read(filepath, encoding="utf-8")
             return conf
         except Exception as FileNotFoundError:
-            logger.error("文件读取失败，请检查%s是否存在,错误信息：%s" % (filepath, FileNotFoundError))
+            logger.error("文件读取失败,请检查%s是否存在,错误信息:%s" % (filepath, FileNotFoundError))
 
     def has_section(self, section, option=None):
         """
@@ -46,7 +46,7 @@ class IniHandle:
             else:
                 self.conf.has_option(section, option)
         except Exception as e:
-            logger.info("无此节点，错误信息%s" % (e))
+            logger.info("无此节点,错误信息%s" % (e))
 
     def section(self):
         """
@@ -72,6 +72,7 @@ class IniHandle:
         """
         if self.conf.has_section(section):
             return self.conf.items(section)
+        return None
 
     def get(self, node, key):
         """

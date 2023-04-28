@@ -20,7 +20,7 @@ class Moment:
         """
         获取当前时间
         Args:
-            layout: 10timestamp， 13timestamp,  else  时间类型
+            layout: 10timestamp, 13timestamp,  else  时间类型
         Returns:
         Examples:
             >>> print(Moment.get_now_time("%Y-%m-%d %H:%M:%S"))
@@ -56,28 +56,24 @@ class Moment:
         """
         try:
             today = datetime.datetime.strptime(custom, time_format_str)
-            # 以下异常仅限于兼容目的 、开发返回的值不规范时使用、层层降级（若是还有问题就是真的格式有问题）
+            # 以下异常仅限于兼容目的 、开发返回的值不规范时使用、层层降级(若是还有问题就是真的格式有问题)
         except ValueError:
             blank_split = custom.split(" ")
-            format_str = (
-                time_format_str[:-2]
-                if len(blank_split) == 2 and len(custom) <= 13
-                else time_format_str[:-3]
-            )
+            format_str = time_format_str[:-2] if len(blank_split) == 2 and len(custom) <= 13 else time_format_str[:-3]
             today = Moment.time_format(custom=custom, time_format_str=format_str)
         return today
 
     @staticmethod
     def skew_date(
-            days=0,
-            seconds=0,
-            microseconds=0,
-            milliseconds=0,
-            minutes=0,
-            hours=0,
-            weeks=0,
-            custom=None,
-            time_format_str="%Y-%m-%d %H:%M:%S",
+        days=0,
+        seconds=0,
+        microseconds=0,
+        milliseconds=0,
+        minutes=0,
+        hours=0,
+        weeks=0,
+        custom=None,
+        time_format_str="%Y-%m-%d %H:%M:%S",
     ):
         """
         日期偏移
@@ -103,12 +99,9 @@ class Moment:
             today = Moment.time_format(custom=custom, time_format_str=time_format_str)
         else:
             today = datetime.datetime.now()
-        return (
-                today
-                + datetime.timedelta(
-            days, seconds, microseconds, milliseconds, minutes, hours, weeks
+        return (today + datetime.timedelta(days, seconds, microseconds, milliseconds, minutes, hours, weeks)).strftime(
+            time_format_str,
         )
-        ).strftime(time_format_str)
 
     @staticmethod
     def timestamp_to_date(timestamp):
@@ -124,17 +117,17 @@ class Moment:
             return None
         time_tuple = time.localtime(timestamp)
         specific_data = (
-                str(time_tuple[0])
-                + "-"
-                + str(time_tuple[1])
-                + "-"
-                + str(time_tuple[2])
-                + " "
-                + str(time_tuple[3])
-                + ":"
-                + str(time_tuple[4])
-                + ":"
-                + str(time_tuple[5])
+            str(time_tuple[0])
+            + "-"
+            + str(time_tuple[1])
+            + "-"
+            + str(time_tuple[2])
+            + " "
+            + str(time_tuple[3])
+            + ":"
+            + str(time_tuple[4])
+            + ":"
+            + str(time_tuple[5])
         )
         return specific_data
 
@@ -185,8 +178,8 @@ class Moment:
         """
         时间比较
         Args:
-            time1: 
-            time2: 
+            time1:
+            time2:
         Returns:
         """ """
         Examples:
@@ -194,4 +187,4 @@ class Moment:
         """
         time1 = datetime.datetime.strptime(time1, "%Y-%m-%d %H:%M:%S")
         time2 = datetime.datetime.strptime(time2, "%Y-%m-%d %H:%M:%S")
-        return True if time1 > time2 else False
+        return time1 > time2

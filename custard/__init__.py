@@ -9,4 +9,3 @@
 @License :  (C)Copyright 2022-2026
 @Desc    :  None
 """
-__version__ = "1.1.2"

@@ -7,7 +7,7 @@
 @Version :  1.0
 @Contact :  mryu168@163.com
 @License :  (C)Copyright 2022-2026
-@Desc    : 　None
+@Desc    :  None
 """
 from typing import Callable, Optional, Sequence, TypeVar
 
@@ -18,15 +18,15 @@ T = TypeVar("T")
 
 
 def paginate(
-        sequence: Sequence[T],
-        params: Optional[AbstractParams] = None,
-        length_function: Callable[[Sequence[T]], int] = len,
+    sequence: Sequence[T],
+    params: Optional[AbstractParams] = None,
+    length_function: Callable[[Sequence[T]], int] = len,
 ) -> AbstractPage[T]:
     params = resolve_params(params)
     raw_params = params.to_raw_params()
 
     return create_page(
-        items=sequence[raw_params.offset: raw_params.offset + raw_params.limit],
+        items=sequence[raw_params.offset : raw_params.offset + raw_params.limit],
         total=length_function(sequence),
         params=params,
     )

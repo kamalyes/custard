@@ -1,3 +1,11 @@
+</p>
+<p align="center">
+<a href="https://img.shields.io/badge/Python-3.9.11+-green" target="__blank"><img src="https://img.shields.io/badge/Python-3.9.11+-green" alt="custard preview"></a>
+<a href="https://pypi.org/project/custard/" target="__blank"><img src="https://img.shields.io/pypi/v/custard" alt="custard preview"></a>
+<a href="https://pypistats.org/packages/custard" target="__blank"><img src="https://img.shields.io/pypi/dm/custard"></a>
+<br>
+</p>
+
 ## 📚简介
 custard是一个小而全的Python工具类库，通过静态方法封装，降低相关API的学习成本，提高工作效率，使Python拥有函数式语言般的优雅，让Python语言也可以“甜甜的”。
 
@@ -19,46 +27,35 @@ custard的存在就是为了减少代码搜索成本，避免网络上参差不�
 -------------------------------------------------------------------------------
 
 ## 🛠️包含组件
+
 一个Python基础工具类，对文件、流、加密解密、转码、正则、线程、XML等JDK方法进行封装，组成各种Util工具类，同时提供以下组件：
 
 | 模块                |     介绍                                                                     |
 |-------------------|----------------------------------------------------------------------------- |
-| custard-cache     |     简单缓存实现                                                                |
-| custard-core      |     核心，包括Bean操作、各种Util等                                          |
-| custard-cron      |     定时任务模块，提供类Crontab表达式的定时任务                                     |
-| custard-crypto    |     加密解密模块，提供对称、非对称和摘要算法封装                                     |
-| custard-db        |     JDBC封装后的数据操作，基于ActiveRecord思想                                    |
-| custard-dfa       |     基于DFA模型的多关键字查找                                                    |
-| custard-extra     |     扩展模块，对第三方封装（模板引擎、邮件、Servlet、二维码、Emoji、FTP、分词等）       |
-| custard-http      |     基于HttpUrlConnection的Http客户端封装                                       |
-| custard-log       |     自动识别日志实现的日志门面                                                    |
-| custard-script    |     脚本执行封装，例如Pythonscript                                                 |
-| custard-hitfilter |     敏感词过滤器                                   |
-| custard-limiter   |     拦截器                                   |
-| custard-time      |     日期                                    |
-| custard-setting   |     功能更强大的Setting配置文件和Properties封装                                   |
-| custard-system    |     系统参数调用封装（JVM信息等）                                                 |
-| custard-json      |     JSON实现                                                                  |
-| custard-kaptcha   |     图片验证码实现                                                              |
-| custard-poi       |     针对POI中Excel和Word的封装                                                  |
-| custard-socket    |     基于Python的NIO和AIO的Socket封装                                              |
-| custard-jwt       |     JSON Web Token (JWT)封装实现                                               |
-
-可以根据需求对每个模块单独引入，也可以通过引入`custard-all`方式引入所有模块。
+| core      |     核心，包括Bean操作、各种Util等                                          |
+| crypto    |     加密解密模块，提供对称、非对称和摘要算法封装  |
+| curl      |     curl实现                                  |
+| hitfilter |     敏感词过滤器                               |
+| limiter   |     拦截器                                   |
+| time      |     日期                                    |
+| kaptcha   |     图片验证码实现          |
+| swagger   |     自动解析swagger生成request请求        |
+| pagination |    分页组件      |
 
 -------------------------------------------------------------------------------
 
 ## [📝中文文档](https://github.com/kamalyes/custard/docs/)
+
 -------------------------------------------------------------------------------
 
 ## 🚽编译安装
 
-访问custard的Github主页：[https://github.com/kamalyes/custard](https://github.com/kamalyes/custard) 下载整个项目源码（v2-master或v2-dev分支都可）然后进入custard项目目录执行：
+访问custard的Github主页：[https://github.com/kamalyes/custard](https://github.com/kamalyes/custard) 下载整个项目源码（master或dev分支都可）然后进入custard项目目录执行：
 
 ```sh
 pip3 install -r requirements.txt -i https://pypi.douban.com/simple
-
-python3 setup.py install
+pip install build
+python -m build
 ```
 
 然后就可以使用引入了。
@@ -73,8 +70,8 @@ custard的源码分为两个分支，功能如下：
 
 | 分支       | 作用                                                          |
 |-----------|---------------------------------------------------------------|
-| v2-master | 主分支，release版本使用的分支，与中央库提交的jar一致，不接收任何pr或修改 |
-| v2-dev    | 开发分支，默认为下个版本的SNAPSHOT版本，接受修改或pr                 |
+| master | 主分支，release版本使用的分支，与中央库提交的jar一致，不接收任何pr或修改 |
+| dev    | 开发分支，默认为下个版本的SNAPSHOT版本，接受修改或pr                 |
 
 ### 🐞提供bug反馈或建议
 
@@ -87,8 +84,8 @@ custard的源码分为两个分支，功能如下：
 
 1. 在Gitee或者Github上fork项目到自己的repo
 2. 把fork过去的项目也就是你的项目clone到你的本地
-3. 修改代码（记得一定要修改v2-dev分支）
-4. commit后push到自己的库（v2-dev分支）
+3. 修改代码（记得一定要修改dev分支）
+4. commit后push到自己的库（dev分支）
 5. 登录Gitee或Github在你首页可以看到一个 pull request 按钮，点击它，填写一些说明信息，然后提交即可。
 6. 等待维护者合并
 
@@ -99,7 +96,5 @@ custard欢迎任何人为custard添砖加瓦，贡献代码，不过维护者是
 1. 注释完备，尤其每个新增的方法应按照Python文档规范标明方法说明、参数说明、返回值说明等信息，必要时请添加单元测试，如果愿意，也可以加上你的大名。
 2. custard的缩进按照IDEA 默认（tab）缩进，所以请遵守（不要和我争执空格与tab的问题，这是一个病人的习惯）。
 3. 新加的方法不要使用第三方库的方法，custard遵循无依赖原则（除非在extra模块中加方法工具）。
-4. 请pull request到`v2-dev`分支。custard在5.x版本后使用了新的分支：`v2-master`是主分支，表示已经发布中央库的版本，这个分支不允许pr，也不允许修改。
+4. 请pull request到`dev`分支。custard在5.x版本后使用了新的分支：`master`是主分支，表示已经发布中央库的版本，这个分支不允许pr，也不允许修改。
 5. 我们如果关闭了你的issue或pr，请不要诧异，这是我们保持问题处理整洁的一种方式，你依旧可以继续讨论，当有讨论结果时我们会重新打开。
-
--------------------------------------------------------------------------------

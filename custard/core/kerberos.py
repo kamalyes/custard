@@ -74,7 +74,7 @@ class Kerberos:
         """
         base64 算法解密
         Args:
-            binary: 需要转成2进制格式才可以转换，所以我们这里再手动转换一下
+            binary: 需要转成2进制格式才可以转换,所以我们这里再手动转换一下
         Returns:
         Examples:
             >>> print(Kerberos.base64_decode("QWJjQDEyMzU2Nzg="))
@@ -94,7 +94,7 @@ class Kerberos:
         Examples:
             >>> print(Kerberos.md5_encode("1235678"))
         """
-        return hashlib.md5(str(decode_msg).encode(encoding='utf-8')).hexdigest()
+        return hashlib.md5(str(decode_msg).encode(encoding="utf-8")).hexdigest()
 
     @staticmethod
     def sha1_decode(decode_msg: str):

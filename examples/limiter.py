@@ -20,30 +20,30 @@ app = FastAPI()
 
 
 @app.on_event("startup")
-async def startup():
+async def startup() -> None:
     """https://aioredis.readthedocs.io/en/latest/getting-started/"""
     redis = await aioredis.from_url("redis://localhost:6379", password="PassWord@Redis123", encoding="utf8")
     await Limiter.init(redis)
 
 
 @app.on_event("shutdown")
-async def shutdown():
+async def shutdown() -> None:
     await Limiter.close()
 
 
-@app.get("/", dependencies=[Depends(RateLimiter(counts=2, seconds=5))])
-async def index():
+@app.get("/", dependencies=[Depends(RateLimiter(times=2, seconds=5))])
+async def index() -> dict:
     return {"msg": "Hello World"}
 
 
 @app.get(
     "/multiple",
     dependencies=[
-        Depends(RateLimiter(counts=5, seconds=5)),
-        Depends(RateLimiter(counts=6, seconds=15)),
+        Depends(RateLimiter(times=5, seconds=5)),
+        Depends(RateLimiter(times=6, seconds=15)),
     ],
 )
-async def multiple():
+async def multiple() -> dict:
     return {"msg": "Hello World"}
 
 

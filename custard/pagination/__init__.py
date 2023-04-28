@@ -7,7 +7,7 @@
 @Version :  1.0
 @Contact :  mryu168@163.com
 @License :  (C)Copyright 2022-2026
-@Desc    : 　None
+@Desc    :  None
 """
 from .api import (
     add_pagination,
@@ -18,7 +18,6 @@ from .api import (
     set_page,
 )
 from .limit_offset import LimitOffsetPage, LimitOffsetParams
-# from .default import Page, Params
 from .pagination import Page, Params
 from .paginator import paginate
 

@@ -1,23 +1,16 @@
 {
   "editor.insertSpaces": true,
   "files.encoding": "utf8",
-  "python.formatting.provider": "black",
-  "editor.formatOnSave": true,
   "files.eol": "\n",
   "files.trimFinalNewlines": true,
   "files.trimTrailingWhitespace": true,
   "python.terminal.executeInFileDir": true,
-  "terminal.integrated.env.osx": {
-    "PYTHONPATH": "${workspaceFolder}"
-  },
   "editor.fontSize": 18,
   "editor.links": false,
   "editor.tabSize": 4,
   "prettier.endOfLine": "auto",
   "window.zoomLevel": 0.01, // 窗口大小，字体大小等
   "files.autoSave": "off",
-  /* "editor.formatOnSave": true,
-  "editor.formatOnPaste": true, */
   "editor.formatOnType": true,
   "editor.suggestSelection": "first",
   "editor.detectIndentation": false,
@@ -32,8 +25,17 @@
   "search.followSymlinks": false, //控制是否在搜索中跟踪符号链接。
   "pythonTestExplorer.testFramework": "pytest",
   "pythonTestExplorer.testplanEnabled": true,
-  "python.formatting.provider": "black",
-  "python.formatting.blackPath": "",
+  "python.formatting.provider": "yapf", //使用yapf作为Python代码格式化工具。
+  "python.formatting.yapfArgs": [
+    "--style=pep8", //格式化风格，PEP 8是Python社区推荐的Python代码风格指南
+    "{column_limit: 100}", //每行代码的最大长度，多出的就会换行
+    "{indent_width: 4}", //设置缩进使用4个空格
+    "{align_closing_bracket_with_visual_indent:true}", //是否将闭括号与视觉缩进对齐
+    "{allow_split_before_dict_value:true}", //在字典值前是否允许换行
+    "{continuation_indent_width:4}", //续行时使用的缩进宽度
+    "{split_arguments_when_comma_terminated:true}", //在逗号结尾时是否换行
+    "{split_before_expression_after_opening_paren:true}" //在左括号后是否换行
+  ],
   "files.exclude": {
     // 不需要扫描的文件夹
     "**/node_modules": true,
@@ -48,9 +50,6 @@
     "strings": true
   },
   /*以下为代码格式化配置*/
-  "[python]": {
-    "editor.defaultFormatter": "ms-python.black-formatter"
-  },
   "[dockerfile]": {
     "editor.defaultFormatter": "ms-azuretools.vscode-docker"
   },
@@ -86,6 +85,8 @@
   "git.enableSmartCommit": true,
   "cSpell.words": [
     "ADDSLOTS",
+    "AESCTR",
+    "aioredis",
     "allready",
     "alot",
     "axios",
@@ -102,14 +103,22 @@
     "checkpid",
     "clustercfg",
     "CLUSTERDOWN",
+    "Codecov",
+    "conint",
     "COUNTKEYSINSLOT",
     "CROSSSLOT",
+    "dafunc",
     "DBSIZE",
     "DELSLOTS",
+    "dicttoxml",
     "evalsha",
+    "execres",
     "EXISTS",
+    "fastapi",
     "fdir",
+    "firstlineno",
     "FLUSHALL",
+    "fromdata",
     "GEODIST",
     "GEOHASH",
     "GEOPOS",
@@ -117,6 +126,7 @@
     "GEORADIUSBYMEMBER",
     "GET",
     "GETBIT",
+    "getframe",
     "gethostbyaddr",
     "GETKEYSINSLOT",
     "GETRANGE",
@@ -125,6 +135,7 @@
     "HEXISTS",
     "HGET",
     "HGETALL",
+    "hitfilter",
     "HKEYS",
     "HLEN",
     "HMGET",
@@ -138,9 +149,12 @@
     "LLEN",
     "lpush",
     "LRANGE",
+    "lxml",
     "MASTERDOWN",
     "MGET",
+    "mkdocs",
     "MSETNX",
+    "mypy",
     "nativestr",
     "nodemanager",
     "nslookup",
@@ -148,6 +162,7 @@
     "NUMPAT",
     "numsub",
     "pageindex",
+    "pexpire",
     "pfcount",
     "pfmerge",
     "PHPSESSID",
@@ -155,11 +170,16 @@
     "punsubscribe",
     "pycache",
     "pydantic",
+    "pypa",
+    "PYPI",
     "pypinyin",
+    "pypoetry",
+    "pyproject",
+    "pytest",
     "Qing",
     "RANDOMKEY",
     "randos",
-    "rediscluster",
+    "ratelimit",
     "renamenx",
     "RESETSTAT",
     "rpoplpush",
@@ -168,6 +188,8 @@
     "SCARD",
     "SDIFF",
     "sdiffstore",
+    "sessionmaker",
+    "setnx",
     "setslot",
     "SETUSER",
     "shold",
@@ -179,21 +201,33 @@
     "SLOWLOG",
     "SMEMBERS",
     "smove",
+    "snok",
     "sohu",
+    "sqlalchemy",
     "SRANDMEMBER",
+    "starlette",
+    "streambody",
     "STRLEN",
     "SUNION",
     "sunionstore",
+    "tonumber",
     "topdown",
     "TRYAGAIN",
     "TTL",
+    "unidecode",
+    "unpartial",
     "unwatch",
+    "useragent",
+    "uvicorn",
+    "virtualenvs",
+    "websockets",
     "xform",
+    "xprint",
     "xwww",
     "ZCARD",
     "ZCOUNT",
     "ziplist",
     "ZRANGE",
     "ZSCORE"
-] // 启用智能提交
+],
 }

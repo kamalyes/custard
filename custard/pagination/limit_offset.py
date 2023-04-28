@@ -7,7 +7,7 @@
 @Version :  1.0
 @Contact :  mryu168@163.com
 @License :  (C)Copyright 2022-2026
-@Desc    : 　None
+@Desc    :  None
 """
 from __future__ import annotations
 
@@ -42,10 +42,10 @@ class LimitOffsetPage(BasePage[T], Generic[T]):
 
     @classmethod
     def create(
-            cls,
-            items: Sequence[T],
-            total: int,
-            params: AbstractParams,
+        cls,
+        items: Sequence[T],
+        total: int,
+        params: AbstractParams,
     ) -> LimitOffsetPage[T]:
         return cls(
             total=total,

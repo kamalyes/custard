@@ -21,16 +21,17 @@ MiniRacer = mini_racer.MiniRacer
 
 class Mock:
     def __init__(self):
-        self.__code = codecs.open(os.path.join(os.path.dirname(__file__), 'mock.min.js'),
-                                  encoding='utf-8').read()
+        self.__code = codecs.open(os.path.join(os.path.dirname(__file__), "mock.min.js"), encoding="utf-8").read()
         self.__ctx = MiniRacer()
         self.__ctx.eval(self.__code)
 
-    def mock(self,
-             template: typing.Union[dict, list, str],
-             encoder=JSONEncoder,
-             timeout=0,
-             max_memory=0) -> typing.Union[dict, list, str]:
+    def mock(
+        self,
+        template: typing.Union[dict, list, str],
+        encoder=JSONEncoder,
+        timeout=0,
+        max_memory=0,
+    ) -> typing.Union[dict, list, str]:
         """
         Mock from python object
         :param template: Mock template
@@ -39,12 +40,9 @@ class Mock:
         :param max_memory: Limit max memory, default no limit: max_memory = 0
         :return: dict, list, str
         """
-        return self.__ctx.call('Mock.mock', template, encoder=encoder, timeout=timeout, max_memory=max_memory)
+        return self.__ctx.call("Mock.mock", template, encoder=encoder, timeout=timeout, max_memory=max_memory)
 
-    def mock_js(self,
-                js_str: str,
-                timeout=0,
-                max_memory=0) -> typing.Union[dict, list, str]:
+    def mock_js(self, js_str: str, timeout=0, max_memory=0) -> typing.Union[dict, list, str]:
         """
         Mock form JSON string or JavaScript Object like-string
         :param js_str: Mock template

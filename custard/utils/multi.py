@@ -44,9 +44,7 @@ class MultiKeyDict(object):
             for kv in mapping_or_iterable:
                 if len(kv) != 2:
                     raise Exception(
-                        "Iterable should contain tuples with exactly two values but specified: {0}.".format(
-                            kv
-                        )
+                        "Iterable should contain tuples with exactly two values but specified: {0}.".format(kv),
                     )
                 self[kv[0]] = kv[1]
         for keys, value in kwargs.items():
@@ -64,14 +62,13 @@ class MultiKeyDict(object):
               (item update)
         If this is not the case - KeyError is raised."""
         if type(keys) in [tuple, list]:
-            at_least_one_key_exists = False
             num_of_keys_we_have = 0
 
             for x in keys:
                 try:
                     self.__getitem__(x)
                     num_of_keys_we_have += 1
-                except Exception as err:
+                except Exception:
                     continue
 
             if num_of_keys_we_have:
@@ -87,24 +84,20 @@ class MultiKeyDict(object):
                             if new != direct_key:
                                 all_select_same_item = False
                                 break
-                    except Exception as err:
+                    except Exception:
                         all_select_same_item = False
                         break
 
                 if not all_select_same_item:
                     raise KeyError(", ".join(str(key) for key in keys))
 
-            first_key = keys[
-                0
-            ]  # combination if keys is allowed, simply use the first one
+            first_key = keys[0]  # combination if keys is allowed, simply use the first one
         else:
             first_key = keys
 
         key_type = str(type(first_key))  # find the intermediate dictionary..
         if first_key in self:
-            self.items_dict[
-                self.__dict__[key_type][first_key]
-            ] = value  # .. and update the object if it exists..
+            self.items_dict[self.__dict__[key_type][first_key]] = value  # .. and update the object if it exists..
         else:
             if type(keys) not in [tuple, list]:
                 key = keys
@@ -115,11 +108,7 @@ class MultiKeyDict(object):
         """Called to implement deletion of self[key]."""
         key_type = str(type(key))
 
-        if (
-            key in self
-            and self.items_dict
-            and (self.__dict__[key_type][key] in self.items_dict)
-        ):
+        if key in self and self.items_dict and (self.__dict__[key_type][key] in self.items_dict):
             intermediate_key = self.__dict__[key_type][key]
 
             # remove the item in main dictionary
@@ -137,9 +126,8 @@ class MultiKeyDict(object):
     def __contains__(self, key):
         """Returns True if this object contains an item referenced by the key."""
         key_type = str(type(key))
-        if key_type in self.__dict__:
-            if key in self.__dict__[key_type]:
-                return True
+        if key_type in self.__dict__ and key in self.__dict__[key_type]:
+            return True
 
         return False
 
@@ -190,13 +178,13 @@ class MultiKeyDict(object):
         if key_type is not None:
             the_key = str(key_type)
             if the_key in self.__dict__:
-                for key in self.__dict__[the_key].keys():
+                for key in self.__dict__[the_key]:
                     if return_all_keys:
                         yield self.__dict__[the_key][key]
                     else:
                         yield key
         else:
-            for keys in self.items_dict.keys():
+            for keys in self.items_dict:
                 yield keys
 
     def itervalues(self, key_type=None):
@@ -229,9 +217,10 @@ class MultiKeyDict(object):
             intermediate_key = str(key_type)
             if intermediate_key in self.__dict__:
                 return self.__dict__[intermediate_key].keys()
+            return None
         else:
             all_keys = {}  # in order to preserve keys() type (dict_keys for python3)
-            for keys in self.items_dict.keys():
+            for keys in self.items_dict:
                 all_keys[keys] = None
             return all_keys.keys()
 
@@ -245,7 +234,7 @@ class MultiKeyDict(object):
             direct_key = str(key_type)
             if direct_key in self.__dict__:
                 for intermediate_key in self.__dict__[direct_key].values():
-                    if not intermediate_key in keys_used:
+                    if intermediate_key not in keys_used:
                         all_items[intermediate_key] = self.items_dict[intermediate_key]
                         keys_used.add(intermediate_key)
             return all_items.values()
@@ -264,20 +253,20 @@ class MultiKeyDict(object):
         if not keys or not len(keys):
             raise Exception(
                 "Error in %s.__add_item(%s, keys=tuple/list of items): need to specify a tuple/list containing at least one key!"
-                % (self.__class__.__name__, str(item))
+                % (self.__class__.__name__, str(item)),
             )
         direct_key = tuple(keys)  # put all keys in a tuple, and use it as a key
         for key in keys:
             key_type = str(type(key))
 
             # store direct key as a value in an intermediate dictionary
-            if not key_type in self.__dict__:
-                self.__setattr__(key_type, dict())
+            if key_type not in self.__dict__:
+                self.__setattr__(key_type, {})
             self.__dict__[key_type][key] = direct_key
 
             # store the value in the actual dictionary
-            if not "items_dict" in self.__dict__:
-                self.items_dict = dict()
+            if "items_dict" not in self.__dict__:
+                self.items_dict = {}
             self.items_dict[direct_key] = item
 
     def get(self, key, default=None):
@@ -289,9 +278,12 @@ class MultiKeyDict(object):
 
     def __str__(self):
         items = []
-        str_repr = lambda x: "'%s'" % x if type(x) == str else str(x)
+
+        def str_repr(x):
+            return "'%s'" % x if type(x) == str else str(x)
+
         if hasattr(self, "items_dict"):
-            for (keys, value) in self.items():
+            for keys, value in self.items():
                 keys_str = [str_repr(k) for k in keys]
                 items.append("(%s): %s" % (", ".join(keys_str), str_repr(value)))
         dict_str = "{%s}" % (", ".join(items))
@@ -299,11 +291,12 @@ class MultiKeyDict(object):
 
 
 def test_MultiKeyDict():
-    contains_all = lambda cont, in_items: not (False in [c in cont for c in in_items])
+    def contains_all(cont, in_items):
+        return False not in [(c in cont) for c in in_items]
 
     m = MultiKeyDict()
     assert len(m) == 0, "expected len(m) == 0"
-    all_keys = list()
+    all_keys = []
 
     m["aa", 12, 32, "mmm"] = 123  # create a value with multiple keys..
     assert len(m) == 1, "expected len(m) == 1"
@@ -312,23 +305,19 @@ def test_MultiKeyDict():
     # try retrieving other keys mapped to the same value using one of them
     res = m.get_other_keys("aa")
     expected = ["mmm", 32, 12]
-    assert set(res) == set(
-        expected
-    ), "get_other_keys('aa'): {0} other than expected: {1} ".format(res, expected)
+    assert set(res) == set(expected), "get_other_keys('aa'): {0} other than expected: {1} ".format(res, expected)
 
     # try retrieving other keys mapped to the same value using one of them: also include this key
     res = m.get_other_keys(32, True)
     expected = ["aa", "mmm", 32, 12]
-    assert set(res) == set(
-        expected
-    ), "get_other_keys(32): {0} other than expected: {1} ".format(res, expected)
+    assert set(res) == set(expected), "get_other_keys(32): {0} other than expected: {1} ".format(res, expected)
 
-    assert m.has_key("aa") == True, "expected m.has_key('aa') == True"
-    assert m.has_key("aab") == False, "expected m.has_key('aab') == False"
+    assert m.has_key("aa") is True, "expected m.has_key('aa') == True"
+    assert m.has_key("aab") is False, "expected m.has_key('aab') == False"
 
-    assert m.has_key(12) == True, "expected m.has_key(12) == True"
-    assert m.has_key(13) == False, "expected m.has_key(13) == False"
-    assert m.has_key(32) == True, "expected m.has_key(32) == True"
+    assert m.has_key(12) is True, "expected m.has_key(12) == True"
+    assert m.has_key(13) is False, "expected m.has_key(13) == False"
+    assert m.has_key(32) is True, "expected m.has_key(32) == True"
 
     m["something else"] = "abcd"
     assert len(m) == 2, "expected len(m) == 2"
@@ -359,12 +348,8 @@ def test_MultiKeyDict():
     m_str_exp = "{(23): 0, ('aa', 'mmm', 32, 12): '4', ('something else'): 'abcd'}"
     m_str = str(m)
     assert len(m_str) > 0, "str(m) should not be empty!"
-    assert m_str[0] == "{", (
-        "str(m) should start with '{', but does with '%c'" % m_str[0]
-    )
-    assert m_str[-1] == "}", (
-        "str(m) should end with '}', but does with '%c'" % m_str[-1]
-    )
+    assert m_str[0] == "{", "str(m) should start with '{', but does with '%c'" % m_str[0]
+    assert m_str[-1] == "}", "str(m) should end with '}', but does with '%c'" % m_str[-1]
 
     # check if all key-values are there as expected. They might be sorted differently
     def get_values_from_str(dict_str):
@@ -383,19 +368,15 @@ def test_MultiKeyDict():
     # keys already maps to a value in this dictionarys
     try:
         m["aa", "bb"] = "something new"
-        assert (
-            False
-        ), "Should not allow adding multiple-keys when one of keys ('aa') already exists!"
-    except KeyError as err:
+        raise AssertionError("Should not allow adding multiple-keys when one of keys ('aa') already exists!")
+    except KeyError:
         pass
 
     # now check if we can get all possible keys (formed in a list of tuples)
     # each tuple containing all keys)
-    res = sorted([sorted([str(x) for x in k]) for k in m.keys()])
+    res = sorted([sorted([str(x) for x in k]) for k in m])
     expected = sorted([sorted([str(x) for x in k]) for k in all_keys])
-    assert (
-        res == expected
-    ), "unexpected values from m.keys(), got:\n%s\n expected:\n%s" % (res, expected)
+    assert res == expected, "unexpected values from m.keys(), got:\n%s\n expected:\n%s" % (res, expected)
 
     # check default items (which will unpack tupe with key(s) and value)
     num_of_elements = 0
@@ -407,20 +388,16 @@ def test_MultiKeyDict():
             value,
             keys,
         )
-    assert (
-        num_of_elements > 0
-    ), "m.items() returned generator that did not produce anything"
+    assert num_of_elements > 0, "m.items() returned generator that did not produce anything"
 
     # test default iterkeys()
     num_of_elements = 0
-    for keys in m.keys():
+    for keys in m:
         num_of_elements += 1
         keys_s = sorted([str(k) for k in keys])
         assert keys_s in expected, "m.keys(): unexpected keys: {0}".format(keys_s)
 
-    assert (
-        num_of_elements > 0
-    ), "m.iterkeys() returned generator that did not produce anything"
+    assert num_of_elements > 0, "m.iterkeys() returned generator that did not produce anything"
 
     # test iterkeys(int, True): useful to get all info from the dictionary
     # dictionary is iterated over the type specified, but all keys are returned.
@@ -428,69 +405,50 @@ def test_MultiKeyDict():
     for keys in m.iterkeys(int, True):
         keys_s = sorted([str(k) for k in keys])
         num_of_elements += 1
-        assert keys_s in expected, "m.iterkeys(int, True): unexpected keys: {0}".format(
-            keys_s
-        )
-    assert (
-        num_of_elements > 0
-    ), "m.iterkeys(int, True) returned generator that did not produce anything"
+        assert keys_s in expected, "m.iterkeys(int, True): unexpected keys: {0}".format(keys_s)
+    assert num_of_elements > 0, "m.iterkeys(int, True) returned generator that did not produce anything"
 
     # test values for different types of keys()
-    expected = set([0, "4"])
+    expected = {0, "4"}
     res = set(m.values(int))
-    assert res == expected, "m.values(int) are {0}, but expected: {1}.".format(
-        res, expected
-    )
+    assert res == expected, "m.values(int) are {0}, but expected: {1}.".format(res, expected)
 
     expected = sorted(["4", "abcd"])
     res = sorted(m.values(str))
-    assert res == expected, "m.values(str) are {0}, but expected: {1}.".format(
-        res, expected
-    )
+    assert res == expected, "m.values(str) are {0}, but expected: {1}.".format(res, expected)
 
-    current_values = set([0, "4", "abcd"])  # default (should give all values)
+    current_values = {0, "4", "abcd"}  # default (should give all values)
     res = set(m.values())
-    assert res == current_values, "m.values() are {0}, but expected: {1}.".format(
-        res, current_values
-    )
+    assert res == current_values, "m.values() are {0}, but expected: {1}.".format(res, current_values)
 
     # test itervalues() (default) - should return all values. (Itervalues for other types are tested below)
     vals = set()
     for value in m.itervalues():
         vals.add(value)
-    assert (
-        current_values == vals
-    ), "itervalues(): expected {0}, but collected {1}".format(current_values, vals)
+    assert current_values == vals, "itervalues(): expected {0}, but collected {1}".format(current_values, vals)
 
     # test items(int)
     items_for_int = sorted([((12, 32), "4"), ((23,), 0)])
-    assert items_for_int == sorted(
-        m.items(int)
-    ), "items(int): expected {0}, but collected {1}".format(
-        items_for_int, sorted(m.items(int))
+    assert items_for_int == sorted(m.items(int)), "items(int): expected {0}, but collected {1}".format(
+        items_for_int,
+        sorted(m.items(int)),
     )
 
     # test items(str)
-    items_for_str = set([(("aa", "mmm"), "4"), (("something else",), "abcd")])
+    items_for_str = {(("aa", "mmm"), "4"), (("something else",), "abcd")}
     res = set(m.items(str))
-    assert (
-        set(res) == items_for_str
-    ), "items(str): expected {0}, but collected {1}".format(items_for_str, res)
+    assert set(res) == items_for_str, "items(str): expected {0}, but collected {1}".format(items_for_str, res)
 
     # test items() (default - all items)
     # we tested keys(), values(), and __get_item__ above so here we'll re-create all_items using that
     all_items = set()
     keys = m.keys()
-    values = m.values()
+    m.values()
     for k in keys:
         all_items.add((tuple(k), m[k[0]]))
 
     res = set(m.items())
-    assert (
-        all_items == res
-    ), "items() (all items): expected {0},\n\t\t\t\tbut collected {1}".format(
-        all_items, res
-    )
+    assert all_items == res, "items() (all items): expected {0},\n\t\t\t\tbut collected {1}".format(all_items, res)
 
     # now test deletion..
     curr_len = len(m)
@@ -501,22 +459,22 @@ def test_MultiKeyDict():
     # try again
     try:
         del m["aa"]
-        assert False, "cant remove again: item m['aa'] should not exist!"
-    except KeyError as err:
+        raise AssertionError("cant remove again: item m['aa'] should not exist!")
+    except KeyError:
         pass
 
     # try to access non-existing
     try:
         k = m["aa"]
-        assert False, "removed item m['aa'] should not exist!"
-    except KeyError as err:
+        raise AssertionError("removed item m['aa'] should not exist!")
+    except KeyError:
         pass
 
     # try to access non-existing with a different key
     try:
         k = m[12]
-        assert False, "removed item m[12] should not exist!"
-    except KeyError as err:
+        raise AssertionError("removed item m[12] should not exist!")
+    except KeyError:
         pass
 
     # prepare for other tests (also testing creation of new items)
@@ -528,9 +486,7 @@ def test_MultiKeyDict():
 
     # test items()
     for key, value in m.items(int):
-        assert key == (value,), "items(int): expected {0}, but received {1}".format(
-            key, value
-        )
+        assert key == (value,), "items(int): expected {0}, but received {1}".format(key, value)
 
     # test iterkeys()
     num_of_elements = 0
@@ -538,12 +494,8 @@ def test_MultiKeyDict():
     for key in m.iterkeys(int):
         returned_keys.add(key)
         num_of_elements += 1
-    assert (
-        num_of_elements > 0
-    ), "m.iteritems(int) returned generator that did not produce anything"
-    assert returned_keys == set(
-        tst_range
-    ), "iterkeys(int): expected {0}, but received {1}".format(expected, key)
+    assert num_of_elements > 0, "m.iteritems(int) returned generator that did not produce anything"
+    assert returned_keys == set(tst_range), "iterkeys(int): expected {0}, but received {1}".format(expected, key)
 
     # test itervalues(int)
     num_of_elements = 0
@@ -551,15 +503,11 @@ def test_MultiKeyDict():
     for value in m.itervalues(int):
         returned_values.add(value)
         num_of_elements += 1
-    assert (
-        num_of_elements > 0
-    ), "m.itervalues(int) returned generator that did not produce anything"
-    assert returned_values == set(
-        tst_range
-    ), "itervalues(int): expected {0}, but received {1}".format(expected, value)
+    assert num_of_elements > 0, "m.itervalues(int) returned generator that did not produce anything"
+    assert returned_values == set(tst_range), "itervalues(int): expected {0}, but received {1}".format(expected, value)
 
     # test values(int)
-    res = sorted([x for x in m.values(int)])
+    res = sorted(m.values(int))
     assert res == tst_range, "m.values(int) is not as expected."
 
     # test keys()
@@ -569,16 +517,16 @@ def test_MultiKeyDict():
     m["xy", 999, "abcd"] = "teststr"
     try:
         m["xy", 998] = "otherstr"
-        assert False, "creating / updating m['xy', 998] should fail!"
-    except KeyError as err:
+        raise AssertionError("creating / updating m['xy', 998] should fail!")
+    except KeyError:
         pass
 
     # test setitem with multiple keys
     m["cd"] = "somethingelse"
     try:
         m["cd", 999] = "otherstr"
-        assert False, "creating / updating m['cd', 999] should fail!"
-    except KeyError as err:
+        raise AssertionError("creating / updating m['cd', 999] should fail!")
+    except KeyError:
         pass
 
     m["xy", 999] = "otherstr"
@@ -594,7 +542,7 @@ def test_MultiKeyDict():
     # test get functionality of basic dictionaries
     m["CanIGet"] = "yes"
     assert m.get("CanIGet") == "yes"
-    assert m.get("ICantGet") == None
+    assert m.get("ICantGet") is None
     assert m.get("ICantGet", "Ok") == "Ok"
 
     k = MultiKeyDict()
@@ -609,26 +557,22 @@ def test_MultiKeyDict():
     l[n] = "now"  # use datetime obj as a key
 
     # test keys..
-    res = [x for x in l.keys()][0]  # for python3 keys() returns dict_keys dictionarly
+    res = list(l.keys())[0]  # for python3 keys() returns dict_keys dictionarly
     expected = (n,)
     assert expected == res, 'Expected "{0}", but got: "{1}"'.format(expected, res)
 
-    res = [x for x in l.keys(datetime.datetime)][0]
+    res = list(l.keys(datetime.datetime))[0]
     assert n == res, "Expected {0} as a key, but got: {1}".format(n, res)
 
-    res = [x for x in l.values()]  # for python3 keys() returns dict_values dictionarly
+    res = list(l.values())  # for python3 keys() returns dict_values dictionarly
     expected = ["now"]
     assert res == expected, "Expected values: {0}, but got: {1}".format(expected, res)
 
     # test items..
     exp_items = [((n,), "now")]
     r = list(l.items())
-    assert (
-        r == exp_items
-    ), "Expected for items(): tuple of keys: {0}, but got: {1}".format(r, exp_items)
-    assert (
-        exp_items[0][1] == "now"
-    ), "Expected for items(): value: {0}, but got: {1}".format("now", exp_items[0][1])
+    assert r == exp_items, "Expected for items(): tuple of keys: {0}, but got: {1}".format(r, exp_items)
+    assert exp_items[0][1] == "now", "Expected for items(): value: {0}, but got: {1}".format("now", exp_items[0][1])
 
     x = MultiKeyDict({("k", "kilo"): 1000, ("M", "MEGA", 1000000): 1000000}, milli=0.01)
     assert x["k"] == 1000, "x['k'] is not equal to 1000"
@@ -643,9 +587,7 @@ def test_MultiKeyDict():
 
     try:
         y = MultiKeyDict([(("two", "duo"), 2), ("one", "uno", 1), ("three", 3)])
-        assert (
-            False
-        ), "creating dictionary using iterable with tuples of size > 2 should fail!"
+        raise AssertionError("creating dictionary using iterable with tuples of size > 2 should fail!")
     except:
         pass
 

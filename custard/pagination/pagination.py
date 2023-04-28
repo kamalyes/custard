@@ -7,12 +7,12 @@
 @Version :  1.0
 @Contact :  mryu168@163.com
 @License :  (C)Copyright 2022-2026
-@Desc    : 　None
+@Desc    :  None
 """
 from __future__ import annotations
 
 import math
-from typing import TypeVar, Generic, Sequence
+from typing import Generic, Sequence, TypeVar
 
 from fastapi import Query
 from pydantic import BaseModel
@@ -46,10 +46,10 @@ class Page(AbstractPage[T], Generic[T]):
 
     @classmethod
     def create(
-            cls,
-            results: results,
-            total: int,
-            params: Params,
+        cls,
+        results: results,
+        total: int,
+        params: Params,
     ) -> Page[T]:
         page = params.page
         size = params.size
@@ -57,8 +57,12 @@ class Page(AbstractPage[T], Generic[T]):
         next = f"?page={page + 1}&size={size}" if (page + 1) <= total_pages else "null"
         previous = f"?page={page - 1}&size={size}" if (page - 1) >= 1 else "null"
 
-        return cls(results=results, total=total, page=params.page,
-                   size=params.size,
-                   next=next,
-                   previous=previous,
-                   total_pages=total_pages)
+        return cls(
+            results=results,
+            total=total,
+            page=params.page,
+            size=params.size,
+            next=next,
+            previous=previous,
+            total_pages=total_pages,
+        )

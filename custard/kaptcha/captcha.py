@@ -16,16 +16,19 @@ import time
 from io import BytesIO
 from string import ascii_letters, digits
 
-from PIL import Image, ImageDraw, ImageFont, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
-ascii_letters = ascii_letters.replace("i", "").replace("l", "") \
-    .replace("I", "").replace("Q", "").replace("j", "").replace("q", "")
+ascii_letters = (
+    ascii_letters.replace("i", "").replace("l", "").replace("I", "").replace("Q", "").replace("j", "").replace("q", "")
+)
 digits = digits.replace("0", "")
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
-FONT = [BASE_DIR + "/font1.ttf",
-        BASE_DIR + "/font2.ttf",
-        BASE_DIR + "/font3.ttf",
-        BASE_DIR + "/font4.ttf"]  # https://fonts.google.com/
+FONT = [
+    BASE_DIR + "/font1.ttf",
+    BASE_DIR + "/font2.ttf",
+    BASE_DIR + "/font3.ttf",
+    BASE_DIR + "/font4.ttf",
+]  # https://fonts.google.com/
 
 
 class CaptchaPainter:
@@ -73,10 +76,15 @@ class CaptchaPainter:
             _x = random.randint(self.im_x // text_len * _, self.im_x // (text_len + 1) * (_ + 1))
             _y = random.randint(self.im_y // 15, self.im_y // 7)
             # print(_x, _y)
-            self.draw.text((_x, _y), text=self.text[_], fill=self.__fill_color(),
-                           font=ImageFont.truetype(font=random.choice(self.font),
-                                                   size=random.randint(self.im_y - (self.im_y // 4),
-                                                                       self.im_y - (self.im_y // 16))))
+            self.draw.text(
+                (_x, _y),
+                text=self.text[_],
+                fill=self.__fill_color(),
+                font=ImageFont.truetype(
+                    font=random.choice(self.font),
+                    size=random.randint(self.im_y - (self.im_y // 4), self.im_y - (self.im_y // 16)),
+                ),
+            )
 
     def scribble(self):
         for _ in range(self.gran * 10):
@@ -105,8 +113,17 @@ class CaptchaPainter:
             self.__add_chips(_d)
             pics.append(_im)
         buffer = BytesIO()
-        pics[0].save(buffer, save_all=True, format="gif", append_images=pics[1:], transparency=0, duration=500, loop=0,
-                     disposal=2, quality=9)
+        pics[0].save(
+            buffer,
+            save_all=True,
+            format="gif",
+            append_images=pics[1:],
+            transparency=0,
+            duration=500,
+            loop=0,
+            disposal=2,
+            quality=9,
+        )
         return buffer
 
     def __init__(self, text="", im_x=260, im_y=125, gran=5, mode="RGB", font: list = None, bg="white"):
@@ -154,20 +171,21 @@ class Captcha:
         else:
             return _im
 
-    def __init__(self,
-                 width=200,
-                 height=80,
-                 chips=5,
-                 mode="RGB",
-                 imageObj=False,
-                 gif=False,
-                 font: list = None,
-                 bg="white",
-                 contour=False,
-                 enhance=False,
-                 edge=False,
-                 emboss=False
-                 ):
+    def __init__(
+        self,
+        width=200,
+        height=80,
+        chips=5,
+        mode="RGB",
+        imageObj=False,
+        gif=False,
+        font: list = None,
+        bg="white",
+        contour=False,
+        enhance=False,
+        edge=False,
+        emboss=False,
+    ):
         """
 
         :param width: 验证码宽度
@@ -177,7 +195,7 @@ class Captcha:
         :param imageObj: 返回 Image 对象
         :param gif: 返回 gif 图片(默认关闭,降低大小,开启时无法使用滤镜)
         :param font: List 字体
-        :param bg: 背景颜色(例如：#000000、white)
+        :param bg: 背景颜色(例如:#000000、white)
         :param contour: 轮廓滤镜(ImageFilter.CONTOUR)
         :param enhance: 增强滤镜(ImageFilter.EDGE_ENHANCE_MORE)
         :param edge: 边缘滤镜(ImageFilter.FIND_EDGES) 黑色背景
@@ -225,13 +243,15 @@ class Captcha:
         return self.__handel(text)
 
     def __handel(self, text):
-        cp = CaptchaPainter(text=text,
-                            im_x=self.width,
-                            im_y=self.height,
-                            gran=self.chips,
-                            mode=self.mode,
-                            font=self.font,
-                            bg=self.bg)
+        cp = CaptchaPainter(
+            text=text,
+            im_x=self.width,
+            im_y=self.height,
+            gran=self.chips,
+            mode=self.mode,
+            font=self.font,
+            bg=self.bg,
+        )
         if self.gif:
             data = cp.gif()
             if not self.imageObj:
@@ -243,22 +263,20 @@ class Captcha:
             im = self.__filter(cp.normal)
             if not self.imageObj:
                 buffer = BytesIO()
-                im.save(buffer, format='JPEG')
+                im.save(buffer, format="JPEG")
                 return text, "data:image/jpeg;base64," + base64.b64encode(buffer.getvalue()).decode()
             else:
                 return text, im
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     a = Captcha(imageObj=True)
-
 
     def test1():
         start = time.time()
         for _ in range(100):
             a.letter_digit()
-        print(f'100次测试平均单张速度:{(time.time() - start) / 100}s')
-
+        print(f"100次测试平均单张速度:{(time.time() - start) / 100}s")
 
     def test2():
         credit = 0
@@ -269,9 +287,8 @@ if __name__ == '__main__':
                 break
             credit += 1
 
-
     def example():
-        # 创建一个 宽 260px 高 125px 混淆碎片度 10 灰度图，返回 (str, Image)
+        # 创建一个 宽 260px 高 125px 混淆碎片度 10 灰度图,返回 (str, Image)
         e = Captcha(width=260, height=125, chips=5, mode="L", imageObj=True, gif=False)
         e1_t, e1_c = e.letter_digit(5)
         print(e1_t, e1_c.show())
@@ -291,7 +308,6 @@ if __name__ == '__main__':
         # 自行创建
         e2 = CaptchaPainter(text="Test", gran=5)
         e2.normal.show()
-
 
     test1()
     # test2()

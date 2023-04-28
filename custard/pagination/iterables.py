@@ -7,7 +7,7 @@
 @Version :  1.0
 @Contact :  mryu168@163.com
 @License :  (C)Copyright 2022-2026
-@Desc    : 　None
+@Desc    :  None
 """
 from itertools import islice
 from typing import Generic, Iterable, Optional, TypeVar
@@ -16,10 +16,10 @@ from pydantic import conint
 
 from .api import create_page, resolve_params
 from .bases import AbstractPage, AbstractParams
-from .default import Page as DefaultPage
-from .default import Params
 from .limit_offset import LimitOffsetPage as DefaultLimitOffsetPage
 from .limit_offset import LimitOffsetParams
+from .pagination import Page as DefaultPage
+from .pagination import Params
 
 T = TypeVar("T")
 
@@ -33,9 +33,9 @@ class LimitOffsetPage(DefaultLimitOffsetPage, Generic[T]):
 
 
 def paginate(
-        iterable: Iterable[T],
-        params: Optional[AbstractParams] = None,
-        total: Optional[int] = None,
+    iterable: Iterable[T],
+    params: Optional[AbstractParams] = None,
+    total: Optional[int] = None,
 ) -> AbstractPage[T]:
     params = resolve_params(params)
     raw_params = params.to_raw_params()

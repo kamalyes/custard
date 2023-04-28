@@ -21,14 +21,14 @@ class StreamBody(object):
         self._content_len = 0
         self._use_chunked = False
         self._use_encoding = False
-        if 'Content-Length' in self._rt.headers:
-            self._content_len = int(self._rt.headers['Content-Length'])
-        elif 'Transfer-Encoding' in self._rt.headers and self._rt.headers['Transfer-Encoding'] == "chunked":
+        if "Content-Length" in self._rt.headers:
+            self._content_len = int(self._rt.headers["Content-Length"])
+        elif "Transfer-Encoding" in self._rt.headers and self._rt.headers["Transfer-Encoding"] == "chunked":
             self._use_chunked = True
         else:
             raise IOError("create StreamBody failed without Content-Length header or Transfer-Encoding header")
 
-        if 'Content-Encoding' in self._rt.headers:
+        if "Content-Encoding" in self._rt.headers:
             self._use_encoding = True
 
     def __iter__(self):
@@ -54,14 +54,14 @@ class StreamBody(object):
             try:
                 chunk = next(self._rt.iter_content(chunk_size))
             except StopIteration:
-                return ''
+                return ""
         return chunk
 
     def get_stream_to_file(self, file_name, auto_decompress=False):
         """保存流到本地文件"""
         self._read_len = 0
         tmp_file_name = "{file_name}_{uuid}".format(file_name=file_name, uuid=uuid.uuid4().hex)
-        with open(tmp_file_name, 'wb') as fp:
+        with open(tmp_file_name, "wb") as fp:
             while 1:
                 chunk = self.read(1024, auto_decompress)
                 if not chunk:
@@ -69,8 +69,11 @@ class StreamBody(object):
                 self._read_len += len(chunk)
                 fp.write(chunk)
 
-        if not self._use_chunked and not (
-                self._use_encoding and auto_decompress) and self._read_len != self._content_len:
+        if (
+            not self._use_chunked
+            and not (self._use_encoding and auto_decompress)
+            and self._read_len != self._content_len
+        ):
             if os.path.exists(tmp_file_name):
                 os.remove(tmp_file_name)
             raise IOError("download failed with incomplete file")

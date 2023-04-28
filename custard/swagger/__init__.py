@@ -10,9 +10,11 @@
 @Desc    :  None
 """
 from urllib import request
-from custard.core.system import System
-from .swagger import Swagger2
+
+from custard.core.system import SystemHand
+
 from .exception import ParseMethodError
+from .swagger import Swagger2
 
 
 def load_url(url, method="get", **kwargs):
@@ -44,7 +46,7 @@ def swagger_parse(url=None, file=None, deep=5, **kwargs):
     if url:
         source = load_url(url, **kwargs)
     elif file:
-        source = System.load_file(file, "json")
+        source = SystemHand.load_file(file, "json")
     else:
         raise ParseMethodError("解析方式错误")
     return Swagger2(source, deep=deep)

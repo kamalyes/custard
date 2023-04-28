@@ -7,7 +7,7 @@
 @Version :  1.0
 @Contact :  mryu168@163.com
 @License :  (C)Copyright 2022-2026
-@Desc    : 　None
+@Desc    :  None
 """
 import inspect
 from contextlib import contextmanager, suppress
@@ -33,7 +33,7 @@ from fastapi.dependencies.utils import (
 from fastapi.routing import APIRoute, APIRouter
 
 from .bases import AbstractPage, AbstractParams
-from .default import Page
+from .pagination import Page
 
 T = TypeVar("T")
 TAbstractParams = TypeVar("TAbstractParams", covariant=True, bound=AbstractParams)
@@ -99,7 +99,7 @@ def _create_page_dependency(page: Type[AbstractPage]) -> Callable[[], AsyncItera
 
 
 def _create_params_dependency(
-        params: Type[TAbstractParams],
+    params: Type[TAbstractParams],
 ) -> Callable[[TAbstractParams], AsyncIterator[TAbstractParams]]:
     async def _pagination_params(*args, **kwargs) -> AsyncIterator[params]:  # type: ignore
         val = params(*args, **kwargs)
@@ -112,9 +112,8 @@ def _create_params_dependency(
 
 
 async def _set_request_response(req: Request, res: Response) -> AsyncIterator[None]:
-    with _ctx_var_with_reset(response_value, res):
-        with _ctx_var_with_reset(request_value, req):
-            yield
+    with _ctx_var_with_reset(response_value, res), _ctx_var_with_reset(request_value, req):
+        yield
 
 
 async def _marker() -> None:

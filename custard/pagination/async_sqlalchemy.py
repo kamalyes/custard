@@ -7,7 +7,7 @@
 @Version :  1.0
 @Contact :  mryu168@163.com
 @License :  (C)Copyright 2022-2026
-@Desc    : 　None
+@Desc    :  None
 """
 from __future__ import annotations
 
@@ -25,9 +25,9 @@ if TYPE_CHECKING:
 
 
 async def paginate(
-        session: AsyncSession,
-        query: Select,
-        params: Optional[AbstractParams] = None,
+    session: AsyncSession,
+    query: Select,
+    params: Optional[AbstractParams] = None,
 ) -> AbstractPage:  # pragma: no cover # FIXME: fix coverage report generation
     params = resolve_params(params)
 

@@ -9,6 +9,7 @@
 @License :  (C)Copyright 2022-2026
 @Desc    :  None
 """
+import contextlib
 import csv
 import json
 import logging
@@ -17,24 +18,27 @@ import platform
 import shutil
 import subprocess
 import zipfile
-import yaml
-from custard.core.factory import DataKitHelper
-from custard.core.processor import DataHand
 
-try:
+import yaml
+
+from custard.core.processor import DataKitHelper
+
+with contextlib.suppress(AttributeError):
     # PyYAML version >= 5.1
     yaml.warnings({"YAMLLoadWarning": False})
-except AttributeError:
-    pass
+
 
 logger = logging.getLogger(__name__)
 
 
-class System:
+class SystemHand:
     @classmethod
     def shell(cls, command):
         output, errors = subprocess.Popen(
-            command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            command,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
         ).communicate()
         o = output.decode("utf-8")
         return o
@@ -56,6 +60,7 @@ class System:
                     if "#" not in con:
                         format_con += "".join("`{}`\t".format(con.strip()))
             return format_con
+        return None
 
     @classmethod
     def get_platform_info(cls):
@@ -63,7 +68,7 @@ class System:
         获取服务运行系统的基础信息
         Returns:
         Examples:
-            >>> print(System.get_platform_info())
+            >>> print(SystemHand.get_platform_info())
         """
         return {
             "platform": platform.platform(),  # 获取操作系统名称及版本号
@@ -84,22 +89,16 @@ class System:
             target_key:
         Returns:
         Examples:
-            >>> print(System.get_pool_config(target_key="email"))
+            >>> print(SystemHand.get_pool_config(target_key="email"))
         """
-        application_file = (
-            "application.yaml"
-            if environment == "pro"
-            else f"application-{environment}.yaml"
-        )
+        application_file = "application.yaml" if environment == "pro" else f"application-{environment}.yaml"
         application_file_path = os.path.join(work_spaces_path, application_file)
         if os.path.exists(application_file_path):
-            temp_data = System.load_file(application_file_path)
+            temp_data = SystemHand.load_file(application_file_path)
             result = temp_data[target_key] if target_key else temp_data
             return result, application_file_path
         else:
-            raise FileNotFoundError(
-                f"未找到application配置文件，请检查以下路径是否正确：{application_file_path}"
-            )
+            raise FileNotFoundError(f"未找到application配置文件,请检查以下路径是否正确:{application_file_path}")
 
     @classmethod
     def is_fdir(cls, fdir_path, safe_loads=False):
@@ -110,9 +109,9 @@ class System:
             safe_loads: False 安全模式下可自动创建文件: True
         Returns:
         Examples:
-            >>> print(System.is_fdir(fdir_path="Not Fund"))
-            >>> print(System.is_fdir(fdir_path="../inutility"))
-            >>> print(System.is_fdir(fdir_path="../inutility", safe_loads=True))
+            >>> print(SystemHand.is_fdir(fdir_path="Not Fund"))
+            >>> print(SystemHand.is_fdir(fdir_path="../inutility"))
+            >>> print(SystemHand.is_fdir(fdir_path="../inutility", safe_loads=True))
         """
         isfile, isdir = os.path.isfile(fdir_path), os.path.isdir(fdir_path)
         if isfile or isdir:
@@ -122,7 +121,7 @@ class System:
         else:
             with open(fdir_path, "w", encoding="utf-8") as file:
                 file.close()
-            return System.is_fdir(fdir_path=fdir_path)
+            return SystemHand.is_fdir(fdir_path=fdir_path)
 
     @classmethod
     def load_file(cls, file_path=None, load_mode="yaml"):
@@ -140,13 +139,11 @@ class System:
                 try:
                     return json.load(file)
                 except json.JSONDecodeError as ex:
-                    raise TypeError(
-                        "JSONDecodeError:\nfile: %s\nerror: %s" % (file_path, ex)
-                    )
+                    raise TypeError("JSONDecodeError:\nfile: %s\nerror: %s" % (file_path, ex))
             elif load_mode in (".txt", ".py"):
                 return file
             elif load_mode == "html":
-                return DataHand.format_html_string(file)
+                return DataKitHelper.format_html_string(file)
             elif load_mode == "csv":
                 csv_content_list = []
                 with open(file_path, encoding="utf-8") as csvfile:
@@ -154,16 +151,17 @@ class System:
                     for row in reader:
                         csv_content_list.append(row)
                 return csv_content_list
+            return None
 
     @classmethod
     def walk(cls, root_dir: str):
         """
-        检索根目录，得到所有的子文件夹或子文件名
+        检索根目录,得到所有的子文件夹或子文件名
         Args:
             root_dir (str): _description_
         Examples:
             >>> root_dir = "../../custard"
-            >>> System.walk(root_dir)
+            >>> SystemHand.walk(root_dir)
         """
         result = []
         dirs = [os.path.join(root_dir, index) for index in os.listdir(root_dir)]
@@ -179,7 +177,7 @@ class System:
         获取当前文件路径
         Returns:
         Examples:
-            >>> System.get_current_path()
+            >>> SystemHand.get_current_path()
         """
         return os.path.abspath(os.path.dirname(__file__))
 
@@ -189,7 +187,7 @@ class System:
         获取上级目录
         Returns:
         Examples:
-            >>> System.get_superior_dir()
+            >>> SystemHand.get_superior_dir()
         """
         return os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 
@@ -201,7 +199,7 @@ class System:
           file_path: 文件路径
         Returns:
         Examples:
-            >>> System.get_dir_list()
+            >>> SystemHand.get_dir_list()
         """
         current_files = os.listdir(file_path)
         all_files = []
@@ -229,23 +227,22 @@ class System:
         try:
             if not os.path.exists(file_path):
                 raise FileNotFoundError("请检查file_path是否正确!")
-            else:
-                if method == "single":
-                    zip_file.write(file_path)
-                if method == "allie":
-                    has_dir = not file_path.endswith(os.sep)
-                    if not has_dir:
-                        raise FileNotFoundError("请检查file_path是否正确!")
-                    file_path = os.path.dirname(file_path)
-                    target_path = os.path.dirname(file_path) + os.sep + target_path
-                    if not os.path.exists(os.path.dirname(target_path)):
-                        os.makedirs(os.path.dirname(target_path))
-                    # 多级目录读取
-                    for dirpath, dirnames, filenames in os.walk(file_path):
-                        for filename in filenames:
-                            ziplist.append(os.path.join(dirpath, filename))
-                    for tar in ziplist:
-                        zip_file.write(tar)
+            if method == "single":
+                zip_file.write(file_path)
+            if method == "allie":
+                has_dir = not file_path.endswith(os.sep)
+                if not has_dir:
+                    raise FileNotFoundError("请检查file_path是否正确!")
+                file_path = os.path.dirname(file_path)
+                target_path = os.path.dirname(file_path) + os.sep + target_path
+                if not os.path.exists(os.path.dirname(target_path)):
+                    os.makedirs(os.path.dirname(target_path))
+                # 多级目录读取
+                for dirpath, _dirnames, filenames in os.walk(file_path):
+                    for filename in filenames:
+                        ziplist.append(os.path.join(dirpath, filename))
+                for tar in ziplist:
+                    zip_file.write(tar)
         except Exception as err:
             raise Exception(err)
         finally:
@@ -262,7 +259,7 @@ class System:
         Returns:
 
         Examples:
-            >>> System.unzip(file_path="./tar.zip")
+            >>> SystemHand.unzip(file_path="./tar.zip")
         """
         try:
             zip_file = zipfile.ZipFile(file_path)
@@ -272,8 +269,7 @@ class System:
                 zip_list = zip_file.namelist()
                 for f in zip_list:
                     zip_file.extract(f, target_path)
-            else:
-                raise TypeError("Unknown method")
+            raise TypeError("Unknown method")
         except Exception as err:
             raise Exception(err)
         finally:
@@ -330,7 +326,7 @@ class System:
             if not os.path.exists(target):
                 os.makedirs(target)
             # 多级目录读取
-            for dirpath, dirnames, filenames in os.walk(file_path):
+            for dirpath, _dirnames, filenames in os.walk(file_path):
                 for filename in filenames:
                     file_list.append(os.path.join(dirpath, filename))
             for list in file_list:
@@ -411,14 +407,11 @@ class System:
         Returns:
         Examples:
         """
-        if file_path is None or os.path.isfile(file_path) == False:
-            raise FileNotFoundError(
-                "Please check whether the file path or file name exists"
-            )
-        else:
-            head, tail = os.path.split(file_path)
-            name, suffix = os.path.splitext(tail)
-            return suffix.lower()
+        if file_path is None or os.path.isfile(file_path) is False:
+            raise FileNotFoundError("Please check whether the file path or file name exists")
+        head, tail = os.path.split(file_path)
+        name, suffix = os.path.splitext(tail)
+        return suffix.lower()
 
     @classmethod
     def json_to_yaml(cls, json_file):
@@ -442,7 +435,13 @@ class System:
         if yaml_file.endswith("yaml"):
             with open(yaml_file, "r") as pf:
                 load_data_ = yaml.load(pf, Loader=yaml.FullLoader)
-                json_data_ = DataKitHelper.dict_to_json(load_data_)
+                json_data_ = json.dumps(
+                    load_data_,
+                    sort_keys=False,
+                    ensure_ascii=False,
+                    indent=4,
+                    separators=(",", ": "),
+                )
             json_file = yaml_file.replace(".yaml", ".json")
             with open(json_file, "w") as fp:
                 fp.write(json_data_)
@@ -458,7 +457,7 @@ class System:
         :param json_path:
         :return:
         """
-        if isinstance(data, dict) or isinstance(data, list):
+        if isinstance(data, (dict, list)):
             with open(json_path, method, encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, sort_keys=True, indent=4)
                 return True

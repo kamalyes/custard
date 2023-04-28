@@ -57,13 +57,15 @@ def generator(worker_id, data_center_id, sleep=lambda x: time.sleep(x / 1000.0))
             sequence = 0
 
         last_timestamp = timestamp
-        yield (((timestamp - twepoch) << timestamp_left_shift) |
-               (data_center_id << data_center_id_shift) |
-               (worker_id << worker_id_shift) |
-               sequence)
+        yield (
+            ((timestamp - twepoch) << timestamp_left_shift)
+            | (data_center_id << data_center_id_shift)
+            | (worker_id << worker_id_shift)
+            | sequence
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     s = generator(1, 1)
-    for i in range(1000000):
+    for _i in range(1000000):
         print(s.__next__())

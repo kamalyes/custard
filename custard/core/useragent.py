@@ -15,11 +15,12 @@ import re
 import string
 from calendar import timegm
 from collections import OrderedDict
+from datetime import date, datetime, timedelta
 from datetime import date as dtdate
-from datetime import datetime, timedelta, date
-from typing import Collection, TypeVar, Iterable, Union, Sequence,  Dict
+from typing import Collection, Dict, Iterable, Sequence, TypeVar, Union
 
 from dateutil.tz import tzutc
+
 try:
     from typing import Literal
 except ImportError:
@@ -166,7 +167,7 @@ def choices_distribution(a, p, random=None, length: int = 1):
         cdf = list(cumsum(p))  # type: ignore
         normal = cdf[-1]
         cdf2 = [i / normal for i in cdf]
-        for i in range(length):
+        for _i in range(length):
             uniform_sample = random_sample(random=random)
             idx = bisect.bisect_right(cdf2, uniform_sample)
             item = a[idx]
@@ -175,10 +176,10 @@ def choices_distribution(a, p, random=None, length: int = 1):
 
 
 def random_elements(
-        elements: ElementsType = ("a", "b", "c"),
-        length=None,
-        unique: bool = False,
-        use_weighting=None,
+    elements: ElementsType = ("a", "b", "c"),
+    length=None,
+    unique: bool = False,
+    use_weighting=None,
 ):
     use_weighting = use_weighting if use_weighting is not None else __use_weighting__
 
@@ -239,10 +240,10 @@ def user_agent() -> str:
 
 
 def chrome(
-        version_from: int = 13,
-        version_to: int = 63,
-        build_from: int = 800,
-        build_to: int = 899,
+    version_from: int = 13,
+    version_to: int = 63,
+    build_from: int = 800,
+    build_to: int = 899,
 ) -> str:
     """Generate a Chrome web browser user agent string."""
     saf: str = f"{random.randint(531, 536)}.{random.randint(0, 2)}"
@@ -551,11 +552,11 @@ def languageCode():
 def localeLang():
     language_code = languageCode()
     return (
-            language_code
-            + "_"
-            + random_element(
-        language_locale_codes[language_code],
-    )
+        language_code
+        + "_"
+        + random_element(
+            language_locale_codes[language_code],
+        )
     )
 
 
@@ -576,8 +577,7 @@ def random_digit_not_null() -> int:
 def random_digit_or_empty() -> Union[int, str]:
     if random.randint(0, 1):
         return random.randint(0, 9)
-    else:
-        return ""
+    return ""
 
 
 def random_digit_not_null_or_empty() -> Union[int, str]:
@@ -595,10 +595,8 @@ def random_number(digits=None, fix_len: bool = False) -> int:
     if fix_len:
         if digits > 0:
             return random.randint(pow(10, digits - 1), pow(10, digits) - 1)
-        else:
-            raise ValueError("A number of fixed length cannot have less than 1 digit in it.")
-    else:
-        return random.randint(0, pow(10, digits) - 1)
+        raise ValueError("A number of fixed length cannot have less than 1 digit in it.")
+    return random.randint(0, pow(10, digits) - 1)
 
 
 def random_letter() -> str:
@@ -648,7 +646,7 @@ def parse_date_string(cls, value: str) -> Dict[str, float]:
         raise Exception(f"Can't parse date string `{value}`")
     parts = parts.groupdict()
     time_params: Dict[str, float] = {}
-    for (name_, param_) in parts.items():
+    for name_, param_ in parts.items():
         if param_:
             time_params[name_] = int(param_)
 
@@ -701,16 +699,13 @@ def _parse_date(cls, value: DateParseType) -> dtdate:
 
 
 def date_time_between(
-        start_date: DateParseType = "-30y",
-        end_date: DateParseType = "now",
-        tzinfo=None,
+    start_date: DateParseType = "-30y",
+    end_date: DateParseType = "now",
+    tzinfo=None,
 ) -> datetime:
     start_date = _parse_date_time(start_date, tzinfo=tzinfo)
     end_date = _parse_date_time(end_date, tzinfo=tzinfo)
-    if end_date - start_date <= 1:
-        ts = start_date + random.random()
-    else:
-        ts = random.randint(start_date, end_date)
+    ts = start_date + random.random() if end_date - start_date <= 1 else random.randint(start_date, end_date)
     if tzinfo is None:
         return datetime(1970, 1, 1, tzinfo=tzinfo) + timedelta(seconds=ts)
     else:
@@ -720,14 +715,8 @@ def date_time_between(
 def firefox() -> str:
     """Generate a Mozilla Firefox web browser user agent string."""
     ver: ElementsType = (
-        (
-            f"Gecko/{date_time_between(datetime(2011, 1, 1))} "
-            f"Firefox/{random.randint(4, 15)}.0"
-        ),
-        (
-            f"Gecko/{date_time_between(datetime(2010, 1, 1))} "
-            f"Firefox/3.6.{random.randint(1, 20)}"
-        ),
+        (f"Gecko/{date_time_between(datetime(2011, 1, 1))} " f"Firefox/{random.randint(4, 15)}.0"),
+        (f"Gecko/{date_time_between(datetime(2010, 1, 1))} " f"Firefox/3.6.{random.randint(1, 20)}"),
         f"Gecko/{date_time_between(datetime(2010, 1, 1))} Firefox/3.8",
     )
     tmplt_win: str = "({0}; {1}; rv:1.9.{2}.20) {3}"
@@ -771,20 +760,16 @@ def firefox() -> str:
 def localeLang() -> str:
     language_code = languageCode()
     return (
-            language_code
-            + "_"
-            + random_element(
-        language_locale_codes[language_code],
-    )
+        language_code
+        + "_"
+        + random_element(
+            language_locale_codes[language_code],
+        )
     )
 
 
 def safari() -> str:
-    saf: str = (
-        f"{random.randint(531, 535)}."
-        f"{random.randint(1, 50)}."
-        f"{random.randint(1, 7)}"
-    )
+    saf: str = f"{random.randint(531, 535)}." f"{random.randint(1, 50)}." f"{random.randint(1, 7)}"
 
     ver: str = (
         f"{random.randint(4, 5)}.{random.randint(0, 1)}"
@@ -825,14 +810,9 @@ def safari() -> str:
 
 
 def opera() -> str:
-    token: str = (
-        linux_platform_token() if random.getrandbits(1) else win_platform_token()
-    )
+    token: str = linux_platform_token() if random.getrandbits(1) else win_platform_token()
     locale: str = localeLang().replace("_", "-")
-    platform: str = (
-        f"({token}; {locale}) Presto/2.9.{random.randint(160, 190)} "
-        f"Version/{random.randint(10, 12)}.00"
-    )
+    platform: str = f"({token}; {locale}) Presto/2.9.{random.randint(160, 190)} " f"Version/{random.randint(10, 12)}.00"
     return f"Opera/{random.randint(8, 9)}.{random.randint(10, 99)}.{platform}"
 
 
@@ -857,10 +837,7 @@ def linux_platform_token() -> str:
 
 
 def mac_platform_token() -> str:
-    return (
-        f"Macintosh; {random_element(mac_processors)} Mac OS X 10_"
-        f"{random.randint(5, 12)}_{random.randint(0, 9)}"
-    )
+    return f"Macintosh; {random_element(mac_processors)} Mac OS X 10_" f"{random.randint(5, 12)}_{random.randint(0, 9)}"
 
 
 def android_platform_token() -> str:

@@ -7,7 +7,7 @@
 @Version :  1.0
 @Contact :  mryu168@163.com
 @License :  (C)Copyright 2022-2026
-@Desc    : 　None
+@Desc    :  None
 """
 from typing import Any, AsyncIterator
 
@@ -21,7 +21,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.future import select
 from sqlalchemy.orm import sessionmaker
 
-from custard.pagination import LimitOffsetPage, Page, paginate, add_pagination
+from custard.pagination import LimitOffsetPage, Page, add_pagination, paginate
 
 faker = Faker()
 
@@ -82,7 +82,7 @@ async def create_user(user_in: UserIn, db: AsyncSession = Depends(get_db)) -> Us
 @app.get("/users/default", response_model=Page[UserOut])
 @app.get("/users/limit-offset", response_model=LimitOffsetPage[UserOut])
 async def get_users(db: AsyncSession = Depends(get_db)) -> Any:
-    return await paginate(db, select(User))
+    return paginate(db, select(User))
 
 
 add_pagination(app)

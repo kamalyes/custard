@@ -14,16 +14,15 @@ import random
 import time
 import unittest
 
-from custard.expect import ExcContextManager
-from custard.expect.record import handle_exception
-from custard.expect.spacer import keep_circulating
-from custard.function import bind_run_many_times, where_is_it_called
-from custard.lock import singleton_lock
-from custard.time import TimerContextManager, calc_time, bind_timeout
+from custard.core import ExcContextManager
+from custard.core import handle_exception
+from custard.core import keep_circulating
+from custard.core import bind_run_many_times, where_is_it_called
+from custard.core import singleton_lock
+from custard.time.dafunc import TimerContextManager, bind_timeout, calc_time
 
 
 class _Test(unittest.TestCase):
-
     @unittest.skip
     @bind_timeout(timeout=0.5)
     def test_not_time_out(self):
@@ -49,7 +48,7 @@ class _Test(unittest.TestCase):
 
     @unittest.skip
     def test_where_is_it_called(self):
-        """测试函数被调用的装饰器，被调用2次将会记录2次被调用的日志"""
+        """测试函数被调用的装饰器,被调用2次将会记录2次被调用的日志"""
 
         @where_is_it_called
         def f9(a, b):
@@ -63,21 +62,21 @@ class _Test(unittest.TestCase):
     @unittest.skip
     def test_timerContext(self):
         """
-        测试上下文，对代码片段进行计时
+        测试上下文,对代码片段进行计时
         """
         with TimerContextManager(is_print_log=True):
-            print('测试这里面的代码片段的时间。')
+            print("测试这里面的代码片段的时间。")
             time.sleep(2)
 
     @unittest.skip
     def test_exception_context_manager(self):
         def func_():
-            1 + '2'
+            1 + "2"
 
         def run():
             func_()
 
-        with ExcContextManager() as ec:
+        with ExcContextManager():
             run()
 
     @unittest.skip
@@ -88,7 +87,8 @@ class _Test(unittest.TestCase):
         @handle_exception(2, 1)
         def func_():
             import json
-            json.loads('a', ac='ds')
+
+            json.loads("a", ac="ds")
 
         func_()
 
@@ -108,7 +108,7 @@ class _Test(unittest.TestCase):
 
         @bind_run_many_times(5)
         def func_():
-            print('hello')
+            print("hello")
             time.sleep(1)
 
         func_()
@@ -124,32 +124,32 @@ class _Test(unittest.TestCase):
 
         a1 = A(3)
         a2 = A(4)
-        self.assertEqual(id(a1), id(a2))
+        assert id(a1) == id(a2)
         print(a1.x, a2.x)
 
     @unittest.skip
     def test_keep_circulating(self):
-        """测试间隔时间，循环运行"""
+        """测试间隔时间,循环运行"""
 
         @keep_circulating(3, block=False)
         def f6():
-            print("每隔3秒，一直打印   " + time.strftime('%H:%M:%S'))
+            print("每隔3秒,一直打印   " + time.strftime("%H:%M:%S"))
 
         f6()
-        print('test block')
+        print("test block")
 
     @unittest.skip
     def test_calc_time(self):
-        @calc_time("（自定义模块名）")
+        @calc_time("(自定义模块名)")
         def add(num=100):
             """
-            计算 0~num 累加值，默认num=100
+            计算 0~num 累加值,默认num=100
             """
             time.sleep(1)
-            return sum([x for x in range(num + 1)])
+            return sum(list(range(num + 1)))
 
         add(5)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

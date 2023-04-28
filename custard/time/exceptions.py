@@ -10,22 +10,26 @@
 @Desc    :  None
 """
 
-__all__ = ('FunctionTimedOut', 'RETRY_SAME_TIMEOUT')
+__all__ = ("FunctionTimedOut", "RETRY_SAME_TIMEOUT")
 
-RETRY_SAME_TIMEOUT = 'RETRY_SAME_TIMEOUT'
+RETRY_SAME_TIMEOUT = "RETRY_SAME_TIMEOUT"
 
 
 class TimeOutError(Exception):
     """
     An operation timed out
     """
-    pass
 
 
 class FunctionTimedOut(BaseException):
-
-    def __init__(self, msg='', timed_out_after=None, timed_out_function=None,
-                 timed_out_args=None, timed_out_kwargs=None):
+    def __init__(
+        self,
+        msg="",
+        timed_out_after=None,
+        timed_out_function=None,
+        timed_out_args=None,
+        timed_out_kwargs=None,
+    ):
         """
         Args:
             msg:
@@ -50,11 +54,12 @@ class FunctionTimedOut(BaseException):
         if self.timed_out_function is not None:
             timed_out_func_name = self.timed_out_function.__name__
         else:
-            timed_out_func_name = 'Unknown Function'
-        if self.timed_out_after is not None:
-            timed_out_after_str = "%f" % (self.timed_out_after,)
-        else:
-            timed_out_after_str = "Unknown"
+            timed_out_func_name = "Unknown Function"
+        timed_out_after_str = "%f" % (self.timed_out_after,) if self.timed_out_after is not None else "Unknown"
 
-        return 'Function %s (args=%s) (kwargs=%s) timed out after %s seconds.\n' % (
-            timed_out_func_name, repr(self.timed_out_args), repr(self.timed_out_kwargs), timed_out_after_str)
+        return "Function %s (args=%s) (kwargs=%s) timed out after %s seconds.\n" % (
+            timed_out_func_name,
+            repr(self.timed_out_args),
+            repr(self.timed_out_kwargs),
+            timed_out_after_str,
+        )

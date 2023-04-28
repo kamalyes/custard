@@ -10,11 +10,13 @@
 @Desc    :  身份证效验&随机生成身份证信息
 """
 
-import re
 import random
-from custard.time.moment import Moment
+import re
 from datetime import datetime, timedelta
-from area_code import AREA_INFO, ID_NUMBER_18_REGEX, ID_NUMBER_15_REGEX
+
+from custard.time.moment import Moment
+
+from .area_code import AREA_INFO, ID_NUMBER_15_REGEX, ID_NUMBER_18_REGEX
 
 
 class IdNumber(str):
@@ -42,9 +44,7 @@ class IdNumber(str):
         if year == self.birth_year:
             return 0
         else:
-            if self.birth_month > month or (
-                self.birth_month == month and self.birth_day > day
-            ):
+            if self.birth_month > month or (self.birth_month == month and self.birth_day > day):
                 return year - self.birth_year - 1
             else:
                 return year - self.birth_year
@@ -78,9 +78,7 @@ class IdNumber(str):
         # 限定出生日期范围(8位数)
         start = datetime.strptime("1960-01-01", "%Y-%m-%d")
         end = datetime.strptime(end_date, "%Y-%m-%d")
-        birth_days = datetime.strftime(
-            start + timedelta(random.randint(0, (end - start).days + 1)), "%Y%m%d"
-        )
+        birth_days = datetime.strftime(start + timedelta(random.randint(0, (end - start).days + 1)), "%Y%m%d")
         id_number += str(birth_days)
         # 顺序码(2位数)
         id_number += str(random.randint(10, 99))

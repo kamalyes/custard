@@ -11,13 +11,13 @@
 """
 import json
 
-from custard.swagger import utils, swagger_parse
+from custard.swagger import swagger_parse
 
 url = "https://awen.uat.rvet.cn/order-api/swagger/doc.json"
 
 swagger = swagger_parse(url)
 
-print("转换接口：{}个".format(len(swagger.apis)))
+print("转换接口:{}个".format(len(swagger.apis)))
 
 api_path = "doctor-api.json"
 with open(api_path, mode="w", encoding="utf8") as f:

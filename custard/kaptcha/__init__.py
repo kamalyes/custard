@@ -10,4 +10,5 @@
 @Desc    :  This library is provided to allow standard python logging to output log data as JSON formatted strings
 """
 from .captcha import Captcha, CaptchaPainter
+
 __all__ = ["Captcha", "CaptchaPainter"]

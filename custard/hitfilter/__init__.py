@@ -10,3 +10,5 @@
 @Desc    :  None
 """
 from .hitfilter import DFAFilter
+
+__all__ = ["DFAFilter"]

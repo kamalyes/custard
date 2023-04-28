@@ -10,20 +10,22 @@
 @Desc    :  Jenkins工具驱动
 """
 
+import contextlib
+import json
+import logging
+import operator
 import os
 import re
-import sys
-import json
-import time
 import socket
-import logging
+import sys
+import time
 import warnings
-import operator
-import requests
-import pkg_resources
+import xml.etree.ElementTree as ET
 from urllib import parse
 from urllib.parse import quote
-import xml.etree.ElementTree as ET
+
+import pkg_resources
+import requests
 import requests.exceptions as req_exc
 
 from custard.utils.multi import MultiKeyDict
@@ -75,22 +77,14 @@ DISABLE_JOB = "%(folder_url)sjob/%(short_name)s/disable"
 CHECK_JENKINSFILE_SYNTAX = "pipeline-model-converter/validateJenkinsfile"
 SET_JOB_BUILD_NUMBER = "%(folder_url)sjob/%(short_name)s/nextbuildnumber/submit"
 COPY_JOB = "%(from_folder_url)screateItem?name=%(to_short_name)s&mode=copy&from=%(from_short_name)s"
-RENAME_JOB = (
-    "%(from_folder_url)sjob/%(from_short_name)s/doRename?newName=%(to_short_name)s"
-)
+RENAME_JOB = "%(from_folder_url)sjob/%(from_short_name)s/doRename?newName=%(to_short_name)s"
 BUILD_JOB = "%(folder_url)sjob/%(short_name)s/build"
 STOP_BUILD = "%(folder_url)sjob/%(short_name)s/%(number)s/stop"
 BUILD_WITH_PARAMS_JOB = "%(folder_url)sjob/%(short_name)s/buildWithParameters"
 BUILD_INFO = "%(folder_url)sjob/%(short_name)s/%(number)d/api/json?depth=%(depth)s"
 BUILD_CONSOLE_OUTPUT = "%(folder_url)sjob/%(short_name)s/%(number)d/consoleText"
-BUILD_ENV_VARS = (
-    "%(folder_url)sjob/%(short_name)s/%(number)d/injectedEnvVars/api/json"
-    + "?depth=%(depth)s"
-)
-BUILD_TEST_REPORT = (
-    "%(folder_url)sjob/%(short_name)s/%(number)d/testReport/api/json"
-    + "?depth=%(depth)s"
-)
+BUILD_ENV_VARS = "%(folder_url)sjob/%(short_name)s/%(number)d/injectedEnvVars/api/json" + "?depth=%(depth)s"
+BUILD_TEST_REPORT = "%(folder_url)sjob/%(short_name)s/%(number)d/testReport/api/json" + "?depth=%(depth)s"
 DELETE_BUILD = "%(folder_url)sjob/%(short_name)s/%(number)s/doDelete"
 WIPEOUT_JOB_WORKSPACE = "%(folder_url)sjob/%(short_name)s/doWipeOutWorkspace"
 NODE_LIST = "computer/api/json?depth=%(depth)s"
@@ -107,30 +101,19 @@ CONFIG_VIEW = "%(folder_url)sview/%(short_name)s/config.xml"
 DELETE_VIEW = "%(folder_url)sview/%(short_name)s/doDelete"
 SCRIPT_TEXT = "scriptText"
 NODE_SCRIPT_TEXT = "computer/%(node)s/scriptText"
-PROMOTION_NAME = (
-    "%(folder_url)sjob/%(short_name)s/promotion/process/%(name)s/api/json?tree=name"
-)
+PROMOTION_NAME = "%(folder_url)sjob/%(short_name)s/promotion/process/%(name)s/api/json?tree=name"
 PROMOTION_INFO = "%(folder_url)sjob/%(short_name)s/promotion/api/json?depth=%(depth)s"
-DELETE_PROMOTION = (
-    "%(folder_url)sjob/%(short_name)s/promotion/process/%(name)s/doDelete"
-)
-CREATE_PROMOTION = (
-    "%(folder_url)sjob/%(short_name)s/promotion/createProcess?name=%(name)s"
-)
-CONFIG_PROMOTION = (
-    "%(folder_url)sjob/%(short_name)s/promotion/process/%(name)s/config.xml"
-)
+DELETE_PROMOTION = "%(folder_url)sjob/%(short_name)s/promotion/process/%(name)s/doDelete"
+CREATE_PROMOTION = "%(folder_url)sjob/%(short_name)s/promotion/createProcess?name=%(name)s"
+CONFIG_PROMOTION = "%(folder_url)sjob/%(short_name)s/promotion/process/%(name)s/config.xml"
 LIST_CREDENTIALS = (
-    "%(folder_url)sjob/%(short_name)s/credentials/store/folder/"
-    "domain/%(domain_name)s/api/json?tree=credentials[id]"
+    "%(folder_url)sjob/%(short_name)s/credentials/store/folder/" "domain/%(domain_name)s/api/json?tree=credentials[id]"
 )
 CREATE_CREDENTIAL = (
-    "%(folder_url)sjob/%(short_name)s/credentials/store/folder/"
-    "domain/%(domain_name)s/createCredentials"
+    "%(folder_url)sjob/%(short_name)s/credentials/store/folder/" "domain/%(domain_name)s/createCredentials"
 )
 CONFIG_CREDENTIAL = (
-    "%(folder_url)sjob/%(short_name)s/credentials/store/folder/"
-    "domain/%(domain_name)s/credential/%(name)s/config.xml"
+    "%(folder_url)sjob/%(short_name)s/credentials/store/folder/" "domain/%(domain_name)s/credential/%(name)s/config.xml"
 )
 CREDENTIAL_INFO = (
     "%(folder_url)sjob/%(short_name)s/credentials/store/folder/"
@@ -142,25 +125,17 @@ QUIET_DOWN = "quietDown"
 class JenkinsException(Exception):
     """General exception type for jenkins-API-related failures."""
 
-    pass
-
 
 class NotFoundException(JenkinsException):
     """A special exception to call out the case of receiving a 404."""
-
-    pass
 
 
 class EmptyResponseException(JenkinsException):
     """A special exception to call out the case receiving an empty response."""
 
-    pass
-
 
 class BadHTTPException(JenkinsException):
     """A special exception to call out the case of a broken HTTP response."""
-
-    pass
 
 
 class TimeoutException(JenkinsException):
@@ -174,9 +149,7 @@ class WrappedSession(requests.Session):
         if self.verify is False:
             verify = False
 
-        return super(WrappedSession, self).merge_environment_settings(
-            url, proxies, stream, verify, *args, **kwargs
-        )
+        return super(WrappedSession, self).merge_environment_settings(url, proxies, stream, verify, *args, **kwargs)
 
 
 class Plugin(dict):
@@ -210,9 +183,7 @@ class PluginVersion(str):
         """Parse plugin version and store it for comparison."""
 
         self._version = version
-        self.parsed_version = pkg_resources.parse_version(
-            self.__convert_version(version)
-        )
+        self.parsed_version = pkg_resources.parse_version(self.__convert_version(version))
 
     def __convert_version(self, version):
         return self._VERSION_RE.sub(r"\g<1>.preview", str(version))
@@ -251,9 +222,7 @@ class PluginVersion(str):
 class Jenkins(object):
     timeoutWarningIssued = False
 
-    def __init__(
-        self, url, username=None, password=None, timeout=socket._GLOBAL_DEFAULT_TIMEOUT
-    ):
+    def __init__(self, url, username=None, password=None, timeout=socket._GLOBAL_DEFAULT_TIMEOUT):
         """Create handle to Jenkins instance.
 
         All methods will raise :class:`JenkinsException` on failure.
@@ -273,9 +242,7 @@ class Jenkins(object):
         if username is not None and password is not None:
             self._auths[0] = (
                 "basic",
-                requests.auth.HTTPBasicAuth(
-                    username.encode("utf-8"), password.encode("utf-8")
-                ),
+                requests.auth.HTTPBasicAuth(username.encode("utf-8"), password.encode("utf-8")),
             )
 
         if requests_kerberos is not None:
@@ -301,7 +268,7 @@ class Jenkins(object):
             logging.debug(
                 "PYTHONHTTPSVERIFY=0 detected so we will "
                 "disable requests library SSL verification to keep "
-                "compatibility with older versions."
+                "compatibility with older versions.",
             )
             requests.packages.urllib3.disable_warnings()
             self._session.verify = False
@@ -322,11 +289,7 @@ class Jenkins(object):
         return params
 
     def buildUrl(self, format_spec, variables=None):
-
-        if variables:
-            url_path = format_spec % self.getEncodedParams(variables)
-        else:
-            url_path = format_spec
+        url_path = format_spec % self.getEncodedParams(variables) if variables else format_spec
 
         return str(parse.urljoin(self.server, url_path))
 
@@ -334,9 +297,7 @@ class Jenkins(object):
         # We don't know yet whether we need a crumb
         if self.crumb is None:
             try:
-                response = self.jenkinsOpen(
-                    requests.Request("GET", self.buildUrl(CRUMB_URL)), add_crumb=False
-                )
+                response = self.jenkinsOpen(requests.Request("GET", self.buildUrl(CRUMB_URL)), add_crumb=False)
                 if not response:
                     raise EmptyResponseException("Empty response for crumb")
             except (NotFoundException, EmptyResponseException):
@@ -347,7 +308,6 @@ class Jenkins(object):
             req.headers[self.crumb["crumbRequestField"]] = self.crumb["crumb"]
 
     def maybeAddAuth(self):
-
         if self._auth_resolved:
             return
 
@@ -376,9 +336,7 @@ class Jenkins(object):
                     failures.append("auth(%s) %s" % (name, exc))
                     continue
             else:
-                raise JenkinsException(
-                    "Unable to authenticate with any scheme:\n%s" % "\n".join(failures)
-                )
+                raise JenkinsException("Unable to authenticate with any scheme:\n%s" % "\n".join(failures))
 
         self._auth_resolved = True
         self.auth = self._session.auth
@@ -396,23 +354,16 @@ class Jenkins(object):
         if not data.get("builds"):
             return data
         oldest_loaded_build_number = data["builds"][-1]["number"]
-        if not data["firstBuild"]:
-            first_build_number = oldest_loaded_build_number
-        else:
-            first_build_number = data["firstBuild"]["number"]
+        first_build_number = oldest_loaded_build_number if not data["firstBuild"] else data["firstBuild"]["number"]
         all_builds_loaded = oldest_loaded_build_number == first_build_number
         if all_builds_loaded:
             return data
         folder_url, short_name = self.getJobFolder(data["fullName"])
-        response = self.jenkinsOpen(
-            requests.Request("GET", self.buildUrl(ALL_BUILDS, locals()))
-        )
+        response = self.jenkinsOpen(requests.Request("GET", self.buildUrl(ALL_BUILDS, locals())))
         if response:
             data["builds"] = json.loads(response)["allBuilds"]
         else:
-            raise JenkinsException(
-                "Could not fetch all builds from job[%s]" % data["fullName"]
-            )
+            raise JenkinsException("Could not fetch all builds from job[%s]" % data["fullName"])
         return data
 
     def getJobInfo(self, name, depth=0, fetch_all_builds=False):
@@ -431,9 +382,7 @@ class Jenkins(object):
         """
         folder_url, short_name = self.getJobFolder(name)
         try:
-            response = self.jenkinsOpen(
-                requests.Request("GET", self.buildUrl(JOB_INFO, locals()))
-            )
+            response = self.jenkinsOpen(requests.Request("GET", self.buildUrl(JOB_INFO, locals())))
             if response:
                 if fetch_all_builds:
                     return self.addMissingBuilds(json.loads(response))
@@ -446,9 +395,7 @@ class Jenkins(object):
         except ValueError:
             raise JenkinsException("Could not parse JSON info for job[%s]" % name)
 
-    def getJobInfoRegex(
-        self, pattern, depth=0, folder_depth=0, folder_depth_per_request=10
-    ):
+    def getJobInfoRegex(self, pattern, depth=0, folder_depth=0, folder_depth_per_request=10):
         """Get a list of jobs information that contain names which match the
            regex pattern.
 
@@ -460,9 +407,7 @@ class Jenkins(object):
         :returns: List of jobs info, ``list``
         """
         result = []
-        jobs = self.getAllJobs(
-            folder_depth=folder_depth, folder_depth_per_request=folder_depth_per_request
-        )
+        jobs = self.getAllJobs(folder_depth=folder_depth, folder_depth_per_request=folder_depth_per_request)
         for job in jobs:
             if re.search(pattern, job["name"]):
                 result.append(self.getJobInfo(job["name"], depth=depth))
@@ -481,18 +426,13 @@ class Jenkins(object):
         """
         folder_url, short_name = self.getJobFolder(name)
         try:
-            response = self.jenkinsOpen(
-                requests.Request("GET", self.buildUrl(JOB_NAME, locals()))
-            )
+            response = self.jenkinsOpen(requests.Request("GET", self.buildUrl(JOB_NAME, locals())))
         except NotFoundException:
             return None
         else:
             actual = json.loads(response)["name"]
             if actual != short_name:
-                raise JenkinsException(
-                    "Jenkins returned an unexpected job name %s "
-                    "(expected: %s)" % (actual, name)
-                )
+                raise JenkinsException("Jenkins returned an unexpected job name %s " "(expected: %s)" % (actual, name))
             return actual
 
     def debugJobInfo(self, job_name):
@@ -511,12 +451,9 @@ class Jenkins(object):
         return response
 
     def _request(self, req):
-
         r = self._session.prepare_request(req)
         # requests.Session.send() does not honor env settings by design
-        _settings = self._session.mergeEnvSettings(
-            r.url, {}, None, self._session.verify, None
-        )
+        _settings = self._session.mergeEnvSettings(r.url, {}, None, self._session.verify, None)
         _settings["timeout"] = self.timeout
         return self._session.send(r, **_settings)
 
@@ -549,10 +486,9 @@ class Jenkins(object):
             # Jenkins's funky authentication means its nigh impossible to
             # distinguish errors.
             if e.response.status_code in [401, 403, 500]:
-                msg = (
-                    "Error in request. "
-                    + "Possibly authentication failed [%s]: %s"
-                    % (e.response.status_code, e.response.reason)
+                msg = "Error in request. " + "Possibly authentication failed [%s]: %s" % (
+                    e.response.status_code,
+                    e.response.reason,
                 )
                 if e.response.text:
                     msg += "\n" + e.response.text
@@ -593,9 +529,7 @@ class Jenkins(object):
         except (req_exc.HTTPError, NotFoundException):
             raise JenkinsException("queue number[%d] does not exist" % number)
         except ValueError:
-            raise JenkinsException(
-                "Could not parse JSON info for queue number[%d]" % number
-            )
+            raise JenkinsException("Could not parse JSON info for queue number[%d]" % number)
 
     def getBuildInfo(self, name, number, depth=0):
         """Get build information dictionary.
@@ -615,21 +549,15 @@ class Jenkins(object):
         """  # noqa: E501
         folder_url, short_name = self.getJobFolder(name)
         try:
-            response = self.jenkinsOpen(
-                requests.Request("GET", self.buildUrl(BUILD_INFO, locals()))
-            )
+            response = self.jenkinsOpen(requests.Request("GET", self.buildUrl(BUILD_INFO, locals())))
             if response:
                 return json.loads(response)
             else:
-                raise JenkinsException(
-                    "job[%s] number[%d] does not exist" % (name, number)
-                )
+                raise JenkinsException("job[%s] number[%d] does not exist" % (name, number))
         except (req_exc.HTTPError, NotFoundException):
             raise JenkinsException("job[%s] number[%d] does not exist" % (name, number))
         except ValueError:
-            raise JenkinsException(
-                "Could not parse JSON info for job[%s] number[%d]" % (name, number)
-            )
+            raise JenkinsException("Could not parse JSON info for job[%s] number[%d]" % (name, number))
 
     def getBuildEnvVars(self, name, number, depth=0):
         """Get build environment variables.
@@ -642,21 +570,15 @@ class Jenkins(object):
         """
         folder_url, short_name = self.getJobFolder(name)
         try:
-            response = self.jenkinsOpen(
-                requests.Request("GET", self.buildUrl(BUILD_ENV_VARS, locals()))
-            )
+            response = self.jenkinsOpen(requests.Request("GET", self.buildUrl(BUILD_ENV_VARS, locals())))
             if response:
                 return json.loads(response)
             else:
-                raise JenkinsException(
-                    "job[%s] number[%d] does not exist" % (name, number)
-                )
+                raise JenkinsException("job[%s] number[%d] does not exist" % (name, number))
         except req_exc.HTTPError:
             raise JenkinsException("job[%s] number[%d] does not exist" % (name, number))
         except ValueError:
-            raise JenkinsException(
-                "Could not parse JSON info for job[%s] number[%d]" % (name, number)
-            )
+            raise JenkinsException("Could not parse JSON info for job[%s] number[%d]" % (name, number))
         except NotFoundException:
             # This can happen on workflow jobs, or if InjectEnvVars plugin not installed
             return None
@@ -670,21 +592,15 @@ class Jenkins(object):
         """
         folder_url, short_name = self.getJobFolder(name)
         try:
-            response = self.jenkinsOpen(
-                requests.Request("GET", self.buildUrl(BUILD_TEST_REPORT, locals()))
-            )
+            response = self.jenkinsOpen(requests.Request("GET", self.buildUrl(BUILD_TEST_REPORT, locals())))
             if response:
                 return json.loads(response)
             else:
-                raise JenkinsException(
-                    "job[%s] number[%d] does not exist" % (name, number)
-                )
+                raise JenkinsException("job[%s] number[%d] does not exist" % (name, number))
         except req_exc.HTTPError:
             raise JenkinsException("job[%s] number[%d] does not exist" % (name, number))
         except ValueError:
-            raise JenkinsException(
-                "Could not parse JSON info for job[%s] number[%d]" % (name, number)
-            )
+            raise JenkinsException("Could not parse JSON info for job[%s] number[%d]" % (name, number))
         except NotFoundException:
             # This can happen if the test report wasn't generated for any reason
             return None
@@ -697,9 +613,7 @@ class Jenkins(object):
             >>> print(queue_info[0])
             {u'task': {u'url': u'http://your_url/job/my_job/', u'color': u'aborted_anime', u'name': u'my_job'}, u'stuck': False, u'actions': [{u'causes': [{u'shortDescription': u'Started by timer'}]}], u'buildable': False, u'params': u'', u'buildableStartMilliseconds': 1315087293316, u'why': u'Build #2,532 is already in progress (ETA:10 min)', u'blocked': True}
         """  # noqa: E501
-        return json.loads(
-            self.jenkinsOpen(requests.Request("GET", self.buildUrl(Q_INFO)))
-        )["items"]
+        return json.loads(self.jenkinsOpen(requests.Request("GET", self.buildUrl(Q_INFO))))["items"]
 
     def cancelQueue(self, id):
         """Cancel a queued build.
@@ -708,18 +622,14 @@ class Jenkins(object):
         """
         # Jenkins seems to always return a 404 when using this REST endpoint
         # https://issues.jenkins-ci.org/browse/JENKINS-21311
-        try:
+        with contextlib.suppress(NotFoundException):
             self.jenkinsOpen(
                 requests.Request(
                     "POST",
                     self.buildUrl(CANCEL_QUEUE, locals()),
                     headers={"Referer": self.server},
-                )
+                ),
             )
-        except NotFoundException:
-            # Exception is expected; cancelQueue() is a best-effort
-            # mechanism, so ignore it
-            pass
 
     def getInfo(self, item="", query=None):
         """Get information on this Master or item on Master.
@@ -745,15 +655,11 @@ class Jenkins(object):
         if query:
             url += query
         try:
-            return json.loads(
-                self.jenkinsOpen(requests.Request("GET", self.buildUrl(url)))
-            )
-        except (req_exc.HTTPError):
+            return json.loads(self.jenkinsOpen(requests.Request("GET", self.buildUrl(url))))
+        except req_exc.HTTPError:
             raise BadHTTPException("Error communicating with server[%s]" % self.server)
         except ValueError:
-            raise JenkinsException(
-                "Could not parse JSON info for server[%s]" % self.server
-            )
+            raise JenkinsException("Could not parse JSON info for server[%s]" % self.server)
 
     def getWhoami(self, depth=0):
         """Get information about the user account that authenticated to
@@ -770,18 +676,13 @@ class Jenkins(object):
 
         """
         try:
-            response = self.jenkinsOpen(
-                requests.Request("GET", self.buildUrl(WHOAMI_URL, locals()))
-            )
+            response = self.jenkinsOpen(requests.Request("GET", self.buildUrl(WHOAMI_URL, locals())))
             if response is None:
-                raise EmptyResponseException(
-                    "Error communicating with server[%s]: "
-                    "empty response" % self.server
-                )
+                raise EmptyResponseException("Error communicating with server[%s]: " "empty response" % self.server)
 
             return json.loads(response)
 
-        except (req_exc.HTTPError):
+        except req_exc.HTTPError:
             raise BadHTTPException("Error communicating with server[%s]" % self.server)
 
     def getVersion(self):
@@ -803,7 +704,7 @@ class Jenkins(object):
 
             return response.headers["X-Jenkins"]
 
-        except (req_exc.HTTPError):
+        except req_exc.HTTPError:
             raise BadHTTPException("Error communicating with server[%s]" % self.server)
 
     def getPluginsInfo(self, depth=2):
@@ -831,10 +732,8 @@ class Jenkins(object):
             u'gearman-plugin', u'bundled': False}, ..]
 
         """
-        warnings.warn(
-            "getPluginsInfo() is deprecated, use getPlugin()", DeprecationWarning
-        )
-        return [plugin_data for plugin_data in self.getPlugin(depth).values()]
+        warnings.warn("getPluginsInfo() is deprecated, use getPlugin()", DeprecationWarning)
+        return list(self.getPlugin(depth).values())
 
     def getPluginInfo(self, name, depth=2):
         """Get an installed plugin information on this Master.
@@ -905,16 +804,12 @@ class Jenkins(object):
 
         try:
             plugins_info_json = json.loads(
-                self.jenkinsOpen(
-                    requests.Request("GET", self.buildUrl(PLUGIN_INFO, locals()))
-                )
+                self.jenkinsOpen(requests.Request("GET", self.buildUrl(PLUGIN_INFO, locals()))),
             )
-        except (req_exc.HTTPError):
+        except req_exc.HTTPError:
             raise BadHTTPException("Error communicating with server[%s]" % self.server)
         except ValueError:
-            raise JenkinsException(
-                "Could not parse JSON info for server[%s]" % self.server
-            )
+            raise JenkinsException("Could not parse JSON info for server[%s]" % self.server)
 
         plugins_data = MultiKeyDict()
         for plugin_data in plugins_info_json["plugins"]:
@@ -1007,7 +902,7 @@ class Jenkins(object):
             if not isinstance(lvl_jobs, list):
                 lvl_jobs = [lvl_jobs]
             for job in lvl_jobs:
-                path = root + [job["name"]]
+                path = [*root, job["name"]]
                 # insert fullname info if it doesn't exist to
                 # allow callers to easily reference unambiguously
                 if "fullname" not in job:
@@ -1039,8 +934,7 @@ class Jenkins(object):
         to_folder_url, to_short_name = self.getJobFolder(to_name)
         if from_folder_url != to_folder_url:
             raise JenkinsException(
-                "copy[%s to %s] failed, source and destination "
-                "folder must be the same" % (from_name, to_name)
+                "copy[%s to %s] failed, source and destination " "folder must be the same" % (from_name, to_name),
             )
 
         self.jenkinsOpen(requests.Request("POST", self.buildUrl(COPY_JOB, locals())))
@@ -1061,8 +955,7 @@ class Jenkins(object):
         to_folder_url, to_short_name = self.getJobFolder(to_name)
         if from_folder_url != to_folder_url:
             raise JenkinsException(
-                "rename[%s to %s] failed, source and destination folder "
-                "must be the same" % (from_name, to_name)
+                "rename[%s to %s] failed, source and destination folder " "must be the same" % (from_name, to_name),
             )
         self.jenkinsOpen(requests.Request("POST", self.buildUrl(RENAME_JOB, locals())))
         self.assertJobExists(to_name, "rename[%s] failed")
@@ -1121,7 +1014,7 @@ class Jenkins(object):
                 "POST",
                 self.buildUrl(SET_JOB_BUILD_NUMBER, locals()),
                 data=("nextBuildNumber=%d" % number).encode("utf-8"),
-            )
+            ),
         )
 
     def jobExists(self, name):
@@ -1133,6 +1026,7 @@ class Jenkins(object):
         folder_url, short_name = self.getJobFolder(name)
         if self.getJobName(name) == short_name:
             return True
+        return None
 
     def jobs_count(self):
         """Get the number of jobs on the Jenkins server
@@ -1168,10 +1062,7 @@ class Jenkins(object):
             response = self.jenkinsRequest(requests.Request("POST", url, data=data))
         except requests.exceptions.HTTPError:
             if not ignore_failures:
-                raise JenkinsException(
-                    "Error creating folder [%s]. Probably it already exists."
-                    % (folder_name)
-                )
+                raise JenkinsException("Error creating folder [%s]. Probably it already exists." % (folder_name))
 
     def upsertJob(self, name, config_xml):
         """Create a new Jenkins job or reconfigures it if it exists
@@ -1216,13 +1107,10 @@ class Jenkins(object):
                     self.buildUrl(CREATE_JOB, locals()),
                     data=config_xml.encode("utf-8"),
                     headers=DEFAULT_HEADERS,
-                )
+                ),
             )
         except NotFoundException:
-            raise JenkinsException(
-                "Cannot create job[%s] because folder "
-                "for the job does not exist" % (name)
-            )
+            raise JenkinsException("Cannot create job[%s] because folder " "for the job does not exist" % (name))
         self.assertJobExists(name, "create[%s] failed")
 
     def getJobConfig(self, name):
@@ -1251,7 +1139,7 @@ class Jenkins(object):
                 reconfig_url,
                 data=config_xml.encode("utf-8"),
                 headers=DEFAULT_HEADERS,
-            )
+            ),
         )
 
     def buildJobUrl(self, name, parameters=None, token=None):
@@ -1277,7 +1165,7 @@ class Jenkins(object):
                         (
                             "token",
                             token,
-                        )
+                        ),
                     )
                 elif isinstance(parameters, dict):
                     parameters.update({"token": token})
@@ -1286,19 +1174,11 @@ class Jenkins(object):
                         "build parameters can be a dictionary "
                         'like {"param_key": "param_value", ...} '
                         "or a list of two membered tuples "
-                        'like [("param_key", "param_value",), ...]'
+                        'like [("param_key", "param_value",), ...]',
                     )
-            return (
-                self.buildUrl(BUILD_WITH_PARAMS_JOB, locals())
-                + "?"
-                + parse.urlencode(parameters)
-            )
+            return self.buildUrl(BUILD_WITH_PARAMS_JOB, locals()) + "?" + parse.urlencode(parameters)
         elif token:
-            return (
-                self.buildUrl(BUILD_JOB, locals())
-                + "?"
-                + parse.urlencode({"token": token})
-            )
+            return self.buildUrl(BUILD_JOB, locals()) + "?" + parse.urlencode({"token": token})
         else:
             return self.buildUrl(BUILD_JOB, locals())
 
@@ -1316,15 +1196,10 @@ class Jenkins(object):
         :param token: Jenkins API token
         :returns: ``int`` queue item
         """
-        response = self.jenkinsRequest(
-            requests.Request("POST", self.buildJobUrl(name, parameters, token))
-        )
+        response = self.jenkinsRequest(requests.Request("POST", self.buildJobUrl(name, parameters, token)))
 
         if "Location" not in response.headers:
-            raise EmptyResponseException(
-                "Header 'Location' not found in "
-                "response from server[%s]" % self.server
-            )
+            raise EmptyResponseException("Header 'Location' not found in " "response from server[%s]" % self.server)
 
         location = response.headers["Location"]
         # location is a queue item, eg. "http://jenkins/queue/item/25/"
@@ -1353,10 +1228,7 @@ class Jenkins(object):
         magic_str = ")]}."
         print_magic_str = 'print("{}")'.format(magic_str)
         data = {"script": "{0}\n{1}".format(script, print_magic_str).encode("utf-8")}
-        if node:
-            url = self.buildUrl(NODE_SCRIPT_TEXT, locals())
-        else:
-            url = self.buildUrl(SCRIPT_TEXT, locals())
+        url = self.buildUrl(NODE_SCRIPT_TEXT, locals()) if node else self.buildUrl(SCRIPT_TEXT, locals())
 
         result = self.jenkinsOpen(requests.Request("POST", url, data=data))
 
@@ -1383,17 +1255,14 @@ class Jenkins(object):
         install = 'Jenkins.instance.updateCenter.getPlugin("' + name + '")' ".deploy();"
         if include_dependencies:
             install = (
-                'Jenkins.instance.updateCenter.getPlugin("' + name + '")'
-                ".getNeededDependencies().each{it.deploy()};"
+                'Jenkins.instance.updateCenter.getPlugin("' + name + '")' ".getNeededDependencies().each{it.deploy()};"
             ) + install
 
         self.runScript(install)
         # runScript is an async call to run groovy. we need to wait a little
         # before we can get a reliable response on whether a restart is needed
         time.sleep(2)
-        is_restart_required = (
-            "Jenkins.instance.updateCenter" ".isRestartRequiredForCompletion()"
-        )
+        is_restart_required = "Jenkins.instance.updateCenter" ".isRestartRequiredForCompletion()"
 
         # response is a string (i.e. u'Result: true\n'), return a bool instead
         response_str = self.runScript(is_restart_required)
@@ -1416,9 +1285,7 @@ class Jenkins(object):
         :param number: Jenkins build number for the job, ``int``
         """
         folder_url, short_name = self.getJobFolder(name)
-        self.jenkinsOpen(
-            requests.Request("POST", self.buildUrl(DELETE_BUILD, locals()), b"")
-        )
+        self.jenkinsOpen(requests.Request("POST", self.buildUrl(DELETE_BUILD, locals()), b""))
 
     def wipeoutJobWorkspace(self, name):
         """Wipe out workspace for given Jenkins job.
@@ -1426,11 +1293,7 @@ class Jenkins(object):
         :param name: Name of Jenkins job, ``str``
         """
         folder_url, short_name = self.getJobFolder(name)
-        self.jenkinsOpen(
-            requests.Request(
-                "POST", self.buildUrl(WIPEOUT_JOB_WORKSPACE, locals()), b""
-            )
-        )
+        self.jenkinsOpen(requests.Request("POST", self.buildUrl(WIPEOUT_JOB_WORKSPACE, locals()), b""))
 
     def getRunningBuilds(self):
         """Return list of running builds.
@@ -1452,10 +1315,7 @@ class Jenkins(object):
         for node in nodes:
             # the name returned is not the name to lookup when
             # dealing with master :/
-            if node["name"] == "master":
-                node_name = "(master)"
-            else:
-                node_name = node["name"]
+            node_name = "(master)" if node["name"] == "master" else node["name"]
             try:
                 info = self.getNodeInfo(node_name, depth=2)
             except JenkinsException as e:
@@ -1480,7 +1340,7 @@ class Jenkins(object):
                             "url": url,
                             "node": node_name,
                             "executor": executor_number,
-                        }
+                        },
                     )
         return builds
 
@@ -1492,21 +1352,12 @@ class Jenkins(object):
         :returns: List of nodes, ``[ { str: str, str: bool} ]``
         """
         try:
-            nodes_data = json.loads(
-                self.jenkinsOpen(
-                    requests.Request("GET", self.buildUrl(NODE_LIST, locals()))
-                )
-            )
-            return [
-                {"name": c["displayName"], "offline": c["offline"]}
-                for c in nodes_data["computer"]
-            ]
-        except (req_exc.HTTPError):
+            nodes_data = json.loads(self.jenkinsOpen(requests.Request("GET", self.buildUrl(NODE_LIST, locals()))))
+            return [{"name": c["displayName"], "offline": c["offline"]} for c in nodes_data["computer"]]
+        except req_exc.HTTPError:
             raise BadHTTPException("Error communicating with server[%s]" % self.server)
         except ValueError:
-            raise JenkinsException(
-                "Could not parse JSON info for server[%s]" % self.server
-            )
+            raise JenkinsException("Could not parse JSON info for server[%s]" % self.server)
 
     def getNodeInfo(self, name, depth=0):
         """Get node information dictionary
@@ -1516,9 +1367,7 @@ class Jenkins(object):
         :returns: Dictionary of node info, ``dict``
         """
         try:
-            response = self.jenkinsOpen(
-                requests.Request("GET", self.buildUrl(NODE_INFO, locals()))
-            )
+            response = self.jenkinsOpen(requests.Request("GET", self.buildUrl(NODE_INFO, locals())))
             if response:
                 return json.loads(response)
             else:
@@ -1570,9 +1419,7 @@ class Jenkins(object):
         info = self.getNodeInfo(name)
         if info["offline"]:
             return
-        self.jenkinsOpen(
-            requests.Request("POST", self.buildUrl(TOGGLE_OFFLINE, locals()))
-        )
+        self.jenkinsOpen(requests.Request("POST", self.buildUrl(TOGGLE_OFFLINE, locals())))
 
     def enableNode(self, name):
         """Enable a node
@@ -1583,9 +1430,7 @@ class Jenkins(object):
         if not info["offline"]:
             return
         msg = ""
-        self.jenkinsOpen(
-            requests.Request("POST", self.buildUrl(TOGGLE_OFFLINE, locals()))
-        )
+        self.jenkinsOpen(requests.Request("POST", self.buildUrl(TOGGLE_OFFLINE, locals())))
 
     def createNode(
         self,
@@ -1625,18 +1470,14 @@ class Jenkins(object):
             "remoteFS": remoteFS,
             "labelString": labels,
             "mode": mode,
-            "retentionStrategy": {
-                "stapler-class": "hudson.slaves.RetentionStrategy$Always"
-            },
+            "retentionStrategy": {"stapler-class": "hudson.slaves.RetentionStrategy$Always"},
             "nodeProperties": {"stapler-class-bag": "true"},
             "launcher": launcher_params,
         }
 
         params = {"name": name, "type": NODE_TYPE, "json": json.dumps(inner_params)}
 
-        self.jenkinsOpen(
-            requests.Request("POST", self.buildUrl(CREATE_NODE, locals()), data=params)
-        )
+        self.jenkinsOpen(requests.Request("POST", self.buildUrl(CREATE_NODE, locals()), data=params))
 
         self.assertNodeExists(name, "create[%s] failed")
 
@@ -1661,7 +1502,7 @@ class Jenkins(object):
                 reconfig_url,
                 data=config_xml.encode("utf-8"),
                 headers=DEFAULT_HEADERS,
-            )
+            ),
         )
 
     def getBuildConsoleOutput(self, name, number):
@@ -1673,15 +1514,11 @@ class Jenkins(object):
         """
         folder_url, short_name = self.getJobFolder(name)
         try:
-            response = self.jenkinsOpen(
-                requests.Request("GET", self.buildUrl(BUILD_CONSOLE_OUTPUT, locals()))
-            )
+            response = self.jenkinsOpen(requests.Request("GET", self.buildUrl(BUILD_CONSOLE_OUTPUT, locals())))
             if response:
                 return response
             else:
-                raise JenkinsException(
-                    "job[%s] number[%d] does not exist" % (name, number)
-                )
+                raise JenkinsException("job[%s] number[%d] does not exist" % (name, number))
         except (req_exc.HTTPError, NotFoundException):
             raise JenkinsException("job[%s] number[%d] does not exist" % (name, number))
 
@@ -1698,9 +1535,7 @@ class Jenkins(object):
 
         a_path = name.split("/")
         short_name = a_path[-1]
-        folder_url = (
-            ("job/" + "/job/".join(a_path[:-1]) + "/") if len(a_path) > 1 else ""
-        )
+        folder_url = ("job/" + "/job/".join(a_path[:-1]) + "/") if len(a_path) > 1 else ""
 
         return folder_url, short_name
 
@@ -1721,9 +1556,7 @@ class Jenkins(object):
 
         folder_url, short_name = self.getJobFolder(name)
         try:
-            response = self.jenkinsOpen(
-                requests.Request("GET", self.buildUrl(VIEW_JOBS, locals()))
-            )
+            response = self.jenkinsOpen(requests.Request("GET", self.buildUrl(VIEW_JOBS, locals())))
             if response:
                 jobs = json.loads(response)["jobs"]
             else:
@@ -1750,17 +1583,14 @@ class Jenkins(object):
         """
         folder_url, short_name = self.getJobFolder(name)
         try:
-            response = self.jenkinsOpen(
-                requests.Request("GET", self.buildUrl(VIEW_NAME, locals()))
-            )
+            response = self.jenkinsOpen(requests.Request("GET", self.buildUrl(VIEW_NAME, locals())))
         except NotFoundException:
             return None
         else:
             actual = json.loads(response)["name"]
             if actual != short_name:
                 raise JenkinsException(
-                    "Jenkins returned an unexpected view name %s "
-                    "(expected: %s)" % (actual, short_name)
+                    "Jenkins returned an unexpected view name %s " "(expected: %s)" % (actual, short_name),
                 )
             return name
 
@@ -1783,6 +1613,7 @@ class Jenkins(object):
         """
         if self.getViewName(name) == name:
             return True
+        return None
 
     def viewExists(self):
         """Get list of views running.
@@ -1819,7 +1650,7 @@ class Jenkins(object):
                 self.buildUrl(CREATE_VIEW, locals()),
                 data=config_xml.encode("utf-8"),
                 headers=DEFAULT_HEADERS,
-            )
+            ),
         )
         self.assertViewExists(name, "create[%s] failed")
 
@@ -1839,7 +1670,7 @@ class Jenkins(object):
                 reconfig_url,
                 data=config_xml.encode("utf-8"),
                 headers=DEFAULT_HEADERS,
-            )
+            ),
         )
 
     def getViewConfig(self, name):
@@ -1865,17 +1696,14 @@ class Jenkins(object):
         """
         folder_url, short_name = self.getJobFolder(job_name)
         try:
-            response = self.jenkinsOpen(
-                requests.Request("GET", self.buildUrl(PROMOTION_NAME, locals()))
-            )
+            response = self.jenkinsOpen(requests.Request("GET", self.buildUrl(PROMOTION_NAME, locals())))
         except NotFoundException:
             return None
         else:
             actual = json.loads(response)["name"]
             if actual != name:
                 raise JenkinsException(
-                    "Jenkins returned an unexpected promotion name %s "
-                    "(expected: %s)" % (actual, name)
+                    "Jenkins returned an unexpected promotion name %s " "(expected: %s)" % (actual, name),
                 )
             return actual
 
@@ -1915,9 +1743,7 @@ class Jenkins(object):
         """
         folder_url, short_name = self.getJobFolder(job_name)
         try:
-            response = self.jenkinsOpen(
-                requests.Request("GET", self.buildUrl(PROMOTION_INFO, locals()))
-            )
+            response = self.jenkinsOpen(requests.Request("GET", self.buildUrl(PROMOTION_INFO, locals())))
             if response:
                 return json.loads(response)
             else:
@@ -1925,9 +1751,7 @@ class Jenkins(object):
         except req_exc.HTTPError:
             raise JenkinsException("job[%s] does not exist" % job_name)
         except ValueError:
-            raise JenkinsException(
-                "Could not parse JSON info for " "promotions of job[%s]" % job_name
-            )
+            raise JenkinsException("Could not parse JSON info for " "promotions of job[%s]" % job_name)
 
     def getPromotions(self, job_name):
         """Get list of promotions running.
@@ -1946,9 +1770,7 @@ class Jenkins(object):
         :param job_name: Job name, ``str``
         """
         folder_url, short_name = self.getJobFolder(job_name)
-        self.jenkinsOpen(
-            requests.Request("POST", self.buildUrl(DELETE_PROMOTION, locals()))
-        )
+        self.jenkinsOpen(requests.Request("POST", self.buildUrl(DELETE_PROMOTION, locals())))
         if self.promotionExists(name, job_name):
             raise JenkinsException("delete[%s] from job[%s] failed" % (name, job_name))
 
@@ -1960,9 +1782,7 @@ class Jenkins(object):
         :param config_xml: config file text, ``str``
         """
         if self.promotionExists(name, job_name):
-            raise JenkinsException(
-                "promotion[%s] already exists at job[%s]" % (name, job_name)
-            )
+            raise JenkinsException("promotion[%s] already exists at job[%s]" % (name, job_name))
 
         folder_url, short_name = self.getJobFolder(job_name)
         self.jenkinsOpen(
@@ -1971,7 +1791,7 @@ class Jenkins(object):
                 self.buildUrl(CREATE_PROMOTION, locals()),
                 data=config_xml.encode("utf-8"),
                 headers=DEFAULT_HEADERS,
-            )
+            ),
         )
         self.assertPromotionExists(name, job_name, "create[%s] at " "job[%s] failed")
 
@@ -1992,7 +1812,7 @@ class Jenkins(object):
                 reconfig_url,
                 data=config_xml.encode("utf-8"),
                 headers=DEFAULT_HEADERS,
-            )
+            ),
         )
 
     def getPromotionConfig(self, name, job_name):
@@ -2041,10 +1861,7 @@ class Jenkins(object):
         :param name: Job name, ``str``
         :returns: ``True`` if job is folder, ``False`` otherwise
         """
-        return (
-            "com.cloudbees.hudson.plugins.folder.Folder"
-            == self.getJobInfo(name)["_class"]
-        )
+        return self.getJobInfo(name)["_class"] == "com.cloudbees.hudson.plugins.folder.Folder"
 
     def assertCredentialExists(
         self,
@@ -2091,25 +1908,21 @@ class Jenkins(object):
         self.assertFolder(folder_name)
         folder_url, short_name = self.getJobFolder(folder_name)
         try:
-            response = self.jenkinsOpen(
-                requests.Request("GET", self.buildUrl(CREDENTIAL_INFO, locals()))
-            )
+            response = self.jenkinsOpen(requests.Request("GET", self.buildUrl(CREDENTIAL_INFO, locals())))
             if response:
                 return json.loads(response)
             else:
                 raise JenkinsException(
-                    "credential[%s] does not exist "
-                    "in the domain[%s] of [%s]" % (name, domain_name, folder_name)
+                    "credential[%s] does not exist " "in the domain[%s] of [%s]" % (name, domain_name, folder_name),
                 )
         except (req_exc.HTTPError, NotFoundException):
             raise JenkinsException(
-                "credential[%s] does not exist "
-                "in the domain[%s] of [%s]" % (name, domain_name, folder_name)
+                "credential[%s] does not exist " "in the domain[%s] of [%s]" % (name, domain_name, folder_name),
             )
         except ValueError:
             raise JenkinsException(
                 "Could not parse JSON info for credential[%s] "
-                "in the domain[%s] of [%s]" % (name, domain_name, folder_name)
+                "in the domain[%s] of [%s]" % (name, domain_name, folder_name),
             )
 
     def getCredentialConfig(self, name, folder_name, domain_name="_"):
@@ -2122,9 +1935,7 @@ class Jenkins(object):
         """
         self.assertFolder(folder_name)
         folder_url, short_name = self.getJobFolder(folder_name)
-        return self.jenkinsOpen(
-            requests.Request("GET", self.buildUrl(CONFIG_CREDENTIAL, locals()))
-        )
+        return self.jenkinsOpen(requests.Request("GET", self.buildUrl(CONFIG_CREDENTIAL, locals())))
 
     def createCredential(self, folder_name, config_xml, domain_name="_"):
         """Create credentail in domain of folder
@@ -2137,8 +1948,7 @@ class Jenkins(object):
         name = self.getTagText("id", config_xml)
         if self.credentialExists(name, folder_name, domain_name):
             raise JenkinsException(
-                "credential[%s] already exists "
-                "in the domain[%s] of [%s]" % (name, domain_name, folder_name)
+                "credential[%s] already exists " "in the domain[%s] of [%s]" % (name, domain_name, folder_name),
             )
 
         self.jenkinsOpen(
@@ -2147,7 +1957,7 @@ class Jenkins(object):
                 self.buildUrl(CREATE_CREDENTIAL, locals()),
                 data=config_xml.encode("utf-8"),
                 headers=DEFAULT_HEADERS,
-            )
+            ),
         )
         self.assertCredentialExists(
             name,
@@ -2164,13 +1974,10 @@ class Jenkins(object):
         :param domain_name: Domain name, default is '_', ``str``
         """
         folder_url, short_name = self.getJobFolder(folder_name)
-        self.jenkinsOpen(
-            requests.Request("DELETE", self.buildUrl(CONFIG_CREDENTIAL, locals()))
-        )
+        self.jenkinsOpen(requests.Request("DELETE", self.buildUrl(CONFIG_CREDENTIAL, locals())))
         if self.credentialExists(name, folder_name, domain_name):
             raise JenkinsException(
-                "delete credential[%s] from "
-                "domain[%s] of [%s] failed" % (name, domain_name, folder_name)
+                "delete credential[%s] from " "domain[%s] of [%s] failed" % (name, domain_name, folder_name),
             )
 
     def reconfigCredential(self, folder_name, config_xml, domain_name="_"):
@@ -2192,7 +1999,7 @@ class Jenkins(object):
                 reconfig_url,
                 data=config_xml.encode("utf-8"),
                 headers=DEFAULT_HEADERS,
-            )
+            ),
         )
 
     def listCredentials(self, folder_name, domain_name="_"):
@@ -2204,9 +2011,7 @@ class Jenkins(object):
         """
         self.assertFolder(folder_name)
         folder_url, short_name = self.getJobFolder(folder_name)
-        response = self.jenkinsOpen(
-            requests.Request("GET", self.buildUrl(LIST_CREDENTIALS, locals()))
-        )
+        response = self.jenkinsOpen(requests.Request("GET", self.buildUrl(LIST_CREDENTIALS, locals())))
         return json.loads(response)["credentials"]
 
     def quietDown(self):
@@ -2239,16 +2044,12 @@ class Jenkins(object):
         if timeout < 0:
             raise ValueError("Timeout must be >= 0 not %d" % timeout)
 
-        if (
-            not self.timeoutWarningIssued
-            and self.timeout != socket._GLOBAL_DEFAULT_TIMEOUT
-            and timeout < self.timeout
-        ):
+        if not self.timeoutWarningIssued and self.timeout != socket._GLOBAL_DEFAULT_TIMEOUT and timeout < self.timeout:
             warnings.warn(
                 "Requested timeout to wait for jenkins to resume "
                 "normal operations is less than configured "
                 "connection timeout. Unexpected behaviour may "
-                "occur."
+                "occur.",
             )
             self.timeoutWarningIssued = True
 
@@ -2285,8 +2086,6 @@ class Jenkins(object):
 
 
 if __name__ == "__main__":
-    jk = Jenkins(
-        url=r"http://localhost:8080/jenkins", username="kamalyes", password="QINg0201$"
-    )
+    jk = Jenkins(url=r"http://localhost:8080/jenkins", username="kamalyes", password="QINg0201$")
     print(jk.getAllJobs())
     print(jk.getBuildInfo(name="YamlInterfaceTests", number=9))

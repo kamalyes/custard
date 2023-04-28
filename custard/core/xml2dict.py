@@ -3,7 +3,6 @@ import xml.etree.ElementTree
 
 
 class Xml2Dict(dict):
-
     def __init__(self, parent_node):
         if parent_node.items():
             self.update_dict(dict(parent_node.items()))
@@ -24,7 +23,7 @@ class Xml2Dict(dict):
             if key in self:
                 value = self.pop(key)
                 if type(value) is not list:
-                    lst = list()
+                    lst = []
                     lst.append(value)
                     lst.append(adict[key])
                     self.update({key: lst})

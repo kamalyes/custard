@@ -10,28 +10,21 @@
 @desc    :  函数助手
 """
 import json
+import logging
 import random
 import re
 import string
-from typing import List, Dict
+from typing import List
 from urllib.parse import quote
-import difflib
-import hashlib
-import json
-import logging
-from urllib.parse import unquote
-import operator
-from collections import Counter
-from functools import reduce
-from typing import Dict, Tuple
+
 import pypinyin
 from faker import Faker
 from requests.exceptions import InvalidURL
 from urllib3.exceptions import LocationParseError
 from urllib3.util import parse_url
+
 from custard.time.moment import Moment
 from custard.utils.id_cards import IdNumber
-from custard.core.system import System
 
 fake = Faker(["zh_CN"])
 logger = logging.getLogger(__name__)
@@ -52,9 +45,7 @@ class MockHelper:
         """
 
         if style.upper() == "F":
-            return "".join(
-                pypinyin.lazy_pinyin(hans=hans, style=pypinyin.Style.FIRST_LETTER)
-            )
+            return "".join(pypinyin.lazy_pinyin(hans=hans, style=pypinyin.Style.FIRST_LETTER))
         else:
             return "".join(pypinyin.lazy_pinyin(hans=hans))
 
@@ -97,7 +88,7 @@ class MockHelper:
         max_num_ = random.randint(5, 10) if max_num is None else max_num
         rad_count_ = 1 if rad_count is None else rad_count
         while count < rad_count_:
-            for i in range(0, max_num_):
+            for _i in range(0, max_num_):
                 status = random.randint(0, 1)
                 if status == 0:
                     temp.append(random.choice(string.ascii_letters))
@@ -121,8 +112,8 @@ class MockHelper:
         Examples:
             >>> MockHelper.rand_verify_code(max_num=6, rad_count=1)
         """
-        # 注意： 这里我们生成的是0-9a-za-z的列表,当然你也可以指定这个list,这里很灵活
-        # 比如： code_list = ['p','y','t','h','o','n'] # python的字母
+        # 注意: 这里我们生成的是0-9a-za-z的列表,当然你也可以指定这个list,这里很灵活
+        # 比如: code_list = ['p','y','t','h','o','n'] # python的字母
         count = 0
         verification_codes = []
         while count < rad_count:
@@ -166,10 +157,7 @@ class MockHelper:
         Examples:
             >>> MockHelper.rand_str(6)
         """
-        return [
-            random.choice(string.digits + string.ascii_letters)
-            for i in range(num_length)
-        ]
+        return [random.choice(string.digits + string.ascii_letters) for i in range(num_length)]
 
     @staticmethod
     def rand_mum(num_length):
@@ -182,9 +170,7 @@ class MockHelper:
         return "".join([random.choice(string.digits) for i in range(num_length)])
 
     @staticmethod
-    def rand_int_number(
-        min_value: int = 0, max_value: int = 9999, step: int = 1
-    ) -> int:
+    def rand_int_number(min_value: int = 0, max_value: int = 9999, step: int = 1) -> int:
         """
         随机生成整数
         Args:
@@ -214,11 +200,8 @@ class MockHelper:
             end_num = int(end_num)
             accuracy = int(accuracy)
         except ValueError:
-            raise AssertionError("调用随机整数失败,范围参数或精度有误！\n小数范围精度")
-        if start_num <= end_num:
-            num = random.uniform(start_num, end_num)
-        else:
-            num = random.uniform(end_num, start_num)
+            raise AssertionError("调用随机整数失败,范围参数或精度有误!\n小数范围精度")
+        num = random.uniform(start_num, end_num) if start_num <= end_num else random.uniform(end_num, start_num)
         return round(num, accuracy)
 
     @staticmethod
@@ -257,7 +240,7 @@ class MockHelper:
                 hours=hours,
                 weeks=weeks,
                 custom=custom,
-            )
+            ),
         )
 
     @staticmethod
@@ -292,7 +275,7 @@ class MockHelper:
     @staticmethod
     def rand_sample(length=10):
         """
-        随机生成字符（英文+数字
+        随机生成字符(英文+数字
         Args:
             length:
 
@@ -302,9 +285,7 @@ class MockHelper:
             >>> MockHelper.rand_sample(10)
 
         """
-        return "".join(
-            [random.choice(string.ascii_letters + string.digits) for i in range(length)]
-        )
+        return "".join([random.choice(string.ascii_letters + string.digits) for i in range(length)])
 
     @staticmethod
     def rand_mobile_number(length: int):
@@ -500,9 +481,7 @@ class MockHelper:
         return fake.job()
 
     @staticmethod
-    def rand_pwd(
-        length=10, special_chars=True, digits=True, upper_case=True, lower_case=True
-    ):
+    def rand_pwd(length=10, special_chars=True, digits=True, upper_case=True, lower_case=True):
         """
         随机生成密码
         lower_case:
@@ -664,15 +643,11 @@ class MockHelper:
             "jwt_encode",
         ]
         if method in func_list:
-            exec(
-                '_var = {method}("{target_key}")'.format(
-                    method=method, target_key=MockHelper.cite(target_key)
-                )
-            )
+            exec('_var = {method}("{target_key}")'.format(method=method, target_key=MockHelper.cite(target_key)))
             var = locals()["_var"]
             return var.decode() if isinstance(var, bytes) else var
         else:
-            raise ModuleNotFoundError("暂时仅支持：%s" % (", ".join(func_list)))
+            raise ModuleNotFoundError("暂时仅支持:%s" % (", ".join(func_list)))
 
     @staticmethod
     def cite(name: str):
@@ -747,26 +722,22 @@ class MockHelper:
             key, value = pattern.groups()
             if func_dict.get(key):
                 func = func_dict[key]
-                _param = [
-                    eval(x) if x.strip().isdigit() else x for x in value.split(",")
-                ]
+                _param = [eval(x) if x.strip().isdigit() else x for x in value.split(",")]
                 if len(_param) >= 1 and "" not in _param:
                     return func.__call__(*_param)
                 elif "" in _param:
                     return func.__call__()  # 没有带参数的
+                return None
+            return None
         elif own_vars:
-            return MockHelper.cite(
-                MockHelper.get_user_vars(own_vars.group().strip("{}"))
-            )
+            vars_ = MockHelper.get_user_vars(own_vars.group().strip("{}"))
+            return MockHelper.cite(vars_)
         elif extract_vars:
             return MockHelper.get_encrypt_vars(extract_vars.group())
         elif rand_no_vars:
             return func_dict[rand_no_vars.group().strip("${rand_}")].__call__()
         elif lock_vars:
-            _lock_param = [
-                eval(x) if x.strip().isdigit() else x
-                for x in lock_vars.group().strip("$enc_()").split(",")
-            ]
+            _lock_param = [eval(x) if x.strip().isdigit() else x for x in lock_vars.group().strip("$enc_()").split(",")]
             if len(_lock_param) < 2:
                 raise IndexError(_lock_param)
             else:
@@ -792,288 +763,13 @@ class MockHelper:
             for key in list(dict_map.keys()):
                 if isinstance(dict_map[key], list):
                     for i in range(len(dict_map[key])):
-                        dict_map[key][i] = MockHelper.comb_data(
-                            dict_map=dict_map[key][i]
-                        )
+                        dict_map[key][i] = MockHelper.comb_data(dict_map=dict_map[key][i])
                 elif isinstance(dict_map[key], dict):
                     dict_map[key] = MockHelper.comb_data(dict_map=dict_map[key])
                 else:
                     dict_map[key] = MockHelper.cite(dict_map[key])
             return dict_map
-        elif dict_map is None:  # fix：为空的时候raise 异常导致其它函数调用失败
-            pass
-
-
-class DataKitHelper:
-    @classmethod
-    def add_dicts(cls, *args: Tuple[Dict, ...]) -> Dict:
-        """
-        Adds two or more dicts together. Common keys will have their values added.
-
-        Returns:
-        Example:
-            >>> t1 = {'a':1, 'b':2}
-            >>> t2 = {'b':1, 'c':3}
-            >>> t3 = {'d':5}
-            >>> DataKit.add_dicts(t1, t2, t3)
-            {'a': 1, 'c': 3, 'b': 3, 'd': 5}
-        """
-
-        counters = [Counter(arg) for arg in args]
-        return dict(reduce(operator.add, counters))
-
-    @classmethod
-    def get_target_value(
-        cls, dict_map: dict, separate: str = "$.", result: dict = None
-    ):
-        if result is None:
-            result = dict()
-        """
-        递归获取所有的TargetValue
-        :param dict_map: 初始data dict类型
-        :param separate: 临时节点 str类型
-        :param result:  用于存储所有遍历出来的结果 list集合
-        :return: {xx,xx,xx} 以字典形式追加
-        Example::
-            >>> DataKit.get_target_value(dict_map={"TEST_001": "TEST_VALUE001","TEST_002": [{"TEST_VALUE002-001": "VALUE"}, {"TEST_VALUE002-002": "VALUE"}]})
-        """
-        if isinstance(dict_map, dict):
-            for key, value in dict_map.items():
-                temp = separate + key + "."
-                # 若类型为list 后面还有一维或二位数组类型数据递归找
-                if isinstance(value, list):
-                    for i in range(len(value)):
-                        cls.get_target_value(
-                            dict_map=value[i], separate=temp + str(i) + "."
-                        )
-                # 若类型还是dict，继续遍历
-                elif isinstance(value, dict):
-                    cls.get_target_value(dict_map=value, separate=temp)
-                # str或者int类型时就基本上判定为具体的xxx值
-                elif str(value).isdigit():
-                    result.update({separate + key: int(value)})
-                elif isinstance(value, str):
-                    result.update({separate + key: value})
-            return result
-        else:
-            raise TypeError("传入的参数不是dict类型 %s" % (type(dict_map)))
-
-    @classmethod
-    def convert_type(cls, dict_map: dict, disable_data: list = []) -> dict:
-        """
-        将只有数字的键值给强转类型为int
-        :param dict_map: 初始data dict类型
-        :param disable: 不用处理的键值对
-        Example::
-            >>> DataKit.convert_type({'product': {'brand_id': None, 'category_id': '15888'}})
-            >>> DataKit.convert_type({'product': {'brand_id': None, 'category_id': '15888'}},["category_id"])
-        """
-        if isinstance(dict_map, dict):
-            for key in list(dict_map.keys()):
-                if isinstance(dict_map[key], list):
-                    for i in range(len(dict_map[key])):
-                        dict_map[key][i] = cls.convert_type(
-                            dict_map=dict_map[key][i], disable_data=disable_data
-                        )
-                elif isinstance(dict_map[key], dict):
-                    dict_map[key] = cls.convert_type(
-                        dict_map=dict_map[key], disable_data=disable_data
-                    )
-                elif str(dict_map[key]).isdigit() and str(key) not in disable_data:
-                    dict_map[key] = int(dict_map[key])
-                elif str(dict_map[key]) == "null":  # 统一处理str无法转化None
-                    dict_map[key] = None
-            return (
-                json.dumps(dict_map, ensure_ascii=False)
-                .replace('\\"', '"')
-                .replace('"{', "{")
-                .replace('}"', "}")
-            )  # 临时打个补丁 后续若报错则需再次做兼容
-        else:
-            raise TypeError("传入的参数不是dict类型 %s" % (type(dict_map)))
-
-    @classmethod
-    def dict_to_from(cls, post_data):
-        """
-        字典转xwww-from格式
-        :param post_data: dict {"a": 1, "b":2}
-        :return: str: a=1&b=2
-        """
-        if isinstance(post_data, dict):
-            return "&".join(
-                ["{}={}".format(key, value) for key, value in post_data.items()]
-            )
-        else:
-            return post_data
-
-    @classmethod
-    def form_to_dict(cls, post_data):
-        """
-        x-www-from格式转字典
-        :param post_data (str): a=1&b=2
-        :return dict: {"a":1, "b":2}
-        """
-        if isinstance(post_data, str):
-            converted_dict = {}
-            for k_v in post_data.split("&"):
-                try:
-                    key, value = k_v.split("=")
-                except ValueError:
-                    raise Exception(
-                        "Invalid x_www_form_urlencoded data format: {}".format(
-                            post_data
-                        )
-                    )
-                converted_dict[key] = unquote(value)
-            return converted_dict
-        else:
-            return post_data
-
-    @classmethod
-    def list_sub_dict(cls, origin_list):
-        """
-        list转dict
-        :param origin_list: (list) [{"name": "v", "value": "1"},{"name": "w", "value": "2"}]
-        :return: dict:{"v": "1", "w": "2"}
-        """
-        return {item["name"]: item.get("value") for item in origin_list}
-
-    @classmethod
-    def dict_capital_to_lower(cls, dict_map):
-        """
-        dict中的key转换小写
-        :param dict_map:
-        :return:
-        """
-        new_dict = {}
-        for key in list(dict_map.keys()):
-            new_dict[key.lower()] = dict_map[key]
-        return new_dict
-
-    @classmethod
-    def capital_lower_to_dict(cls, dict_map):
-        """
-        dict中的key转换大写
-        :param dict_map:
-        :return:
-        """
-        new_dict = {}
-        for key in list(dict_map.keys()):
-            new_dict[key.upper()] = dict_map[key]
-        return new_dict
-
-    @classmethod
-    def diffJson(cls, filename1, filename2, targetPath):
-        """
-        比较两个文件内容的md5值并输出到html文件中
-        :param filename1:
-        :param filename2:
-        :param targetPath:
-        :return:
-        """
-        file1Md5 = hashlib.md5.new(filename1.read()).digest()
-        file2Md5 = hashlib.md5.new(filename2.read()).digest()
-        if file1Md5 != file2Md5:
-            text1_lines = System.load_file(filename1, "json")
-            text2_lines = System.load_file(filename2, "json")
-            d = difflib.HtmlDiff()
-            # context=True时只显示差异的上下文，默认显示5行，由numlines参数控制，context=False显示全文，差异部分颜色高亮，默认为显示全文
-            result = d.make_file(
-                text1_lines, text2_lines, filename1, filename2, context=True
-            )
-            # 内容保存到result.html文件中
-            try:
-                with open(targetPath, "a", encoding="utf-8") as result_file:
-                    result_file.write(result)
-            except Exception as e:
-                logger.error("写入文件失败:" + e)
-
-    @classmethod
-    def is_json_format(cls, raw_data):
-        """
-        用于判断一个字符串是否符合Json格式
-        :param raw_data:
-        :return:
-        """
-        if isinstance(raw_data, str):
-            try:
-                json.loads(raw_data, encoding="utf-8")
-            except ValueError:
-                return False
-            else:
-                return True
-        else:
-            return False
-
-    @classmethod
-    def json_to_dict(cls, data):
-        """
-        Json转字典
-        :param data: 数据来源
-        :return:
-        """
-        return json.loads(data)
-
-    @classmethod
-    def dict_to_json(
-        cls, data, sort_keys=False, ensure_ascii=False, indent=4, separators=(",", ": ")
-    ):
-        """
-        字典转Json
-        :param data: 数据来源
-        :return:
-        """
-        return json.dumps(
-            data,
-            ensure_ascii=ensure_ascii,
-            sort_keys=sort_keys,
-            indent=indent,
-            separators=separators,
-        )
-
-    @classmethod
-    def json_to_schema(cls, data, result=None):
-        """
-        json递归生成schema
-        :param data:
-        :param result:
-        :return:
-        Example::
-            >>> data = {"code": 200, "message": "Success", "error": "",
-            ... "ShopInfoList": [{"shop_id": "ML0057", "shop_name": "" }]}
-            >>> DataKit.json_to_schema(data=data)
-        """
-        if result is None:
-            result = list()
-        if isinstance(data, dict):
-            is_null = True
-            result.append("{")
-            result.append("'type': 'object',")
-            result.append("'properties': {")
-            for k, v in data.items():
-                is_null = False
-                result.append("'%s':" % k)
-                cls.json_to_schema(v, result)
-                result.append(",")
-            if not is_null:
-                result.pop()
-            result.append("}")
-            result.append("}")
-        elif isinstance(data, list):
-            result.append("{")
-            result.append("'type': 'array',")
-            result.append("'items': ")
-            cls.json_to_schema(data[0], result)
-            result.append("}")
-        elif isinstance(data, int):
-            result.append("{")
-            result.append("'type': 'number'")
-            result.append("}")
-        elif isinstance(data, str):
-            result.append("{")
-            result.append("'type': 'string'")
-            result.append("}")
-        return json.dumps("".join(result), indent=4)
+        return None
 
 
 class AutoVivification(dict):
@@ -1131,6 +827,7 @@ class MsHelper(object):
                 raise Exception(decoder_err)
         if isinstance(data, dict):
             return data
+        return None
 
     @classmethod
     def sub_kv(cls, data: List):
@@ -1246,16 +943,12 @@ class MsHelper(object):
                             value = cls.__property__(value)
                     source_data += f'vars.put("{key}","{value}");\n'
                 else:
-                    source_data = cls.json2vars(
-                        target_data=value, source_data=source_data, replace=replace
-                    )
+                    source_data = cls.json2vars(target_data=value, source_data=source_data, replace=replace)
         elif isinstance(target_data, list):
             for index in range(len(target_data)):
                 target_data_ = target_data[index]
                 # 启用该行数据不会去重,有多少条就产生多少
                 # source_data = cls.json2vars(target_data=target_data_, source_data=source_data, replace=replace)
                 # 以下方式会去重
-                return cls.json2vars(
-                    target_data=target_data_, source_data=source_data, replace=replace
-                )
+                return cls.json2vars(target_data=target_data_, source_data=source_data, replace=replace)
         return source_data

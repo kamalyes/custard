@@ -20,7 +20,7 @@ from typing import Any
 from .exceptions import FunctionTimedOut
 from .stoppable_thread import StoppableThread
 
-__all__ = ('func_timeout', 'bind_timeout', 'calc_time', 'FunctionTimedOut', 'TimerContextManager', 'StoppableThread')
+__all__ = ("func_timeout", "bind_timeout", "calc_time", "FunctionTimedOut", "TimerContextManager", "StoppableThread")
 
 
 def func_timeout(timeout, func, args=(), kwargs=None):
@@ -63,22 +63,25 @@ def func_timeout(timeout, func, args=(), kwargs=None):
 
         class FunctionTimedOutTempType(FunctionTimedOut):
             def __init__(self):
-                return FunctionTimedOut.__init__(self, '', timeout, func, args, kwargs)
+                return FunctionTimedOut.__init__(self, "", timeout, func, args, kwargs)
 
         stop_exception = type(
-            'FunctionTimedOut' + str(hash("%d_%d_%d_%d" % (id(timeout), id(func), id(args), id(kwargs)))),
-            FunctionTimedOutTempType.__bases__, dict(FunctionTimedOutTempType.__dict__))
+            "FunctionTimedOut" + str(hash("%d_%d_%d_%d" % (id(timeout), id(func), id(args), id(kwargs)))),
+            FunctionTimedOutTempType.__bases__,
+            dict(FunctionTimedOutTempType.__dict__),
+        )
         thread.stop_thread(stop_exception)
-        thread.join(min(.1, timeout / 50.0))
-        raise FunctionTimedOut('', timeout, func, args, kwargs)
+        thread.join(min(0.1, timeout / 50.0))
+        raise FunctionTimedOut("", timeout, func, args, kwargs)
     else:
-        thread.join(.5)
+        thread.join(0.5)
 
     if exception:
         raise exception[0] from None
 
     if ret:
         return ret[0]
+    return None
 
 
 def bind_timeout(timeout, allow_override=False):
@@ -90,30 +93,40 @@ def bind_timeout(timeout, allow_override=False):
     """
     default_timeout = copy.copy(timeout)
 
-    is_timeout_function = bool(issubclass(timeout.__class__, (
-        types.FunctionType, types.MethodType, types.LambdaType, types.BuiltinFunctionType, types.BuiltinMethodType)))
+    is_timeout_function = bool(
+        issubclass(
+            timeout.__class__,
+            (
+                types.FunctionType,
+                types.MethodType,
+                types.LambdaType,
+                types.BuiltinFunctionType,
+                types.BuiltinMethodType,
+            ),
+        ),
+    )
 
-    if not is_timeout_function:
-        if not issubclass(timeout.__class__, (float, int)):
-            try:
-                timeout = float(timeout)
-            except ValueError as e:
-                raise ValueError(' Passed type: < %s > is not of any of these, and cannot be converted to a float.'
-                                 % (timeout.__class__.__name__,))
+    if not is_timeout_function and not issubclass(timeout.__class__, (float, int)):
+        try:
+            timeout = float(timeout)
+        except ValueError:
+            raise ValueError(
+                " Passed type: < %s > is not of any of these, and cannot be converted to a float."
+                % (timeout.__class__.__name__,),
+            )
 
     if not allow_override and not is_timeout_function:
+
         def _function_decorator(func):
             return wraps(func)(lambda *args, **kwargs: func_timeout(default_timeout, func, args=args, kwargs=kwargs))
 
         return _function_decorator
 
     if not is_timeout_function:
+
         def _function_decorator(func):
             def _function_wrapper(*args, **kwargs):
-                if 'force_timeout' in kwargs:
-                    use_timeout = kwargs.pop('force_timeout')
-                else:
-                    use_timeout = default_timeout
+                use_timeout = kwargs.pop("force_timeout") if "force_timeout" in kwargs else default_timeout
 
                 return func_timeout(use_timeout, func, args=args, kwargs=kwargs)
 
@@ -124,10 +137,11 @@ def bind_timeout(timeout, allow_override=False):
     timeout_function = timeout
 
     if allow_override:
+
         def _function_decorator(func):
             def _function_wrapper(*args, **kwargs):
-                if 'force_timeout' in kwargs:
-                    use_timeout = kwargs.pop('force_timeout')
+                if "force_timeout" in kwargs:
+                    use_timeout = kwargs.pop("force_timeout")
                 else:
                     use_timeout = timeout_function(*args, **kwargs)
 
@@ -150,7 +164,7 @@ def bind_timeout(timeout, allow_override=False):
 
 class TimerContextManager(object):
     """
-    用上下文管理器计时，可对代码片段计时
+    用上下文管理器计时,可对代码片段计时
     """
 
     def __init__(self, is_print_log=True, logger=None):
@@ -184,7 +198,7 @@ def calc_time(logger: Any = None):
         logger:
     Returns:
     Examples:
-        >>> @calc_time("（自定义模块名）")
+        >>> @calc_time("(自定义模块名)")
         ... def test_calc_time(num=100):
         ...     return sum([x for x in range(num + 1)])
         >>> test_calc_time(5)
@@ -194,7 +208,7 @@ def calc_time(logger: Any = None):
         @wraps(func)
         def __calc_time(*args, **kwargs):
             start_time = time.time()
-            # 定义result接收函数返回值，并且在装饰函数最后返回回去
+            # 定义result接收函数返回值,并且在装饰函数最后返回回去
             result = func(*args, **kwargs)
             elapsed_time = time.time() - start_time
             if logger:

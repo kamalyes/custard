@@ -13,3 +13,5 @@
 
 class GlobalVarEnum:
     APP_NAME = "custard"
+    BEYOND_RESTRICT_MSG = "The interview is too fast, please have a cup of tea and take a break!"
+    INIT_ERR_MSG = "You must call Limiter.init in startup event of fastapi!"

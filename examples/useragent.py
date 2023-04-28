@@ -9,9 +9,16 @@
 @License :  (C)Copyright 2022-2026
 @Desc    :  None
 """
-from custard.core.useragent import (firefox, safari, internet_explorer, opera)
-from custard.core.useragent import (linux_platform_token, mac_platform_token, win_platform_token,
-                                    android_platform_token)
+from custard.core.useragent import (
+    android_platform_token,
+    firefox,
+    internet_explorer,
+    linux_platform_token,
+    mac_platform_token,
+    opera,
+    safari,
+    win_platform_token,
+)
 
 print(firefox())
 print(safari())
