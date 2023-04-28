@@ -59,7 +59,7 @@ dev = [
     "pre-commit >=2.17.0,<3.0.0",
 ]
 all = [
-    "Faker~=13.6.0",
+    "Faker>=13.6,<18.7",
     "pypinyin>=0.39.1",
     "pytest>=6.22",
     "pyjwt>=2.4.0",
