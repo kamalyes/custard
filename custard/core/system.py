@@ -18,7 +18,6 @@ import shutil
 import subprocess
 import zipfile
 import yaml
-from custard.core.factory import DataKitHelper
 from custard.core.processor import DataHand
 
 try:
@@ -442,7 +441,7 @@ class System:
         if yaml_file.endswith("yaml"):
             with open(yaml_file, "r") as pf:
                 load_data_ = yaml.load(pf, Loader=yaml.FullLoader)
-                json_data_ = DataKitHelper.dict_to_json(load_data_)
+                json_data_ = json.dumps(load_data_,sort_keys=False, ensure_ascii=False, indent=4, separators=(",", ": "))
             json_file = yaml_file.replace(".yaml", ".json")
             with open(json_file, "w") as fp:
                 fp.write(json_data_)

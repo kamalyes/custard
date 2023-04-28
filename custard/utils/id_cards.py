@@ -14,7 +14,7 @@ import re
 import random
 from custard.time.moment import Moment
 from datetime import datetime, timedelta
-from area_code import AREA_INFO, ID_NUMBER_18_REGEX, ID_NUMBER_15_REGEX
+from .area_code import AREA_INFO, ID_NUMBER_18_REGEX, ID_NUMBER_15_REGEX
 
 
 class IdNumber(str):
