@@ -155,6 +155,7 @@
     "MASTERDOWN",
     "MGET",
     "mkdocs",
+    "mktime",
     "MSETNX",
     "mypy",
     "nativestr",

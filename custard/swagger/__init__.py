@@ -9,10 +9,8 @@
 @License :  (C)Copyright 2022-2026
 @Desc    :  None
 """
-from urllib import request
-
+from requests import request
 from custard.core.system import SystemHand
-
 from .exception import ParseMethodError
 from .swagger import Swagger2
 
@@ -28,7 +26,7 @@ def load_url(url, method="get", **kwargs):
     Returns:
 
     """
-    return request.request(url=url, method=method, **kwargs).json()
+    return request(url=url, method=method, **kwargs).json()
 
 
 def swagger_parse(url=None, file=None, deep=5, **kwargs):

@@ -11,7 +11,7 @@
 """
 
 
-class IncompleteModelError(BaseException):
+class IncompleteModelError(Exception):
     pass
 
 

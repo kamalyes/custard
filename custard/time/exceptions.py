@@ -21,7 +21,7 @@ class TimeOutError(Exception):
     """
 
 
-class FunctionTimedOut(BaseException):
+class FunctionTimedOut(Exception):
     def __init__(
         self,
         msg="",
