@@ -22,6 +22,7 @@ from faker import Faker
 from requests.exceptions import InvalidURL
 from urllib3.exceptions import LocationParseError
 from urllib3.util import parse_url
+from custard.core.processor import DataKitHelper
 
 from custard.time.moment import Moment
 from custard.utils.id_cards import IdNumber
@@ -781,7 +782,7 @@ class AutoVivification(dict):
         return value
 
 
-class MsHelper(object):
+class MsHelper(DataKitHelper):
     GLOBAL_PAGE_INDEX = ["page_index", "pageindex"]
     GLOBAL_PAGE_SIZE = ["page_size", "pagesize"]
 
@@ -822,7 +823,7 @@ class MsHelper(object):
             raise type_err
         if isinstance(data, str):
             try:
-                return json.loads(data)
+                return cls.safely_json_loads(data)
             except json.decoder.JSONDecodeError as decoder_err:
                 raise Exception(decoder_err)
         if isinstance(data, dict):

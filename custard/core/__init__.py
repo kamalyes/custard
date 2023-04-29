@@ -27,7 +27,6 @@ from .functools import (
 from .kerberos import Kerberos
 from .processor import DataKitHelper
 from .regular import RegEx
-from .snowflake import generator
 from .system import SystemHand
 from .useragent import firefox, internet_explorer, opera, safari
 from .xprint import xprint
@@ -39,7 +38,6 @@ __all__ = [
     "Kerberos",
     "DataKitHelper",
     "RegEx",
-    "generator",
     "SystemHand",
     "firefox",
     "safari",

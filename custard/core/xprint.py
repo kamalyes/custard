@@ -68,12 +68,3 @@ def xprint(*args, sep=" ", end="\n", file=None, color=True):
             stdout_write(f'{time.strftime("%H:%M:%S")}\t"{file_name}:{line}"{single_space}{sep.join(args)}{end}')
     else:
         print_raw(*args, sep=sep, end=end, file=file)
-
-
-if __name__ == "__main__":
-    xprint(156, "def")
-    try:
-        with open("a") as file:
-            file.read()
-    except FileNotFoundError as e:
-        xprint(e)

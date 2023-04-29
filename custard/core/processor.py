@@ -7,7 +7,7 @@
 @Version :  1.0
 @Contact :  mryu168@163.com
 @License :  (C)Copyright 2022-2026
-@Desc    :  An XPath for JSON 后置处理
+@Desc    :  数据处理器
 """
 import base64
 import difflib
@@ -16,6 +16,7 @@ import json
 import logging
 import operator
 import re
+import time
 import xml.dom.minidom
 import xml.etree.ElementTree
 from collections import Counter
@@ -27,7 +28,6 @@ from urllib.parse import unquote
 from dicttoxml import dicttoxml
 from six import binary_type, text_type
 
-from custard.core.system import SystemHand
 from custard.core.xml2dict import Xml2Dict
 
 logger = logging.getLogger(__name__)
@@ -39,7 +39,7 @@ DEFAULT_CHUNK_SIZE = 1024 * 1024  # 计算MD5值时,文件单次读取的块大�
 
 class DataKitHelper:
     @classmethod
-    def add_dicts(cls, *args: Tuple[Dict, ...]) -> Dict:
+    def sub_dict_value(cls, *args: Tuple[Dict, ...]) -> Dict:
         """
         Adds two or more dicts together. Common keys will have their values added.
 
@@ -48,7 +48,7 @@ class DataKitHelper:
             >>> t1 = {'a':1, 'b':2}
             >>> t2 = {'b':1, 'c':3}
             >>> t3 = {'d':5}
-            >>> DataKit.add_dicts(t1, t2, t3)
+            >>> DataKit.sub_dict_value(t1, t2, t3)
             {'a': 1, 'c': 3, 'b': 3, 'd': 5}
         """
 
@@ -108,9 +108,7 @@ class DataKitHelper:
                     dict_map[key] = int(dict_map[key])
                 elif str(dict_map[key]) == "null":  # 统一处理str无法转化None
                     dict_map[key] = None
-            return (
-                json.dumps(dict_map, ensure_ascii=False).replace('\\"', '"').replace('"{', "{").replace('}"', "}")
-            )  # 临时打个补丁 后续若报错则需再次做兼容
+            return dict_map
         else:
             raise TypeError("传入的参数不是dict类型 %s" % (type(dict_map)))
 
@@ -144,103 +142,6 @@ class DataKitHelper:
             return converted_dict
         else:
             return post_data
-
-    @classmethod
-    def list_sub_dict(cls, origin_list):
-        """
-        list转dict
-        :param origin_list: (list) [{"name": "v", "value": "1"},{"name": "w", "value": "2"}]
-        :return: dict:{"v": "1", "w": "2"}
-        """
-        return {item["name"]: item.get("value") for item in origin_list}
-
-    @classmethod
-    def dict_capital_to_lower(cls, dict_map):
-        """
-        dict中的key转换小写
-        :param dict_map:
-        :return:
-        """
-        new_dict = {}
-        for key in list(dict_map.keys()):
-            new_dict[key.lower()] = dict_map[key]
-        return new_dict
-
-    @classmethod
-    def capital_lower_to_dict(cls, dict_map):
-        """
-        dict中的key转换大写
-        :param dict_map:
-        :return:
-        """
-        new_dict = {}
-        for key in list(dict_map.keys()):
-            new_dict[str(key).upper()] = dict_map[key]
-        return new_dict
-
-    @classmethod
-    def diff_json(cls, filename1, filename2, targetPath):
-        """
-        比较两个文件内容的md5值并输出到html文件中
-        :param filename1:
-        :param filename2:
-        :param targetPath:
-        :return:
-        """
-        file1Md5 = hashlib.md5.new(filename1.read()).digest()
-        file2Md5 = hashlib.md5.new(filename2.read()).digest()
-        if file1Md5 != file2Md5:
-            text1_lines = SystemHand.load_file(filename1, "json")
-            text2_lines = SystemHand.load_file(filename2, "json")
-            d = difflib.HtmlDiff()
-            result = d.make_file(text1_lines, text2_lines, filename1, filename2, context=True)
-            # 内容保存到result.html文件中
-            try:
-                with open(targetPath, "a", encoding="utf-8") as result_file:
-                    result_file.write(result)
-            except Exception as e:
-                logger.error("写入文件失败:" + e)
-
-    @classmethod
-    def is_json_format(cls, raw_data):
-        """
-        用于判断一个字符串是否符合Json格式
-        :param raw_data:
-        :return:
-        """
-        if isinstance(raw_data, str):
-            try:
-                json.loads(raw_data, encoding="utf-8")
-            except ValueError:
-                return False
-            else:
-                return True
-        else:
-            return False
-
-    @classmethod
-    def json_to_dict(cls, data):
-        """
-        Json转字典
-        :param data: 数据来源
-        :return:
-        """
-        return json.loads(data)
-
-    @classmethod
-    def dict_to_json(cls, data, sort_keys=False, ensure_ascii=False, indent=4, separators=(",", ": ")):
-        """
-        字典转Json
-        :param data: 数据来源
-        :return:
-        """
-        return json.dumps(
-            data,
-            ensure_ascii=ensure_ascii,
-            sort_keys=sort_keys,
-            indent=indent,
-            separators=separators,
-        )
 
     @classmethod
     def json_to_schema(cls, data, result=None):
@@ -375,7 +276,7 @@ class DataKitHelper:
         if not origin_dict or not isinstance(origin_dict, dict):
             return origin_dict
 
-        return {key.lower(): value for key, value in origin_dict.items()}
+        return {str(key).lower(): value for key, value in origin_dict.items()}
 
     @classmethod
     def upper_dict_keys(cls, origin_dict: Dict):
@@ -394,7 +295,7 @@ class DataKitHelper:
         if not origin_dict or not isinstance(origin_dict, dict):
             return origin_dict
 
-        return {key.upper(): value for key, value in origin_dict.items()}
+        return {str(key).upper(): value for key, value in origin_dict.items()}
 
     @classmethod
     def omit_long_data(cls, body, omit_len=512):
@@ -526,7 +427,7 @@ class DataKitHelper:
         return data
 
     @classmethod
-    def is_json(cls, target_data):
+    def is_json(cls, raw_data, encoding="utf-8"):
         """
         判断目标源是否为json类型
         Args:
@@ -536,9 +437,9 @@ class DataKitHelper:
             >>> list = ["1235678",{"key1":"value", "key2":"value"}]
             >>> DataKitHelper.is_json()
         """
-        if isinstance(target_data, str):
+        if isinstance(raw_data, str):
             try:
-                json.loads(target_data)
+                json.loads(raw_data, encoding=encoding)
             except ValueError:
                 return False
             return True
@@ -602,21 +503,75 @@ class DataKitHelper:
         return result
 
     @classmethod
-    def safely_json_loads(cls, json_str, default_type=dict, escape=True):
+    def safely_json_loads(
+        cls,
+        value,
+        object_hook: dict = None,
+        parse_float=None,
+        parse_int=None,
+        parse_constant=None,
+        object_pairs_hook=None,
+        err_detail="解析JSON字符串并将其转换为Python字典失败",
+    ):
         """
         返回安全的json类型
         Args:
-            json_str: 要被loads的字符串
-            default_type: 若load失败希望得到的对象类型
-            escape: 是否将单引号变成双引号
+            value (_type_): _description_
+            object_hook (_type_, optional): _description_. Defaults to None.
+            parse_float (_type_, optional): _description_. Defaults to None.
+            parse_int (_type_, optional): _description_. Defaults to None.
+            parse_constant (_type_, optional): _description_. Defaults to None.
+            object_pairs_hook (_type_, optional): _description_. Defaults to None.
+            err_detail (str, optional): _description_. Defaults to "解析JSON字符串并将其转换为Python字典失败".
+
+        Raises:
+            Exception: _description_
+
         Returns:
+            _type_: _description_
         """
-        if not json_str:
-            return default_type()
-        elif escape:
-            return json.loads(default_type(json_str))
-        else:
-            return json.loads(json_str)
+        try:
+            value = json.loads(
+                value,
+                object_hook=object_hook,
+                parse_float=parse_float,
+                parse_int=parse_int,
+                parse_constant=parse_constant,
+                object_pairs_hook=object_pairs_hook,
+            )
+        except Exception as e:
+            raise Exception(f"{err_detail}: {e}")
+        return value
+
+    @classmethod
+    def safely_json_dumps(
+        cls,
+        obj,
+        skipkeys=False,
+        ensure_ascii=True,
+        check_circular=True,
+        allow_nan=True,
+        indent=None,
+        separators=None,
+        default=None,
+        sort_keys=False,
+        err_detail="解析obj序列化为JSON格式字符串失败",
+    ):
+        try:
+            value = json.dumps(
+                obj,
+                skipkeys=skipkeys,
+                ensure_ascii=ensure_ascii,
+                check_circular=check_circular,
+                allow_nan=allow_nan,
+                indent=indent,
+                separators=separators,
+                default=default,
+                sort_keys=sort_keys,
+            )
+        except Exception as e:
+            raise Exception(f"{err_detail}: {e}")
+        return value
 
     @classmethod
     def format_html_string(cls, html):
@@ -659,11 +614,11 @@ class DataKitHelper:
             # 将两个不同长度的列表转换成字典
             >>> print(DataKitHelper.data_type_convert(original=(["key1","key2","key3"],["value1","value2"]), target_type="dict"))
             # 将json转化为字典
-            >>> print(DataKitHelper.data_type_convert(original='{"errcode": 401,"errmsg": "[POST]","data": null}', target_type="dict"))
+            >>> print(DataKitHelper.data_type_convert(original='{"errcode": 401,"errs": "[POST]","data": null}', target_type="dict"))
             # 将dict转化为json
-            >>> print(DataKitHelper.data_type_convert(original={'errcode': 401,'errmsg': 'POST','data': True}, target_type="json"))
+            >>> print(DataKitHelper.data_type_convert(original={'errcode': 401,'errs': 'POST','data': True}, target_type="json"))
             # 将字典列表转换为单个字典
-            >>> print(DataKitHelper.data_type_convert(original=[{"errcode": 401},{"errmsg": "[POST]","data": True}], target_type="dict"))
+            >>> print(DataKitHelper.data_type_convert(original=[{"errcode": 401},{"errs": "[POST]","data": True}], target_type="dict"))
         """
         if isinstance(original, dict) and target_type == "json":
             return json.dumps(original)
@@ -679,7 +634,7 @@ class DataKitHelper:
                 temp.update(index)
             return temp
         elif cls.is_json(original) and target_type == "dict":
-            return json.loads(original)
+            return cls.safely_json_loads(original)
         return None
 
     @classmethod
@@ -733,3 +688,70 @@ class DataKitHelper:
                 yield cls.charged(last_num, money_num)
             except ValueError:
                 continue
+
+
+class Snowflake:
+    epoch = 1292978355588
+    worker_id_bits = 5
+    data_center_id_bits = 5
+    max_worker_id = -1 ^ (-1 << worker_id_bits)
+    max_data_center_id = -1 ^ (-1 << data_center_id_bits)
+    sequence_bits = 12
+    worker_id_shift = sequence_bits
+    data_center_id_shift = sequence_bits + worker_id_bits
+    timestamp_left_shift = sequence_bits + worker_id_bits + data_center_id_bits
+    sequence_mask = -1 ^ (-1 << sequence_bits)
+
+    @classmethod
+    def snowflake_to_timestamp(cls, _id):
+        _id = _id >> 22  # strip the lower 22 bits
+        _id += cls.epoch  # adjust for twitter epoch
+        _id = _id / 1000  # convert from milliseconds to seconds
+        return _id
+
+    @classmethod
+    def generator(cls, worker_id, data_center_id, sleep=lambda x: time.sleep(x / 1000.0)):
+        """
+        生成器
+        Args:
+            worker_id (_type_): _description_
+            data_center_id (_type_): _description_
+            sleep (_type_, optional): _description_. Defaults to lambda x:time.sleep(x / 1000.0).
+        Examples:
+            >>> s = generator(1, 1)
+            >>> for _i in range(1000000):
+            ...     print(s.__next__())
+        Yields:
+            _type_: _description_
+        """
+        assert 0 <= worker_id <= cls.max_worker_id
+        assert 0 <= data_center_id <= cls.max_data_center_id
+
+        last_timestamp = -1
+        sequence = 0
+
+        while True:
+            timestamp = int(time.time() * 1000)
+
+            if last_timestamp > timestamp:
+                print("clock is moving backwards. waiting until %i" % last_timestamp)
+                sleep(last_timestamp - timestamp)
+                continue
+
+            if last_timestamp == timestamp:
+                sequence = (sequence + 1) & cls.sequence_mask
+                if sequence == 0:
+                    print("sequence overrun")
+                    sequence = -1 & cls.sequence_mask
+                    sleep(1)
+                    continue
+            else:
+                sequence = 0
+
+            last_timestamp = timestamp
+            yield (
+                ((timestamp - cls.epoch) << cls.timestamp_left_shift)
+                | (data_center_id << cls.data_center_id_shift)
+                | (worker_id << cls.worker_id_shift)
+                | sequence
+            )

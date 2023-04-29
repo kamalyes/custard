@@ -31,7 +31,7 @@ with contextlib.suppress(AttributeError):
 logger = logging.getLogger(__name__)
 
 
-class SystemHand:
+class SystemHand(DataKitHelper):
     @classmethod
     def shell(cls, command):
         output, errors = subprocess.Popen(
@@ -420,7 +420,7 @@ class SystemHand:
         """
         if json_file.endswith("json"):
             with open(json_file, "r") as pf:
-                json_to_dict = json.loads(pf.read())
+                json_to_dict = cls.safely_json_loads(pf.read())
             yaml_file = json_file.replace(".json", ".yaml")
             with open(yaml_file, "w") as fp:
                 yaml.safe_dump(json_to_dict, stream=fp, default_flow_style=False)

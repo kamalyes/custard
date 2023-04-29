@@ -18,8 +18,10 @@ from urllib.parse import urlparse
 
 from w3lib.http import basic_auth_header
 
+from custard.core.processor import DataKitHelper
 
-class CurlParser(argparse.ArgumentParser):
+
+class CurlParser(argparse.ArgumentParser, DataKitHelper):
     def error(self, message):
         error_msg = "There was an error parsing the curl command: {}".format(message)
         raise ValueError(error_msg)
@@ -97,7 +99,7 @@ def curl_to_request_kwargs(curl_command, ignore_unknown_options=True):
     if cookies:
         result["cookies"] = cookies
     if parsed_args.data:
-        body_ = json.loads(parsed_args.data)
+        body_ = DataKitHelper.safely_json_loads(parsed_args.data)
         result["body"] = body_
     if forms:
         if content_type == "application/x-www-form-urlencoded":

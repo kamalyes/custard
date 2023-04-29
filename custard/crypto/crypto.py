@@ -45,7 +45,8 @@ def to_bytes(str_):
         try:
             return str_.encode("utf-8")
         except UnicodeEncodeError:
-            raise CryptoException("your unicode strings can not encoded in utf8, utf8 support only!")
+            detail = "your unicode strings can not encoded in utf8, utf8 support only!"
+            raise CryptoException(detail)
     return str_
 
 
