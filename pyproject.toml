@@ -59,7 +59,7 @@ contextvars = "^2.4"
 starlette = "^0.19.1"
 aioredis = "^2.0.1"
 lxml = "^4.9.0"
-redis = "^3.5.3"
+redis = ">=3.5.3,<5.0.0"
 certifi = { version = "<=2021.10.8", optional = true }
 dicttoxml = "^1.7.4"
 crypto = "^1.4.1"
