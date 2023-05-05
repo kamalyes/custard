@@ -64,7 +64,7 @@ certifi = { version = "<=2021.10.8", optional = true }
 dicttoxml = "^1.7.4"
 crypto = "^1.4.1"
 PyYAML = "^6.0"
-urllib3 = "^1.26.12"
+urllib3 = ">=1.26.12,<3.0.0"
 w3lib = "^2.1.1"
 py_mini_racer="^0.6.0"
 pillow="^9.5.0"
