@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "custard"
-version = "1.1.5"
+version = "1.1.6"
 description = "custard easy to learn, fast to code, ready for production"
 readme = "README.md"
 license = "MIT"
@@ -22,9 +22,8 @@ classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
 ]
 
 
@@ -44,8 +43,6 @@ fastapi = { version = ">=0.78.0,<0.95.2", optional = true }
 psycopg2-binary = "^2.9.5"
 mkdocs = "^1.4.1"
 mkdocs-material = "^9.1.8"
-pymdown-extensions = "^9.11"
-fontawesome-markdown = "^0.2.6"
 httpx = "^0.24.0"
 asgi-lifespan = "^2.1.0"
 requests = "^2.29.0"

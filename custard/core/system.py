@@ -167,7 +167,7 @@ class SystemHand(DataKitHelper):
         dirs = [os.path.join(root_dir, index) for index in os.listdir(root_dir)]
         for index in dirs:
             for root, dirs, files in os.walk(index, topdown=False):
-                file_path = [os.path.join(root, file) for file in files]
+                file_path = [os.path.join(root, file).replace('\\', '/') for file in files]
                 result += file_path
         return result
 
