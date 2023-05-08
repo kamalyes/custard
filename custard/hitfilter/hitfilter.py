@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-# !/usr/bin/env python 3.9.11
+# !/usr/bin/env python3
 """
 @File    :  hitfilter.py
 @Time    :  2022/5/20 2:52 AM

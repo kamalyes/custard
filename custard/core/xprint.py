@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-# !/usr/bin/env python 3.9.11
+# !/usr/bin/env python3
 """
 @File    :  xprint
 @Time    :  2022/6/3 5:05 PM

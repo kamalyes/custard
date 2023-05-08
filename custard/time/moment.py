@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-# !/usr/bin/env python 3.9.11
+# !/usr/bin/env python3
 """
 @File    :  moment.py
 @Time    :  2020/9/17 19:05
