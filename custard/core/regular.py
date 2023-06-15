@@ -84,7 +84,8 @@ class RegEx:
             ... "QSa12356@", "+8617888829981","008618311006933","19119255552", "127.16.0.0"]
             >>> BatchTask.list_jobs(RegEx.match_ipv4, examples)
         """
-        rule = r"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
+        num = r"25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]"
+        rule = rf"^(?:(?:{num}?)\.){3}(?:{num}?)$"
         return bool(re.match(rule, str(context)))
 
     @staticmethod
@@ -258,26 +259,6 @@ class RegEx:
         return bool(re.match("^(([0-9A-Za-z]{15})|([0-9A-Za-z]{18})|([0-9A-Za-z]{20}))$", str(context)))
 
     @staticmethod
-    def match_net_mask(context: Any) -> bool:
-        """
-         子网掩码(不包含 0.0.0.0)
-        Args:
-            context:
-        Returns:
-        Examples:
-            >>> RegEx.match_net_mask('2')
-            >>> RegEx.match_net_mask('255.255.255.0')
-            >>> examples = ['255.255.255.0', '255.255.255.255', '255.240.0.0']
-            >>> BatchTask.list_jobs(RegEx.match_net_mask, examples)
-        """
-        return bool(
-            re.match(
-                "^(254|252|248|240|224|192|128)\\.0\\.0\\.0|255\\.(254|252|248|240|224|192|128|0)\\.0\\.0|255\\.255\\.(254|252|248|240|224|192|128|0)\\.0|255\\.255\\.255\\.(255|254|252|248|240|224|192|128|0)$",
-                str(context),
-            ),
-        )
-
-    @staticmethod
     def match_md5_format(context: Any) -> bool:
         """
          md5格式(32位)
@@ -347,32 +328,6 @@ class RegEx:
         )
 
     @staticmethod
-    def match_24hms_time_format(context: Any) -> bool:
-        """
-         24小时制时间(HH:mm:ss)
-        Args:
-            context:
-        Returns:
-        Examples:
-            >>> RegEx.match_24hms_time_format('23:35:55')
-        """
-        return bool(re.match("^(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d$", str(context)))
-
-    @staticmethod
-    def match_12hms_time_format(context: Any) -> bool:
-        """
-         12小时制时间(HH:mm:ss)
-        Args:
-            context:
-        Returns:
-        Examples:
-            >>> RegEx.match_12hms_time_format('01:00:00')
-            >>> RegEx.match_12hms_time_format('12:00:00')
-            >>> RegEx.match_12hms_time_format('23:35:55')
-        """
-        return bool(re.match("^(?:1[0-2]|0?[1-9]):[0-5]\\d:[0-5]\\d$", str(context)))
-
-    @staticmethod
     def match_base64_format(context: Any) -> bool:
         """
          base64格式
@@ -403,19 +358,6 @@ class RegEx:
         return bool(re.match("^-?\\d+(,\\d{3})*(\\.\\d{1,2})?$", str(context)))
 
     @staticmethod
-    def match_chinese_name(context: Any) -> bool:
-        """
-         中文姓名
-        Args:
-            context:
-        Returns:
-        Examples:
-            >>> examples = ['葛二蛋', '凯文·杜兰特', '德克·维尔纳·诺维茨基']
-            >>> BatchTask.list_jobs(RegEx.match_chinese_name, examples)
-        """
-        return bool(re.match("^(?:[一-龥·]{2,16})$", str(context)))
-
-    @staticmethod
     def match_english_name(context: Any) -> bool:
         """
          英文姓名
@@ -427,24 +369,6 @@ class RegEx:
             >>> BatchTask.list_jobs(RegEx.match_english_name, examples)
         """
         return bool(re.match("(^[a-zA-Z][a-zA-Z\\s]{0,20}[a-zA-Z]$)", str(context)))
-
-    @staticmethod
-    def match_only_chinese(context: Any) -> bool:
-        """
-         只有中文/汉字
-        Args:
-            context:
-        Returns:
-        Examples:
-            >>> examples = ["QS12356","哈哈哈","155555@qq.com","english"]
-            >>> BatchTask.list_jobs(RegEx.match_only_chinese, examples)
-        """
-        return bool(
-            re.match(
-                "^(?:[㐀-䶵一-鿪﨎﨏﨑﨓﨔﨟﨡﨣﨤﨧-﨩]|[�-��-��-��-�][�-�]|�[�-��-�]|�[�-��-�]|�[�-��-�]|�[�-��-�]|�[�-�])+$",
-                str(context),
-            ),
-        )
 
     @staticmethod
     def match_only_english(context: Any) -> bool:
@@ -527,42 +451,6 @@ class RegEx:
             >>> BatchTask.list_jobs(RegEx.match_only_upper_letters, examples)
         """
         return bool(re.match("^[A-Z]+$", str(context)))
-
-    @staticmethod
-    def match_only_chinese_and_number(context: Any) -> bool:
-        """
-         中文和数字
-        Args:
-            context:
-        Returns:
-        Examples:
-            >>> examples = ['哈哈哈', '你好6777啊', 'abc', 'ABC', '1235678', '@¥()!']
-            >>> BatchTask.list_jobs(RegEx.match_only_chinese_and_number, examples)
-        """
-        return bool(
-            re.match(
-                "^((?:[㐀-䶵一-鿪﨎﨏﨑﨓﨔﨟﨡﨣﨤﨧-﨩]|[�-��-��-��-�][�-�]|�[�-��-�]|�[�-��-�]|�[�-��-�]|�[�-��-�]|�[�-�])|(\\d))+$",
-                str(context),
-            ),
-        )
-
-    @staticmethod
-    def match_not_exists_letters(context: Any) -> bool:
-        """
-         不能包含字母
-        Args:
-            context:
-        Returns:
-        Examples:
-            >>> examples = ['哈哈哈', '你好6啊', 'abc', 'ABC', '1235678', '@¥()!']
-            >>> BatchTask.list_jobs(RegEx.match_not_exists_letters, examples)
-        """
-        return bool(
-            re.match(
-                "^((?:[㐀-䶵一-鿪﨎﨏﨑﨓﨔﨟﨡﨣﨤﨧-﨩]|[�-��-��-��-�][�-�]|�[�-��-�]|�[�-��-�]|�[�-��-�]|�[�-��-�]|�[�-�])|(\\d))+$",
-                str(context),
-            ),
-        )
 
     @staticmethod
     def match_ascii_special_char(context: Any) -> bool:

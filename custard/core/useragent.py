@@ -248,8 +248,8 @@ def chrome(
     """Generate a Chrome web browser user agent string."""
     saf: str = f"{random.randint(531, 536)}.{random.randint(0, 2)}"
     bld: str = lexify(numerify("##?###"), string.ascii_uppercase)
-    tmplt: str = "({0}) AppleWebKit/{1} (KHTML, like Gecko)" " Chrome/{2}.0.{3}.0 Safari/{4}"
-    tmplt_ios: str = "({0}) AppleWebKit/{1} (KHTML, like Gecko)" " CriOS/{2}.0.{3}.0 Mobile/{4} Safari/{1}"
+    tmplt: str = "({0}) AppleWebKit/{1} (KHTML, like Gecko) Chrome/{2}.0.{3}.0 Safari/{4}"
+    tmplt_ios: str = "({0}) AppleWebKit/{1} (KHTML, like Gecko) CriOS/{2}.0.{3}.0 Mobile/{4} Safari/{1}"
     platforms: ElementsType = (
         tmplt.format(
             linux_platform_token(),
@@ -715,8 +715,8 @@ def date_time_between(
 def firefox() -> str:
     """Generate a Mozilla Firefox web browser user agent string."""
     ver: ElementsType = (
-        (f"Gecko/{date_time_between(datetime(2011, 1, 1))} " f"Firefox/{random.randint(4, 15)}.0"),
-        (f"Gecko/{date_time_between(datetime(2010, 1, 1))} " f"Firefox/3.6.{random.randint(1, 20)}"),
+        (f"Gecko/{date_time_between(datetime(2011, 1, 1))} Firefox/{random.randint(4, 15)}.0"),
+        (f"Gecko/{date_time_between(datetime(2010, 1, 1))} Firefox/3.6.{random.randint(1, 20)}"),
         f"Gecko/{date_time_between(datetime(2010, 1, 1))} Firefox/3.8",
     )
     tmplt_win: str = "({0}; {1}; rv:1.9.{2}.20) {3}"
@@ -769,7 +769,7 @@ def localeLang() -> str:
 
 
 def safari() -> str:
-    saf: str = f"{random.randint(531, 535)}." f"{random.randint(1, 50)}." f"{random.randint(1, 7)}"
+    saf: str = f"{random.randint(531, 535)}.{random.randint(1, 50)}.{random.randint(1, 7)}"
 
     ver: str = (
         f"{random.randint(4, 5)}.{random.randint(0, 1)}"
@@ -777,8 +777,8 @@ def safari() -> str:
         else f"{random.randint(4, 5)}.0.{random.randint(1, 5)}"
     )
 
-    tmplt_win: str = "(win; U; {0}) AppleWebKit/{1} (KHTML, like Gecko)" " Version/{2} Safari/{3}"
-    tmplt_mac: str = "({0} rv:{1}.0; {2}) AppleWebKit/{3} (KHTML, like Gecko)" " Version/{4} Safari/{5}"
+    tmplt_win: str = "(win; U; {0}) AppleWebKit/{1} (KHTML, like Gecko) Version/{2} Safari/{3}"
+    tmplt_mac: str = "({0} rv:{1}.0; {2}) AppleWebKit/{3} (KHTML, like Gecko) Version/{4} Safari/{5}"
     tmplt_ipod: str = (
         "(iPod; U; CPU iPhone OS {0}_{1} like Mac OS X; {2})"
         " AppleWebKit/{3} (KHTML, like Gecko) Version/{4}.0.5"
@@ -812,7 +812,7 @@ def safari() -> str:
 def opera() -> str:
     token: str = linux_platform_token() if random.getrandbits(1) else win_platform_token()
     locale: str = localeLang().replace("_", "-")
-    platform: str = f"({token}; {locale}) Presto/2.9.{random.randint(160, 190)} " f"Version/{random.randint(10, 12)}.00"
+    platform: str = f"({token}; {locale}) Presto/2.9.{random.randint(160, 190)} Version/{random.randint(10, 12)}.00"
     return f"Opera/{random.randint(8, 9)}.{random.randint(10, 99)}.{platform}"
 
 
@@ -837,7 +837,7 @@ def linux_platform_token() -> str:
 
 
 def mac_platform_token() -> str:
-    return f"Macintosh; {random_element(mac_processors)} Mac OS X 10_" f"{random.randint(5, 12)}_{random.randint(0, 9)}"
+    return f"Macintosh; {random_element(mac_processors)} Mac OS X 10_{random.randint(5, 12)}_{random.randint(0, 9)}"
 
 
 def android_platform_token() -> str:
