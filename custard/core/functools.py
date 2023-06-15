@@ -55,7 +55,7 @@ def handle_exception(retry_times=0, error_detail_level=0, is_throw_error=False, 
         opt_logger: 是否打印日志
     Returns:
     Examples:
-        >>> from custard.function import bind_run_many_times
+        >>> from custard.core import bind_run_many_times
         >>> import json
         >>> import time
         >>> @bind_run_many_times(3)
@@ -157,7 +157,6 @@ def keep_circulating(
                             logger.info(msg)
                     finally:
                         time.sleep(time_sleep)
-                return None
 
             if block:
                 return ___keep_circulating()
@@ -318,10 +317,9 @@ def sync_redis_lock(key, client, lock_time_out, opt_logger=False):
                 # 锁超时
                 if now_time > lock_set_time:
                     # 重新设置锁(不能直接删除,可能出现多个进程同时检查到锁超时都获取到锁的情况)
-                    # gest设置新值返回旧值
                     old_lock_time = int(client.gest(key, now_time + lock_time_out))
                     if opt_logger:
-                        logger.info("old_lock_time", type(old_lock_time), old_lock_time)
+                        logger.info(f"old_lock_time------------>{old_lock_time}")
                     # 如果目前时间小于旧锁时间,表示有别的进程获取到了锁.放弃执行任务,反之执行任务
                     if now_time > old_lock_time:
                         if opt_logger:
