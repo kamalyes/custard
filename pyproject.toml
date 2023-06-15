@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "custard"
-version = "1.1.6"
+version = "1.1.7"
 description = "custard easy to learn, fast to code, ready for production"
 readme = "README.md"
 license = "MIT"
@@ -65,6 +65,9 @@ urllib3 = ">=1.26.12,<3.0.0"
 w3lib = "^2.1.1"
 py_mini_racer="^0.6.0"
 pillow="^9.5.0"
+simplejson = { version = ">=3.17.6", optional = true }
+pylogbeat={ version = ">=2.0.0", optional = true }
+limits={ version = ">=3.5.0", optional = true }
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.3.1"
