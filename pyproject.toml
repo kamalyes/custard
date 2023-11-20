@@ -56,7 +56,7 @@ starlette = ">=0.19.1,<0.27.0"
 aioredis = "^2.0.1"
 lxml = "^4.9.0"
 redis = ">=3.5.3,<6.0.0"
-certifi = { version = "<=2023.7.22", optional = true }
+certifi = { version = "<=2023.11.17", optional = true }
 crypto = "^1.4.1"
 PyYAML = "^6.0"
 urllib3 = ">=1.26.12,<3.0.0"
