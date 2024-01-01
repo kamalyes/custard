@@ -54,7 +54,7 @@ kafka = "^1.3.5"
 contextvars = "^2.4"
 starlette = ">=0.19.1,<0.27.0"
 aioredis = "^2.0.1"
-lxml = "^4.9.0"
+lxml = ">=4.9,<6.0"
 redis = ">=3.5.3,<6.0.0"
 certifi = { version = "<=2023.11.17", optional = true }
 crypto = "^1.4.1"
