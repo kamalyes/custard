@@ -73,7 +73,7 @@ dicttoxml="^1.7.16"
 pytest = "^7.3.1"
 pytest-cov = "^4.0.0"
 pytest-asyncio = "^0.23.1"
-black = "^23.3.0"
+black = "^24.1.1"
 pre-commit = "^3.2.2"
 
 [tool.poetry.extras]
